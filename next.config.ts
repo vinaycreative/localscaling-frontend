@@ -2,33 +2,33 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   compiler: {
-    removeConsole: process.env.NODE_ENV === "production"
+    removeConsole: process.env.NODE_ENV === "production",
   },
   images: {
     remotePatterns: [
       {
         protocol: "http",
-        hostname: "**"
+        hostname: "**",
       },
       {
         protocol: "https",
-        hostname: "**"
-      }
-    ]
+        hostname: "**",
+      },
+    ],
   },
   redirects: async () => {
     return [
       {
         source: "/",
         destination: "/dashboard",
-        permanent: false
-      }
+        permanent: false,
+      },
     ];
   },
   eslint: {
     // Prevent build failures if local ESLint deps/rules are missing
-    ignoreDuringBuilds: true
-  }
+    ignoreDuringBuilds: true,
+  },
 };
 
 export default nextConfig;
