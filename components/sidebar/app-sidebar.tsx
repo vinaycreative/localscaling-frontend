@@ -38,9 +38,9 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar {...props}>
-      <SidebarHeader className="border-sidebar-border h-16 border-b">
-        <div className="flex h-full w-full items-center justify-start">
+    <Sidebar {...props} variant="floating">
+      <SidebarHeader className="border-sidebar-border h-16">
+        <div className="flex h-full w-full items-center justify-start px-2">
           <Image width={100} height={50} src="/logo.svg" alt="Logo" className="w-40" />
         </div>
       </SidebarHeader>
