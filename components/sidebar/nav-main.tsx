@@ -1,10 +1,10 @@
 "use client";
 
-import { FolderClosedIcon, Home, type LucideIcon } from "lucide-react";
-
-import { Check, ChevronRight } from "lucide-react";
-
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -12,21 +12,36 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarSeparator
 } from "@/components/ui/sidebar";
+import { ChevronRight, FolderClosedIcon, Home } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Badge } from "../ui/badge";
 
 const items = [
-  { name: "Business Information", count: 18 },
-  { name: "Branding & Content", count: 8 },
-  { name: "Website Setup", count: 4 },
-  { name: "Tracking & Analytics", count: 4 },
-  { name: "CRM Setup", count: 4 },
-  { name: "Google Ads Setup", count: 4 },
-  { name: "Reviews & Reputation", count: 4 },
-  { name: "Project Reporting", count: 4 }
+  {
+    name: "Business Information",
+    count: 18,
+    href: "/dashboard/business-information",
+  },
+  { name: "Branding & Content", count: 8, href: "/dashboard/branding-content" },
+  { name: "Website Setup", count: 4, href: "/dashboard/website-setup" },
+  {
+    name: "Tracking & Analytics",
+    count: 4,
+    href: "/dashboard/tracking-analytics",
+  },
+  { name: "CRM Setup", count: 4, href: "/dashboard/crm-setup" },
+  { name: "Google Ads Setup", count: 4, href: "/dashboard/google-ads-setup" },
+  {
+    name: "Reviews & Reputation",
+    count: 4,
+    href: "/dashboard/reviews-reputation",
+  },
+  { name: "Project Reporting", count: 4, href: "/dashboard/project-reporting" },
 ];
 export function NavMain() {
+  const pathName = usePathname();
   return (
     <SidebarMenu>
       <SidebarMenuItem className="px-2">
@@ -52,9 +67,15 @@ export function NavMain() {
           <CollapsibleContent>
             <SidebarGroupContent>
               <SidebarMenu>
-                {items.map((item, index) => (
+                {items.map((item) => (
                   <SidebarMenuItem key={item.name}>
-                    <SidebarMenuButton>{item.name}</SidebarMenuButton>
+                    <Link
+                      href={item.href}
+                      className={`flex justify-between px-2 py-1 rounded hover:text-foreground hover:bg-muted transition-all duration-300 ${pathName.includes(item.href) ? "bg-muted text-foreground" : "text-muted-foreground"}`}
+                    >
+                      {item.name}
+                      <Badge variant={"outline"}>{item.count}</Badge>
+                    </Link>
                   </SidebarMenuItem>
                 ))}
               </SidebarMenu>
