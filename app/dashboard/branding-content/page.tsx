@@ -135,7 +135,7 @@ function BrandingContentPage() {
       <div className="grid lg:grid-cols-3 gap-8">
         <OnboardingVideo />
 
-        <div className="space-y-6 col-span-2 bg-background p-4 rounded">
+        <div className="space-y-6 lg:col-span-2 bg-background p-4 rounded">
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="fontLink" className="text-muted-foreground">
@@ -207,13 +207,13 @@ function BrandingContentPage() {
           <div className="flex p-2 pt-4 gap-2 justify-end border-t">
             <Button
               variant="outline"
-              className="rounded bg-transparent"
+              className="rounded bg-transparent cursor-pointer"
               onClick={handlePrevious}
             >
               Previous
             </Button>
             <Button
-              className="rounded bg-primary hover:bg-primary/90 text-primary-foreground"
+              className="rounded bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
               onClick={handleNext}
             >
               Next

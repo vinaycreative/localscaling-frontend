@@ -30,7 +30,7 @@ const OnboardingHeader = () => (
 
 const OnboardingVideo = () => {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 w-full">
       <div className="space-y-0">
         <h1 className="font-semibold text-foreground">
           1. General Business Information
@@ -40,7 +40,7 @@ const OnboardingVideo = () => {
         </p>
       </div>
 
-      <div className="relative aspect-video bg-muted rounded overflow-hidden">
+      <div className="relative aspect-video bg-muted rounded overflow-hidden mx-auto">
         <Image
           src="/video.jpg"
           alt="Business consultation video"
@@ -91,7 +91,7 @@ export default function BusinessInformationPage() {
       <div className="grid lg:grid-cols-3 gap-8">
         <OnboardingVideo />
 
-        <div className="space-y-6 col-span-2 bg-background p-4 rounded">
+        <div className="space-y-6 lg:col-span-2 bg-background p-4 rounded">
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="company" className="text-muted-foreground">
@@ -281,7 +281,7 @@ export default function BusinessInformationPage() {
 
           <div className="flex p-2 pt-4 justify-end border-t">
             <Button
-              className="rounded bg-primary hover:bg-primary/90 text-primary-foreground"
+              className="rounded bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
               onClick={handleNext}
             >
               Next
