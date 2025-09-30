@@ -1,6 +1,12 @@
-import { siteConfig } from "@/config/site";
-import type { Metadata } from "next";
-import "./globals.css";
+import { siteConfig } from "@/config/site"
+import type { Metadata } from "next"
+import { Inter } from "next/font/google"
+import "./globals.css"
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+})
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -10,13 +16,6 @@ export const metadata: Metadata = {
   },
   description: siteConfig.description,
   keywords: siteConfig.keywords,
-  authors: [
-    {
-      name: "SinghAstra",
-      url: "https://github.com/SinghAstra",
-    },
-  ],
-  creator: "SinghAstra",
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -37,21 +36,20 @@ export const metadata: Metadata = {
     title: siteConfig.name,
     description: siteConfig.description,
     images: ["/assets/landing.png"],
-    creator: "@singhastra",
   },
   icons: {
     icon: "/favicon.ico",
   },
-};
+}
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased bg-muted">{children}</body>
+      <body className={`${inter.variable} antialiased bg-muted`}>{children}</body>
     </html>
-  );
+  )
 }

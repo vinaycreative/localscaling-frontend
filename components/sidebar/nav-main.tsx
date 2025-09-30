@@ -1,10 +1,6 @@
-"use client";
+"use client"
 
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -12,36 +8,36 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar";
-import { ChevronRight, FolderClosedIcon, Home } from "lucide-react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Badge } from "../ui/badge";
+} from "@/components/ui/sidebar"
+import { ChevronRight, FolderClosedIcon, Home } from "lucide-react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { Badge } from "../ui/badge"
 
 const items = [
   {
     name: "Business Information",
     count: 18,
-    href: "/dashboard/business-information",
+    href: "/tasks/business-information",
   },
-  { name: "Branding & Content", count: 8, href: "/dashboard/branding-content" },
-  { name: "Website Setup", count: 4, href: "/dashboard/website-setup" },
+  { name: "Branding & Content", count: 8, href: "/tasks/branding-content" },
+  { name: "Website Setup", count: 4, href: "/tasks/website-setup" },
   {
     name: "Tracking & Analytics",
     count: 4,
-    href: "/dashboard/tracking-analytics",
+    href: "/tasks/tracking-analytics",
   },
-  { name: "CRM Setup", count: 4, href: "/dashboard/crm-setup" },
-  { name: "Google Ads Setup", count: 4, href: "/dashboard/google-ads-setup" },
+  { name: "CRM Setup", count: 4, href: "/tasks/crm-setup" },
+  { name: "Google Ads Setup", count: 4, href: "/tasks/google-ads-setup" },
   {
     name: "Reviews & Reputation",
     count: 4,
-    href: "/dashboard/reviews-reputation",
+    href: "/tasks/reviews-reputation",
   },
-  { name: "Project Reporting", count: 4, href: "/dashboard/project-reporting" },
-];
+  { name: "Project Reporting", count: 4, href: "/tasks/project-reporting" },
+]
 export function NavMain() {
-  const pathName = usePathname();
+  const pathName = usePathname()
   return (
     <SidebarMenu>
       <SidebarMenuItem className="px-2">
@@ -67,7 +63,7 @@ export function NavMain() {
           <CollapsibleContent>
             <SidebarGroupContent>
               <SidebarMenu>
-                {items.map((item) => (
+                {items.map(item => (
                   <SidebarMenuItem key={item.name}>
                     <Link
                       href={item.href}
@@ -84,5 +80,5 @@ export function NavMain() {
         </Collapsible>
       </SidebarGroup>
     </SidebarMenu>
-  );
+  )
 }
