@@ -2,6 +2,7 @@
 
 import type React from "react";
 
+import { SiteHeader } from "@/components/layout/site-header";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -143,7 +144,9 @@ function WebsiteSetupPage() {
 
   return (
     <div className="flex flex-col gap-4 min-h-screen">
-      <OnboardingHeader />
+      <SiteHeader>
+        <OnboardingHeader />
+      </SiteHeader>
 
       <div className="flex flex-col gap-2">
         <h2 className="text-3xl font-bold">Onboarding Setup</h2>
