@@ -1,38 +1,81 @@
 "use client";
 
-import type React from "react";
-
 import { SiteHeader } from "@/components/layout/site-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { BrandingFormData, BrandingSchema } from "@/schema/branding-content";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import type React from "react";
+import { useRef } from "react";
+import { useForm, type SubmitHandler } from "react-hook-form";
 
-interface BrandingFormData {
-  fontLink?: string;
-  brandColor?: string;
-  logo?: string;
-  teamPhotos?: string;
-  introVideo?: string;
-  videoTestimonial?: string;
-}
-
-const FileUploadArea: React.FC<{
+interface FileUploadAreaProps {
   label: string;
+  name: keyof BrandingFormData;
   accept: string;
   placeholder: string;
-  required?: boolean;
-}> = ({ label, placeholder, required = false }) => {
+  error?: string;
+  multiple?: boolean;
+  register: ReturnType<typeof useForm<BrandingFormData>>["register"];
+  setValue: ReturnType<typeof useForm<BrandingFormData>>["setValue"];
+  watch: ReturnType<typeof useForm<BrandingFormData>>["watch"];
+  trigger: ReturnType<typeof useForm<BrandingFormData>>["trigger"];
+}
+
+const FileUploadArea: React.FC<FileUploadAreaProps> = ({
+  label,
+  name,
+  accept,
+  placeholder,
+  error,
+  multiple = false,
+  register,
+  setValue,
+  watch,
+  trigger,
+}) => {
+  const fileValue = watch(name);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      if (multiple) {
+        setValue(
+          name,
+          Array.from(files)
+            .map((file) => file.name)
+            .join(", ")
+        );
+      } else {
+        setValue(name, files[0].name);
+      }
+    } else {
+      setValue(name, "");
+    }
+    trigger(name);
+  };
+
+  const handleAreaClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const fileNameDisplay = fileValue || "";
+
   return (
     <div className="space-y-2">
-      <Label className="text-muted-foreground">
+      <Label htmlFor={name} className="text-muted-foreground">
         {label}
-        {required && "*"}
+        {"*"}
       </Label>
-      <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center hover:border-primary/50 transition-colors">
+      <div
+        className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center hover:border-primary/50 transition-colors cursor-pointer"
+        onClick={handleAreaClick}
+      >
         <div className="flex flex-col items-center gap-2">
           <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
             <svg
@@ -51,13 +94,32 @@ const FileUploadArea: React.FC<{
           </div>
           <div className="text-sm">
             <span className="text-primary cursor-pointer hover:underline">
-              Click to upload
+              {fileNameDisplay ? "Change file" : "Click to upload"}
             </span>
             <span className="text-muted-foreground"> or drag and drop</span>
           </div>
-          <p className="text-xs text-muted-foreground">{placeholder}</p>
+          {fileNameDisplay ? (
+            <p className="text-sm font-medium text-foreground">
+              {fileNameDisplay}
+            </p>
+          ) : (
+            <p className="text-xs text-muted-foreground">{placeholder}</p>
+          )}
+          <input
+            type="file"
+            id={name}
+            name={name}
+            accept={accept}
+            multiple={multiple}
+            className="sr-only"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+          />
+          {/* Hidden input to hold the file name for validation */}
+          <input type="hidden" {...register(name)} />
         </div>
       </div>
+      {error && <p className="text-sm text-red-500">{error}</p>}
     </div>
   );
 };
@@ -101,19 +163,21 @@ const OnboardingVideo = () => {
 
 function BrandingContentPage() {
   const router = useRouter();
-  const [formData, setFormData] = useState<BrandingFormData>({});
 
-  const handleInputChange = (
-    field: keyof BrandingFormData,
-    value: string
-  ): void => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setValue,
+    watch,
+    trigger,
+  } = useForm<BrandingFormData>({
+    resolver: zodResolver(BrandingSchema),
+    mode: "onBlur",
+  });
 
-  const handleNext = (): void => {
+  const onSubmit: SubmitHandler<BrandingFormData> = (data) => {
+    console.log("Form Data Submitted:", data);
     router.push("/dashboard/website-setup");
   };
 
@@ -135,7 +199,10 @@ function BrandingContentPage() {
         </p>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-8">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="grid lg:grid-cols-3 gap-8"
+      >
         <OnboardingVideo />
 
         <div className="space-y-6 lg:col-span-2 bg-background p-4 rounded">
@@ -153,62 +220,92 @@ function BrandingContentPage() {
                 <Input
                   id="fontLink"
                   placeholder="www.fontlink.com"
-                  className="rounded-l-none bg-background"
-                  value={formData.fontLink || ""}
-                  onChange={(e) =>
-                    handleInputChange("fontLink", e.target.value)
-                  }
+                  className={`rounded-l-none bg-background ${
+                    errors.fontLink ? "border-red-500" : ""
+                  }`}
+                  {...register("fontLink")}
                 />
               </div>
+              {errors.fontLink && (
+                <p className="text-sm text-red-500">
+                  {errors.fontLink.message}
+                </p>
+              )}
             </div>
 
-            {/* Brand Colors */}
             <div className="space-y-2">
               <Label htmlFor="brandColor" className="text-muted-foreground">
-                Brand Colors
+                Brand Colors*
               </Label>
               <Input
                 id="brandColors"
-                placeholder="e.g., #FF6B6B, #4ECDC4, #45B7D1 (for purple, use primary)"
-                className="bg-background"
-                value={formData.brandColor || ""}
-                onChange={(e) =>
-                  handleInputChange("brandColor", e.target.value)
-                }
+                placeholder="e.g., #FF6B6B, #4ECDC4, #45B7D1"
+                className={`bg-background ${
+                  errors.brandColor ? "border-red-500" : ""
+                }`}
+                {...register("brandColor")}
               />
+              {errors.brandColor && (
+                <p className="text-sm text-red-500">
+                  {errors.brandColor.message}
+                </p>
+              )}
             </div>
 
-            {/* File Upload Areas */}
             <FileUploadArea
               label="Company logo"
+              name="logo"
               accept="image/*"
               placeholder="SVG, PNG, JPG or GIF (max. 800x400px)"
-              required
+              error={errors.logo?.message}
+              register={register}
+              setValue={setValue}
+              watch={watch}
+              trigger={trigger}
             />
 
             <FileUploadArea
               label="Team photos (min. 5)"
+              name="teamPhotos"
               accept="image/*"
               placeholder="SVG, PNG, JPG or GIF (max. 800x400px)"
-              required
+              error={errors.teamPhotos?.message}
+              multiple
+              register={register}
+              setValue={setValue}
+              watch={watch}
+              trigger={trigger}
             />
 
             <FileUploadArea
               label="CEO introductory video"
+              name="introVideo"
               accept="video/*"
               placeholder="MP4, MOV or URL (YouTube/Vimeo/Drive link)"
-              required
+              error={errors.introVideo?.message}
+              register={register}
+              setValue={setValue}
+              watch={watch}
+              trigger={trigger}
             />
 
             <FileUploadArea
               label="Video testimonials"
+              name="videoTestimonial"
               accept="video/*"
               placeholder="MP4, MOV or URL (YouTube/Vimeo/Drive link)"
+              error={errors.videoTestimonial?.message}
+              multiple
+              register={register}
+              setValue={setValue}
+              watch={watch}
+              trigger={trigger}
             />
           </div>
 
           <div className="flex p-2 pt-4 gap-2 justify-end border-t">
             <Button
+              type="button"
               variant="outline"
               className="rounded bg-transparent cursor-pointer"
               onClick={handlePrevious}
@@ -216,14 +313,15 @@ function BrandingContentPage() {
               Previous
             </Button>
             <Button
+              type="submit"
               className="rounded bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
-              onClick={handleNext}
+              disabled={isSubmitting}
             >
               Next
             </Button>
           </div>
         </div>
-      </div>
+      </form>
     </div>
   );
 }

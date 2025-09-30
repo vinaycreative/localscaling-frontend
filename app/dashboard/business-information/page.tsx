@@ -4,21 +4,12 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { BusinessFormData, BusinessFormSchema } from "@/schema/business-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-
-interface BusinessFormData {
-  company?: string;
-  contactName?: string;
-  email?: string;
-  contactNumber?: string;
-  whatsappNumber?: string;
-  website?: string;
-  facebook?: string;
-  instagram?: string;
-}
+import { SubmitHandler, useForm } from "react-hook-form";
 
 const OnboardingHeader = () => (
   <div className="flex flex-col gap-4">
@@ -61,16 +52,28 @@ const OnboardingVideo = () => {
 
 export default function BusinessInformationPage() {
   const router = useRouter();
-  const [formData, setFormData] = useState<BusinessFormData>({});
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<BusinessFormData>({
+    resolver: zodResolver(BusinessFormSchema),
+    defaultValues: {
+      company: "",
+      contactName: "",
+      email: "",
+      contactNumber: "",
+      whatsappNumber: "",
+      website: "",
+      facebook: "",
+      instagram: "",
+    },
+  });
 
-  const handleInputChange = (
-    field: keyof BusinessFormData,
-    value: string
-  ): void => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+  const onSubmit: SubmitHandler<BusinessFormData> = (data) => {
+    console.log("Form Data Submitted:", data);
+    // handle API calls here
+    handleNext();
   };
 
   const handleNext = (): void => {
@@ -94,7 +97,10 @@ export default function BusinessInformationPage() {
       <div className="grid lg:grid-cols-3 gap-8">
         <OnboardingVideo />
 
-        <div className="space-y-6 lg:col-span-2 bg-background p-4 rounded">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-6 lg:col-span-2 bg-background p-4 rounded"
+        >
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="company" className="text-muted-foreground">
@@ -105,9 +111,11 @@ export default function BusinessInformationPage() {
                 type="text"
                 placeholder="Company Name"
                 className="bg-background"
-                value={formData.company || ""}
-                onChange={(e) => handleInputChange("company", e.target.value)}
+                {...register("company")}
               />
+              {errors.company && (
+                <p className="text-sm text-red-500">{errors.company.message}</p>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -119,11 +127,13 @@ export default function BusinessInformationPage() {
                   id="contactName"
                   placeholder="Contact Name"
                   className="bg-background"
-                  value={formData.contactName || ""}
-                  onChange={(e) =>
-                    handleInputChange("contactName", e.target.value)
-                  }
+                  {...register("contactName")}
                 />
+                {errors.contactName && (
+                  <p className="text-sm text-red-500">
+                    {errors.contactName.message}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-muted-foreground">
@@ -134,9 +144,11 @@ export default function BusinessInformationPage() {
                   type="email"
                   placeholder="info@yourcompany.com"
                   className="bg-background"
-                  value={formData.email || ""}
-                  onChange={(e) => handleInputChange("email", e.target.value)}
+                  {...register("email")}
                 />
+                {errors.email && (
+                  <p className="text-sm text-red-500">{errors.email.message}</p>
+                )}
               </div>
             </div>
 
@@ -156,12 +168,14 @@ export default function BusinessInformationPage() {
                     id="contactNumber"
                     placeholder="+1 (555) 000-0000"
                     className="rounded-l-none bg-background"
-                    value={formData.contactNumber || ""}
-                    onChange={(e) =>
-                      handleInputChange("contactNumber", e.target.value)
-                    }
+                    {...register("contactNumber")}
                   />
                 </div>
+                {errors.contactNumber && (
+                  <p className="text-sm text-red-500">
+                    {errors.contactNumber.message}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label
@@ -178,12 +192,14 @@ export default function BusinessInformationPage() {
                     id="whatsappNumber"
                     placeholder="+44 (555) 000-0000"
                     className="rounded-l-none bg-background"
-                    value={formData.whatsappNumber || ""}
-                    onChange={(e) =>
-                      handleInputChange("whatsappNumber", e.target.value)
-                    }
+                    {...register("whatsappNumber")}
                   />
                 </div>
+                {errors.whatsappNumber && (
+                  <p className="text-sm text-red-500">
+                    {errors.whatsappNumber.message}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -201,10 +217,12 @@ export default function BusinessInformationPage() {
                   id="website"
                   placeholder="www.yoursite.com"
                   className="rounded-l-none bg-background"
-                  value={formData.website || ""}
-                  onChange={(e) => handleInputChange("website", e.target.value)}
+                  {...register("website")}
                 />
               </div>
+              {errors.website && (
+                <p className="text-sm text-red-500">{errors.website.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -221,12 +239,14 @@ export default function BusinessInformationPage() {
                   id="facebook"
                   placeholder="www.facebook.com"
                   className="rounded-l-none bg-background"
-                  value={formData.facebook || ""}
-                  onChange={(e) =>
-                    handleInputChange("facebook", e.target.value)
-                  }
+                  {...register("facebook")}
                 />
               </div>
+              {errors.facebook && (
+                <p className="text-sm text-red-500">
+                  {errors.facebook.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -243,12 +263,14 @@ export default function BusinessInformationPage() {
                   id="instagram"
                   placeholder="www.instagram.com"
                   className="rounded-l-none bg-background"
-                  value={formData.instagram || ""}
-                  onChange={(e) =>
-                    handleInputChange("instagram", e.target.value)
-                  }
+                  {...register("instagram")}
                 />
               </div>
+              {errors.instagram && (
+                <p className="text-sm text-red-500">
+                  {errors.instagram.message}
+                </p>
+              )}
             </div>
 
             <Button
@@ -284,13 +306,13 @@ export default function BusinessInformationPage() {
 
           <div className="flex p-2 pt-4 justify-end border-t">
             <Button
+              type="submit"
               className="rounded bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
-              onClick={handleNext}
             >
               Next
             </Button>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );
