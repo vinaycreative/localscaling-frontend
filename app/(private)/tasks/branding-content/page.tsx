@@ -12,6 +12,8 @@ import { useRouter } from "next/navigation";
 import type React from "react";
 import { useRef } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
+import { OnboardingHeader } from "../business-information/page";
+import ErrorMessage from "../components/error-message";
 
 interface FileUploadAreaProps {
   label: string;
@@ -26,7 +28,7 @@ interface FileUploadAreaProps {
   trigger: ReturnType<typeof useForm<BrandingFormData>>["trigger"];
 }
 
-const FileUploadArea: React.FC<FileUploadAreaProps> = ({
+const FileUploadArea = ({
   label,
   name,
   accept,
@@ -37,7 +39,7 @@ const FileUploadArea: React.FC<FileUploadAreaProps> = ({
   setValue,
   watch,
   trigger,
-}) => {
+}: FileUploadAreaProps) => {
   const fileValue = watch(name);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -119,19 +121,10 @@ const FileUploadArea: React.FC<FileUploadAreaProps> = ({
           <input type="hidden" {...register(name)} />
         </div>
       </div>
-      {error && <p className="text-sm text-red-500">{error}</p>}
+      <ErrorMessage message={error} />
     </div>
   );
 };
-
-const OnboardingHeader = () => (
-  <div className="flex flex-col gap-4">
-    <div className="flex gap-2 text-primary items-center cursor-pointer">
-      <ArrowLeft className="h-3 w-3" />
-      Dashboard
-    </div>
-  </div>
-);
 
 const OnboardingVideo = () => {
   return (
@@ -226,11 +219,7 @@ function BrandingContentPage() {
                   {...register("fontLink")}
                 />
               </div>
-              {errors.fontLink && (
-                <p className="text-sm text-red-500">
-                  {errors.fontLink.message}
-                </p>
-              )}
+              <ErrorMessage message={errors.fontLink?.message} />
             </div>
 
             <div className="space-y-2">
@@ -245,11 +234,7 @@ function BrandingContentPage() {
                 }`}
                 {...register("brandColor")}
               />
-              {errors.brandColor && (
-                <p className="text-sm text-red-500">
-                  {errors.brandColor.message}
-                </p>
-              )}
+              <ErrorMessage message={errors.brandColor?.message} />
             </div>
 
             <FileUploadArea

@@ -5,7 +5,7 @@ interface ErrorMessageProps {
 }
 
 const ErrorMessage = ({ message }: ErrorMessageProps) => {
-  return <p className="text-sm text-red-500">{message}</p>;
+  return <p className="text-xs text-red-500 text-end">{message}</p>;
 };
 
 export default ErrorMessage;

@@ -16,21 +16,12 @@ import {
   WebsiteSetupSchema,
 } from "@/schema/website-setup";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import type React from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
+import { OnboardingHeader } from "../business-information/page";
 import { FileUploadArea } from "../components/file-upload-area";
-
-const OnboardingHeader = () => (
-  <div className="flex flex-col gap-4">
-    <div className="flex gap-2 text-primary items-center cursor-pointer">
-      <ArrowLeft className="h-3 w-3" />
-      Dashboard
-    </div>
-  </div>
-);
 
 const OnboardingVideo = () => {
   return (
@@ -126,7 +117,7 @@ function WebsiteSetupPage() {
               <Button
                 type="button"
                 variant={"outline"}
-                className={`flex items-center gap-3 px-4 py-2 border font-medium rounded transition-colors 
+                className={`flex cursor-pointer items-center gap-3 px-4 py-2 border font-medium rounded transition-colors 
                 `}
               >
                 <>
@@ -160,7 +151,12 @@ function WebsiteSetupPage() {
                     <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button variant="outline" size="sm" type="button">
+                <Button
+                  variant="outline"
+                  className="cursor-pointer"
+                  size="sm"
+                  type="button"
+                >
                   Grant access
                 </Button>
               </div>
@@ -171,21 +167,30 @@ function WebsiteSetupPage() {
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
                   <div className="flex items-center space-x-2">
-                    <Checkbox id="google-workspace" />
-                    <Label htmlFor="google-workspace" className="text-sm">
+                    <Checkbox
+                      id="google-workspace"
+                      className="cursor-pointer"
+                    />
+                    <Label
+                      htmlFor="google-workspace"
+                      className="text-sm cursor-pointer"
+                    >
                       Google workspace
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2 ml-8">
-                    <Checkbox id="microsoft-365" />
-                    <Label htmlFor="microsoft-365" className="text-sm">
+                    <Checkbox id="microsoft-365" className="cursor-pointer" />
+                    <Label
+                      htmlFor="microsoft-365"
+                      className="text-sm cursor-pointer"
+                    >
                       Microsoft 365
                     </Label>
                   </div>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="ml-auto bg-transparent"
+                    className="ml-auto bg-transparent cursor-pointer"
                     type="button"
                   >
                     Grant access

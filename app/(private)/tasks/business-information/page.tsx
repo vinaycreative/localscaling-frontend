@@ -149,10 +149,10 @@ function BusinessInformationPage() {
                   Start year*
                 </Label>
                 <Select onValueChange={(value) => setValue("startYear", value)}>
-                  <SelectTrigger className="w-full bg-background">
+                  <SelectTrigger className="w-full bg-background cursor-pointer">
                     <SelectValue placeholder="Year" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="cursor-pointer">
                     {YEAR_OPTIONS.map((year) => (
                       <SelectItem key={year} value={year}>
                         {year}

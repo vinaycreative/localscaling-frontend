@@ -5,29 +5,17 @@ import type React from "react";
 import { SiteHeader } from "@/components/layout/site-header";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { OnboardingHeader } from "../business-information/page";
 
-// Types
 interface AnalyticsSetupFormData {
   gtmConnected?: boolean;
   ga4Connected?: boolean;
   googleAdsConnected?: boolean;
 }
 
-// Header Component
-const OnboardingHeader = () => (
-  <div className="flex flex-col gap-4">
-    <div className="flex gap-2 text-primary items-center cursor-pointer">
-      <ArrowLeft className="h-3 w-3" />
-      Dashboard
-    </div>
-  </div>
-);
-
-// Video Component
 const OnboardingVideo = () => {
   return (
     <div className="flex flex-col gap-4">
@@ -109,7 +97,6 @@ function AnalyticsSetupPage() {
 
         <div className="space-y-6 lg:col-span-2 bg-background p-4 rounded">
           <div className="space-y-6">
-            {/* Google Tag Manager */}
             <div className="space-y-3">
               <Label className="text-muted-foreground flex items-center gap-2">
                 Google Tag Manager (GTM)
@@ -139,7 +126,6 @@ function AnalyticsSetupPage() {
               </Button>
             </div>
 
-            {/* Google Analytics 4 */}
             <div className="space-y-3">
               <Label className="text-muted-foreground flex items-center gap-2">
                 Google Analytics 4 (GA4)
@@ -175,7 +161,6 @@ function AnalyticsSetupPage() {
               </Button>
             </div>
 
-            {/* Google Ads Conversion Tracking */}
             <div className="space-y-3">
               <Label className="text-muted-foreground flex items-center gap-2">
                 Google Ads Conversion Tracking
