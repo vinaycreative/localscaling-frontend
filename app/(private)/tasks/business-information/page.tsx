@@ -17,6 +17,7 @@ import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { SubmitHandler, useForm } from "react-hook-form";
+import ErrorMessage from "../components/error-message";
 
 const generateYearOptions = (startYear: number, endYear: number) => {
   const years = [];
@@ -28,7 +29,7 @@ const generateYearOptions = (startYear: number, endYear: number) => {
 const CURRENT_YEAR = new Date().getFullYear();
 const YEAR_OPTIONS = generateYearOptions(1900, CURRENT_YEAR);
 
-const OnboardingHeader = () => (
+export const OnboardingHeader = () => (
   <div className="flex flex-col gap-4">
     <div className="flex gap-2 text-primary items-center cursor-pointer">
       <ArrowLeft className="h-3 w-3" />
@@ -141,11 +142,7 @@ function BusinessInformationPage() {
                   className="bg-background"
                   {...register("company")}
                 />
-                {errors.company && (
-                  <p className="text-sm text-red-500">
-                    {errors.company.message}
-                  </p>
-                )}
+                <ErrorMessage message={errors.company?.message} />
               </div>
               <div className="space-y-2 col-span-1">
                 <Label htmlFor="startYear" className="text-muted-foreground">
@@ -163,11 +160,7 @@ function BusinessInformationPage() {
                     ))}
                   </SelectContent>
                 </Select>
-                {errors.startYear && (
-                  <p className="text-sm text-red-500">
-                    {errors.startYear.message}
-                  </p>
-                )}
+                <ErrorMessage message={errors.startYear?.message} />
               </div>
             </div>
 
@@ -182,11 +175,7 @@ function BusinessInformationPage() {
                 className="bg-background"
                 {...register("streetAddress")}
               />
-              {errors.streetAddress && (
-                <p className="text-sm text-red-500">
-                  {errors.streetAddress.message}
-                </p>
-              )}
+              <ErrorMessage message={errors.streetAddress?.message} />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -201,11 +190,7 @@ function BusinessInformationPage() {
                   className="bg-background"
                   {...register("postalCode")}
                 />
-                {errors.postalCode && (
-                  <p className="text-sm text-red-500">
-                    {errors.postalCode.message}
-                  </p>
-                )}
+                <ErrorMessage message={errors.postalCode?.message} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="city" className="text-muted-foreground">
@@ -218,9 +203,7 @@ function BusinessInformationPage() {
                   className="bg-background"
                   {...register("city")}
                 />
-                {errors.city && (
-                  <p className="text-sm text-red-500">{errors.city.message}</p>
-                )}
+                <ErrorMessage message={errors.city?.message} />
               </div>
             </div>
 
@@ -236,9 +219,7 @@ function BusinessInformationPage() {
                   className="bg-background"
                   {...register("state")}
                 />
-                {errors.state && (
-                  <p className="text-sm text-red-500">{errors.state.message}</p>
-                )}
+                <ErrorMessage message={errors.state?.message} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="country" className="text-muted-foreground">
@@ -251,11 +232,7 @@ function BusinessInformationPage() {
                   className="bg-background"
                   {...register("country")}
                 />
-                {errors.country && (
-                  <p className="text-sm text-red-500">
-                    {errors.country.message}
-                  </p>
-                )}
+                <ErrorMessage message={errors.country?.message} />
               </div>
             </div>
 
@@ -270,9 +247,7 @@ function BusinessInformationPage() {
                 className="bg-background"
                 {...register("vatId")}
               />
-              {errors.vatId && (
-                <p className="text-sm text-red-500">{errors.vatId.message}</p>
-              )}
+              <ErrorMessage message={errors.vatId?.message} />
             </div>
 
             <div className="grid grid-cols-2 gap-4 mt-4">
@@ -286,11 +261,7 @@ function BusinessInformationPage() {
                   className="bg-background"
                   {...register("contactName")}
                 />
-                {errors.contactName && (
-                  <p className="text-sm text-red-500">
-                    {errors.contactName.message}
-                  </p>
-                )}
+                <ErrorMessage message={errors.contactName?.message} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-muted-foreground">
@@ -303,9 +274,7 @@ function BusinessInformationPage() {
                   className="bg-background"
                   {...register("email")}
                 />
-                {errors.email && (
-                  <p className="text-sm text-red-500">{errors.email.message}</p>
-                )}
+                <ErrorMessage message={errors.email?.message} />
               </div>
             </div>
 
@@ -328,11 +297,7 @@ function BusinessInformationPage() {
                     {...register("contactNumber")}
                   />
                 </div>
-                {errors.contactNumber && (
-                  <p className="text-sm text-red-500">
-                    {errors.contactNumber.message}
-                  </p>
-                )}
+                <ErrorMessage message={errors.contactNumber?.message} />
               </div>
               <div className="space-y-2">
                 <Label
@@ -352,11 +317,7 @@ function BusinessInformationPage() {
                     {...register("whatsappNumber")}
                   />
                 </div>
-                {errors.whatsappNumber && (
-                  <p className="text-sm text-red-500">
-                    {errors.whatsappNumber.message}
-                  </p>
-                )}
+                <ErrorMessage message={errors.whatsappNumber?.message} />
               </div>
             </div>
 
@@ -377,9 +338,7 @@ function BusinessInformationPage() {
                   {...register("website")}
                 />
               </div>
-              {errors.website && (
-                <p className="text-sm text-red-500">{errors.website.message}</p>
-              )}
+              <ErrorMessage message={errors.website?.message} />
             </div>
 
             <div className="space-y-4">
@@ -400,11 +359,7 @@ function BusinessInformationPage() {
                     {...register("facebook")}
                   />
                 </div>
-                {errors.facebook && (
-                  <p className="text-sm text-red-500">
-                    {errors.facebook.message}
-                  </p>
-                )}
+                <ErrorMessage message={errors.facebook?.message} />
               </div>
 
               <div className="space-y-2">
@@ -424,11 +379,7 @@ function BusinessInformationPage() {
                     {...register("instagram")}
                   />
                 </div>
-                {errors.instagram && (
-                  <p className="text-sm text-red-500">
-                    {errors.instagram.message}
-                  </p>
-                )}
+                <ErrorMessage message={errors.instagram?.message} />
               </div>
 
               <div className="space-y-2">
@@ -448,11 +399,7 @@ function BusinessInformationPage() {
                     {...register("twitter")}
                   />
                 </div>
-                {errors.twitter && (
-                  <p className="text-sm text-red-500">
-                    {errors.twitter.message}
-                  </p>
-                )}
+                <ErrorMessage message={errors.twitter?.message} />
               </div>
 
               <div className="space-y-2">
@@ -475,11 +422,9 @@ function BusinessInformationPage() {
                     {...register("googleBusinessProfileLink")}
                   />
                 </div>
-                {errors.googleBusinessProfileLink && (
-                  <p className="text-sm text-red-500">
-                    {errors.googleBusinessProfileLink.message}
-                  </p>
-                )}
+                <ErrorMessage
+                  message={errors.googleBusinessProfileLink?.message}
+                />
               </div>
             </div>
           </div>
