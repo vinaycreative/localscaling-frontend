@@ -6,131 +6,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { BrandingFormData, BrandingSchema } from "@/schema/branding-content";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import type React from "react";
-import { useRef } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { OnboardingHeader } from "../business-information/page";
 import ErrorMessage from "../components/error-message";
-
-interface FileUploadAreaProps {
-  label: string;
-  name: keyof BrandingFormData;
-  accept: string;
-  placeholder: string;
-  error?: string;
-  multiple?: boolean;
-  register: ReturnType<typeof useForm<BrandingFormData>>["register"];
-  setValue: ReturnType<typeof useForm<BrandingFormData>>["setValue"];
-  watch: ReturnType<typeof useForm<BrandingFormData>>["watch"];
-  trigger: ReturnType<typeof useForm<BrandingFormData>>["trigger"];
-}
-
-const FileUploadArea = ({
-  label,
-  name,
-  accept,
-  placeholder,
-  error,
-  multiple = false,
-  register,
-  setValue,
-  watch,
-  trigger,
-}: FileUploadAreaProps) => {
-  const fileValue = watch(name);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files && files.length > 0) {
-      if (multiple) {
-        setValue(
-          name,
-          Array.from(files)
-            .map((file) => file.name)
-            .join(", ")
-        );
-      } else {
-        setValue(name, files[0].name);
-      }
-    } else {
-      setValue(name, "");
-    }
-    trigger(name);
-  };
-
-  const handleAreaClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const fileNameDisplay = fileValue || "";
-
-  return (
-    <div className="space-y-2">
-      <Label htmlFor={name} className="text-muted-foreground">
-        {label}
-        {"*"}
-      </Label>
-      <div
-        className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center hover:border-primary/50 transition-colors cursor-pointer"
-        onClick={handleAreaClick}
-      >
-        <div className="flex flex-col items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-            <svg
-              className="w-4 h-4 text-muted-foreground"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-              />
-            </svg>
-          </div>
-          <div className="text-sm">
-            <span className="text-primary cursor-pointer hover:underline">
-              {fileNameDisplay ? "Change file" : "Click to upload"}
-            </span>
-            <span className="text-muted-foreground"> or drag and drop</span>
-          </div>
-          {fileNameDisplay ? (
-            <p className="text-sm font-medium text-foreground">
-              {fileNameDisplay}
-            </p>
-          ) : (
-            <p className="text-xs text-muted-foreground">{placeholder}</p>
-          )}
-          <input
-            type="file"
-            id={name}
-            name={name}
-            accept={accept}
-            multiple={multiple}
-            className="sr-only"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-          />
-          {/* Hidden input to hold the file name for validation */}
-          <input type="hidden" {...register(name)} />
-        </div>
-      </div>
-      <ErrorMessage message={error} />
-    </div>
-  );
-};
+import { FileUploadArea } from "../components/file-upload-area";
 
 const OnboardingVideo = () => {
   return (
     <div className="flex flex-col gap-4">
       <div className="space-y-0">
-        <h1 className="font-semibold text-foreground">2. Branding & Content</h1>
+        <h1 className="font-semibold text-foreground">
+          2.1 Branding & Content
+        </h1>
         <p className="text-sm text-muted-foreground">
           Submit brand assets for a consistent identity.
         </p>
@@ -205,7 +96,7 @@ function BrandingContentPage() {
                 Font Link*
               </Label>
               <div className="flex">
-                <div className="flex items-center px-3 bg-muted border border-r-0 rounded-l-md">
+                <div className="flex items-center px-3 border border-r-0 rounded-l-md">
                   <span className="text-sm text-muted-foreground">
                     https://
                   </span>
@@ -223,86 +114,118 @@ function BrandingContentPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="brandColor" className="text-muted-foreground">
-                Brand Colors*
+              <Label className="text-muted-foreground">
+                Brand Colors (Hex Code)
               </Label>
-              <Input
-                id="brandColors"
-                placeholder="e.g., #FF6B6B, #4ECDC4, #45B7D1"
-                className={`bg-background ${
-                  errors.brandColor ? "border-red-500" : ""
-                }`}
-                {...register("brandColor")}
-              />
-              <ErrorMessage message={errors.brandColor?.message} />
+              <div className="flex flex-col gap-2">
+                <div>
+                  <Input
+                    id="primaryBrandColor"
+                    placeholder="e.g., #FF6B6B"
+                    className="bg-background"
+                    {...register("primaryBrandColor")}
+                  />
+                  <ErrorMessage message={errors.primaryBrandColor?.message} />
+                </div>
+                <div>
+                  <Input
+                    id="secondaryBrandColor"
+                    placeholder="e.g., #4ECDC4"
+                    className="bg-background"
+                    {...register("secondaryBrandColor")}
+                  />
+                  <ErrorMessage message={errors.secondaryBrandColor?.message} />
+                </div>
+              </div>
             </div>
 
             <FileUploadArea
               label="Company logo"
-              name="logo"
-              accept="image/*"
               placeholder="SVG, PNG, JPG or GIF (max. 800x400px)"
-              error={errors.logo?.message}
-              register={register}
-              setValue={setValue}
-              watch={watch}
-              trigger={trigger}
-            />
-
-            <FileUploadArea
-              label="Team photos (min. 5)"
-              name="teamPhotos"
               accept="image/*"
-              placeholder="SVG, PNG, JPG or GIF (max. 800x400px)"
-              error={errors.teamPhotos?.message}
-              multiple
-              register={register}
-              setValue={setValue}
-              watch={watch}
-              trigger={trigger}
+              formProps={{
+                register,
+                setValue,
+                watch,
+                trigger,
+                error: errors.logo,
+                name: "logo",
+              }}
             />
 
             <FileUploadArea
-              label="CEO introductory video"
-              name="introVideo"
-              accept="video/*"
-              placeholder="MP4, MOV or URL (YouTube/Vimeo/Drive link)"
-              error={errors.introVideo?.message}
-              register={register}
-              setValue={setValue}
-              watch={watch}
-              trigger={trigger}
+              label="Team photos (Portrait in Corporate Shirt)"
+              placeholder="SVG, PNG or JPG"
+              accept="image/*"
+              multiple
+              formProps={{
+                register,
+                setValue,
+                watch,
+                trigger,
+                error: errors.teamPhotos,
+                name: "teamPhotos",
+              }}
             />
 
-            <FileUploadArea
-              label="Video testimonials"
-              name="videoTestimonial"
-              accept="video/*"
-              placeholder="MP4, MOV or URL (YouTube/Vimeo/Drive link)"
-              error={errors.videoTestimonial?.message}
-              multiple
-              register={register}
-              setValue={setValue}
-              watch={watch}
-              trigger={trigger}
-            />
+            <div className="space-y-2">
+              <Label className="text-muted-foreground">Team Members*</Label>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="teamMemberName"
+                    className="text-sm text-muted-foreground"
+                  >
+                    Name
+                  </Label>
+                  <Input
+                    id="teamMemberName"
+                    placeholder="Enter name"
+                    className={`bg-background ${
+                      errors.teamMemberName ? "border-red-500" : ""
+                    }`}
+                    {...register("teamMemberName")}
+                  />
+                  <ErrorMessage message={errors.teamMemberName?.message} />
+                </div>
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="teamMemberPosition"
+                    className="text-sm text-muted-foreground"
+                  >
+                    Position
+                  </Label>
+                  <Input
+                    id="teamMemberPosition"
+                    placeholder="Enter position"
+                    className={`bg-background ${
+                      errors.teamMemberPosition ? "border-red-500" : ""
+                    }`}
+                    {...register("teamMemberPosition")}
+                  />
+                  <ErrorMessage message={errors.teamMemberPosition?.message} />
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="flex p-2 pt-4 gap-2 justify-end border-t">
             <Button
               type="button"
               variant="outline"
-              className="rounded bg-transparent cursor-pointer"
+              className="rounded bg-transparent cursor-pointer group"
               onClick={handlePrevious}
             >
+              <ChevronLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-all duration-300" />
               Previous
             </Button>
             <Button
               type="submit"
-              className="rounded bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
+              className="rounded bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer group"
               disabled={isSubmitting}
             >
               Next
+              <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-all duration-300" />
             </Button>
           </div>
         </div>
