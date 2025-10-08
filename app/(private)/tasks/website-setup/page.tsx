@@ -85,11 +85,11 @@ export default function WebsiteSetupPage() {
   };
 
   const onNext = () => {
-    router.push("/dashboard");
+    router.push("/tasks/tracking-analytics");
   };
 
   return (
-    <div className="flex flex-col gap-6 p-4 lg:p-8">
+    <div className="flex flex-col gap-6 ">
       <SiteHeader>
         <OnboardingHeader />
       </SiteHeader>
