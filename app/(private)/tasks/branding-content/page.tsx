@@ -52,7 +52,7 @@ const OnboardingVideo = ({ step }: OnboardingVideoProps) => {
 
 function BrandingContentPage() {
   const router = useRouter();
-  const [currentStep, setCurrentStep] = useState(2);
+  const [currentStep, setCurrentStep] = useState(1);
   const [selectedOption, setSelectedOption] = useState<string>("");
   const totalSteps = 2;
 
@@ -74,7 +74,6 @@ function BrandingContentPage() {
   };
 
   const handleNext = async () => {
-    // Validate current step fields before proceeding
     let fieldsToValidate: (keyof BrandingFormData)[] = [];
 
     if (currentStep === 1) {
