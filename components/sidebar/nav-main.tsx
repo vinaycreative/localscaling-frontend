@@ -1,6 +1,10 @@
-"use client"
+"use client";
 
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -8,11 +12,11 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
-import { ChevronRight, FolderClosedIcon, Home } from "lucide-react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Badge } from "../ui/badge"
+} from "@/components/ui/sidebar";
+import { ChevronRight, FolderClosedIcon, Home } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Badge } from "../ui/badge";
 
 const items = [
   {
@@ -22,22 +26,11 @@ const items = [
   },
   { name: "Branding & Content", count: 8, href: "/tasks/branding-content" },
   { name: "Website Setup", count: 4, href: "/tasks/website-setup" },
-  {
-    name: "Tracking & Analytics",
-    count: 4,
-    href: "/tasks/tracking-analytics",
-  },
-  { name: "CRM Setup", count: 4, href: "/tasks/crm-setup" },
-  { name: "Google Ads Setup", count: 4, href: "/tasks/google-ads-setup" },
-  {
-    name: "Reviews & Reputation",
-    count: 4,
-    href: "/tasks/reviews-reputation",
-  },
-  { name: "Project Reporting", count: 4, href: "/tasks/project-reporting" },
-]
+  { name: "Tools Access", count: 4, href: "/tasks/tools-access" },
+  { name: "Locations & Budget", count: 4, href: "/tasks/locations-budget" },
+];
 export function NavMain() {
-  const pathName = usePathname()
+  const pathName = usePathname();
   return (
     <SidebarMenu>
       <SidebarMenuItem className="px-2">
@@ -63,7 +56,7 @@ export function NavMain() {
           <CollapsibleContent>
             <SidebarGroupContent>
               <SidebarMenu>
-                {items.map(item => (
+                {items.map((item) => (
                   <SidebarMenuItem key={item.name}>
                     <Link
                       href={item.href}
@@ -80,5 +73,5 @@ export function NavMain() {
         </Collapsible>
       </SidebarGroup>
     </SidebarMenu>
-  )
+  );
 }

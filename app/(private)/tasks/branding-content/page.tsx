@@ -107,10 +107,10 @@ function BrandingContentPage() {
       </SiteHeader>
 
       <div className="flex flex-col gap-2">
-        <h2 className="text-3xl font-bold">Onboarding Setup</h2>
-        <p className="text-muted-foreground">
+        <h2 className="text-balance text-3xl font-bold">Onboarding Setup</h2>
+        <p className="text-pretty text-muted-foreground">
           Complete the required steps to ensure a smooth and successful project
-          launch
+          launch.
         </p>
       </div>
 
