@@ -11,6 +11,7 @@ import {
   type UseFormTrigger,
   type UseFormWatch,
 } from "react-hook-form";
+import ErrorMessage from "./error-message";
 
 type FormGenerics<T extends FieldValues> = {
   register: UseFormRegister<T>;
@@ -124,7 +125,7 @@ export const FileUploadArea = <T extends FieldValues>({
           <input type="hidden" {...register(name)} />
         </div>
       </div>
-      {errorMessage && <p className="text-sm text-red-500">{errorMessage}</p>}
+      <ErrorMessage message={errorMessage} />
     </div>
   );
 };
