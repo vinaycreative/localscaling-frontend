@@ -34,7 +34,7 @@ export function NavMain() {
   return (
     <SidebarMenu>
       <SidebarMenuItem className="px-2">
-        <SidebarMenuButton asChild isActive={false}>
+        <SidebarMenuButton asChild className="cursor-pointer rounded">
           <Link href="/dashboard">
             <Home />
             <span>Dashboard</span>
@@ -45,7 +45,7 @@ export function NavMain() {
         <Collapsible defaultOpen className="group/collapsible">
           <SidebarGroupLabel
             asChild
-            className="group/label text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground w-full text-sm"
+            className="group/label mb-2 cursor-pointer rounded text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground w-full text-sm"
           >
             <CollapsibleTrigger className="">
               <FolderClosedIcon className="mr-2" />
@@ -63,7 +63,12 @@ export function NavMain() {
                       className={`flex justify-between px-2 py-1 rounded hover:text-foreground hover:bg-muted transition-all duration-300 ${pathName.includes(item.href) ? "bg-muted text-foreground" : "text-muted-foreground"}`}
                     >
                       {item.name}
-                      <Badge variant={"outline"}>{item.count}</Badge>
+                      <Badge
+                        variant={"outline"}
+                        className="border-destructive/40 text-destructive/60 bg-destructive/10"
+                      >
+                        {item.count}
+                      </Badge>
                     </Link>
                   </SidebarMenuItem>
                 ))}

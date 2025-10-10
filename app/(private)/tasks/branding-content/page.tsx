@@ -52,7 +52,7 @@ const OnboardingVideo = ({ step }: OnboardingVideoProps) => {
 
 function BrandingContentPage() {
   const router = useRouter();
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(2);
   const [selectedOption, setSelectedOption] = useState<string>("");
   const totalSteps = 2;
 
