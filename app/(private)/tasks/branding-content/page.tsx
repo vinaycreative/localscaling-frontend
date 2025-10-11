@@ -13,9 +13,9 @@ import type React from "react";
 import { useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { OnboardingHeader } from "../business-information/page";
+import ColorPickerInput from "../components/color-picker";
 import ErrorMessage from "../components/error-message";
-import { FileUploadArea } from "../components/file-upload-area";
-import ColorPickerInput from "./color-picker";
+import { FormFileUploader } from "../components/form-file-uploader";
 
 interface OnboardingVideoProps {
   step: number;
@@ -64,6 +64,7 @@ function BrandingContentPage() {
     setValue,
     watch,
     trigger,
+    control,
   } = useForm<BrandingFormData>({
     resolver: zodResolver(BrandingSchema),
     mode: "onBlur",
@@ -137,7 +138,6 @@ function BrandingContentPage() {
                   Set up your brand colors, fonts, and logo
                 </p>
               </div>
-
               <div className="space-y-2">
                 <Label htmlFor="fontLink">
                   Font Link<span className="text-primary">*</span>
@@ -157,7 +157,6 @@ function BrandingContentPage() {
                 </div>
                 <ErrorMessage message={errors.fontLink?.message} />
               </div>
-
               <div className="space-y-2">
                 <Label>Brand Colors (Hex Code)</Label>
                 <div className="flex flex-col gap-2">
@@ -219,36 +218,14 @@ function BrandingContentPage() {
                   </div>
                 </div>
               </div>
-
-              <FileUploadArea
-                label="Company logo"
-                placeholder="SVG, PNG, JPG or GIF (max. 800x400px)"
-                accept="image/*"
-                formProps={{
-                  register,
-                  setValue,
-                  watch,
-                  trigger,
-                  error: errors.logo,
-                  name: "logo",
-                }}
+              <FormFileUploader
+                name="logo"
+                control={control}
+                label="Company Logo"
+                multiple={false}
+                accept={[".svg", ".png", ".jpg", ".jpeg"]}
+                description="Click to upload or drag and drop below"
               />
-
-              <FileUploadArea
-                label="Team photos (Portrait in Corporate Shirt)"
-                placeholder="SVG, PNG or JPG"
-                accept="image/*"
-                multiple
-                formProps={{
-                  register,
-                  setValue,
-                  watch,
-                  trigger,
-                  error: errors.teamPhotos,
-                  name: "teamPhotos",
-                }}
-              />
-
               <div className="space-y-2 mb-32">
                 <Label>Team Members*</Label>
                 <div className="grid grid-cols-2 gap-4">
