@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/select";
 import { BusinessFormData, BusinessFormSchema } from "@/schema/business-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -31,8 +31,8 @@ const YEAR_OPTIONS = generateYearOptions(1900, CURRENT_YEAR);
 
 export const OnboardingHeader = () => (
   <div className="flex flex-col gap-4">
-    <div className="flex gap-2 text-primary items-center cursor-pointer">
-      <ArrowLeft className="h-3 w-3" />
+    <div className="flex gap-2 text-primary items-center cursor-pointer group">
+      <ArrowLeft className="h-3 w-3 group-hover:-translate-x-1 transition-all duration-300" />
       Dashboard
     </div>
   </div>
@@ -114,7 +114,7 @@ function BusinessInformationPage() {
         <OnboardingHeader />
       </SiteHeader>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col">
         <h2 className="text-balance text-3xl font-bold">Onboarding Setup</h2>
         <p className="text-pretty text-muted-foreground">
           Complete the required steps to ensure a smooth and successful project
@@ -127,34 +127,38 @@ function BusinessInformationPage() {
 
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="space-y-6 lg:col-span-2 bg-background p-4 rounded"
+          className="space-y-4 lg:col-span-2 bg-background p-4 rounded"
         >
           <div className="space-y-4">
             <div className="grid grid-cols-4 gap-4">
               <div className="space-y-2 col-span-3">
-                <Label htmlFor="company" className="text-muted-foreground">
-                  Company name*
+                <Label htmlFor="company">
+                  Company name <span className="text-primary">*</span>
                 </Label>
                 <Input
                   id="company"
                   type="text"
                   placeholder="Company Name"
-                  className="bg-background"
+                  className="bg-background rounded focus-visible:ring-[0spx]"
                   {...register("company")}
                 />
                 <ErrorMessage message={errors.company?.message} />
               </div>
               <div className="space-y-2 col-span-1">
-                <Label htmlFor="startYear" className="text-muted-foreground">
-                  Start year*
+                <Label htmlFor="startYear">
+                  Start year <span className="text-primary">*</span>
                 </Label>
                 <Select onValueChange={(value) => setValue("startYear", value)}>
-                  <SelectTrigger className="w-full bg-background cursor-pointer">
+                  <SelectTrigger className="w-full bg-background cursor-pointer rounded focus-visible:ring-[0spx]">
                     <SelectValue placeholder="Year" />
                   </SelectTrigger>
-                  <SelectContent className="cursor-pointer">
+                  <SelectContent className="cursor-pointer rounded">
                     {YEAR_OPTIONS.map((year) => (
-                      <SelectItem key={year} value={year}>
+                      <SelectItem
+                        key={year}
+                        value={year}
+                        className="cursor-pointer transition-all duration-300 rounded"
+                      >
                         {year}
                       </SelectItem>
                     ))}
@@ -165,14 +169,14 @@ function BusinessInformationPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="streetAddress" className="text-muted-foreground">
-                Street Address*
+              <Label htmlFor="streetAddress">
+                Street Address <span className="text-primary">*</span>
               </Label>
               <Input
                 id="streetAddress"
                 type="text"
                 placeholder="123 Main St"
-                className="bg-background"
+                className="bg-background rounded focus-visible:ring-[0spx]"
                 {...register("streetAddress")}
               />
               <ErrorMessage message={errors.streetAddress?.message} />
@@ -180,27 +184,27 @@ function BusinessInformationPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="postalCode" className="text-muted-foreground">
-                  Postal Code*
+                <Label htmlFor="postalCode">
+                  Postal Code <span className="text-primary">*</span>
                 </Label>
                 <Input
                   id="postalCode"
                   type="text"
                   placeholder="10001"
-                  className="bg-background"
+                  className="bg-background rounded focus-visible:ring-[0spx]"
                   {...register("postalCode")}
                 />
                 <ErrorMessage message={errors.postalCode?.message} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="city" className="text-muted-foreground">
-                  City*
+                <Label htmlFor="city">
+                  City<span className="text-primary">*</span>
                 </Label>
                 <Input
                   id="city"
                   type="text"
                   placeholder="New York"
-                  className="bg-background"
+                  className="bg-background rounded focus-visible:ring-[0spx]"
                   {...register("city")}
                 />
                 <ErrorMessage message={errors.city?.message} />
@@ -209,27 +213,27 @@ function BusinessInformationPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="state" className="text-muted-foreground">
-                  State*
+                <Label htmlFor="state">
+                  State<span className="text-primary">*</span>
                 </Label>
                 <Input
                   id="state"
                   type="text"
                   placeholder="NY"
-                  className="bg-background"
+                  className="bg-background rounded focus-visible:ring-[0spx]"
                   {...register("state")}
                 />
                 <ErrorMessage message={errors.state?.message} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="country" className="text-muted-foreground">
-                  Country*
+                <Label htmlFor="country">
+                  Country<span className="text-primary">*</span>
                 </Label>
                 <Input
                   id="country"
                   type="text"
                   placeholder="USA"
-                  className="bg-background"
+                  className="bg-background rounded focus-visible:ring-[0spx]"
                   {...register("country")}
                 />
                 <ErrorMessage message={errors.country?.message} />
@@ -237,14 +241,14 @@ function BusinessInformationPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="vatId" className="text-muted-foreground">
-                VAT ID*
+              <Label htmlFor="vatId">
+                VAT ID<span className="text-primary">*</span>
               </Label>
               <Input
                 id="vatId"
                 type="text"
                 placeholder="DE123456789"
-                className="bg-background"
+                className="bg-background rounded focus-visible:ring-[0spx]"
                 {...register("vatId")}
               />
               <ErrorMessage message={errors.vatId?.message} />
@@ -252,26 +256,26 @@ function BusinessInformationPage() {
 
             <div className="grid grid-cols-2 gap-4 mt-4">
               <div className="space-y-2">
-                <Label htmlFor="contactName" className="text-muted-foreground">
-                  Contact name*
+                <Label htmlFor="contactName">
+                  Contact name<span className="text-primary">*</span>
                 </Label>
                 <Input
                   id="contactName"
                   placeholder="Contact Name"
-                  className="bg-background"
+                  className="bg-background rounded focus-visible:ring-[0spx]"
                   {...register("contactName")}
                 />
                 <ErrorMessage message={errors.contactName?.message} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-muted-foreground">
-                  Contact email*
+                <Label htmlFor="email">
+                  Contact email<span className="text-primary">*</span>
                 </Label>
                 <Input
                   id="email"
                   type="email"
                   placeholder="info@yourcompany.com"
-                  className="bg-background"
+                  className="bg-background rounded focus-visible:ring-[0spx]"
                   {...register("email")}
                 />
                 <ErrorMessage message={errors.email?.message} />
@@ -280,40 +284,32 @@ function BusinessInformationPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label
-                  htmlFor="contactNumber"
-                  className="text-muted-foreground"
-                >
-                  Contact number*
+                <Label htmlFor="contactNumber">
+                  Contact number<span className="text-primary">*</span>
                 </Label>
                 <div className="flex">
-                  <div className="flex items-center px-3 bg-muted border border-r-0 rounded-l-md">
+                  <div className="flex items-center px-3 bg-muted border border-r-0 rounded-l">
                     <span className="text-sm text-muted-foreground">DE</span>
                   </div>
                   <Input
                     id="contactNumber"
                     placeholder="+1 (555) 000-0000"
-                    className="rounded-l-none bg-background"
+                    className="bg-background rounded rounded-l-none focus-visible:ring-[0spx]"
                     {...register("contactNumber")}
                   />
                 </div>
                 <ErrorMessage message={errors.contactNumber?.message} />
               </div>
               <div className="space-y-2">
-                <Label
-                  htmlFor="whatsappNumber"
-                  className="text-muted-foreground"
-                >
-                  Whatsapp number
-                </Label>
+                <Label htmlFor="whatsappNumber">Whatsapp number</Label>
                 <div className="flex">
-                  <div className="flex items-center px-3 bg-muted border border-r-0 rounded-l-md">
+                  <div className="flex items-center px-3 bg-muted border border-r-0 rounded-l">
                     <span className="text-sm text-muted-foreground">DE</span>
                   </div>
                   <Input
                     id="whatsappNumber"
                     placeholder="+44 (555) 000-0000"
-                    className="rounded-l-none bg-background"
+                    className="bg-background rounded rounded-l-none focus-visible:ring-[0px]"
                     {...register("whatsappNumber")}
                   />
                 </div>
@@ -322,11 +318,9 @@ function BusinessInformationPage() {
             </div>
 
             <div className="space-y-2 mt-4">
-              <Label htmlFor="website" className="text-muted-foreground">
-                Current website
-              </Label>
+              <Label htmlFor="website">Current website</Label>
               <div className="flex">
-                <div className="flex items-center px-3 bg-muted border border-r-0 rounded-l-md">
+                <div className="flex items-center px-3 bg-muted border border-r-0 rounded-l">
                   <span className="text-sm text-muted-foreground">
                     https://
                   </span>
@@ -334,7 +328,7 @@ function BusinessInformationPage() {
                 <Input
                   id="website"
                   placeholder="www.yoursite.com"
-                  className="rounded-l-none bg-background"
+                  className="bg-background rounded rounded-l-none focus-visible:ring-[0spx]"
                   {...register("website")}
                 />
               </div>
@@ -343,11 +337,9 @@ function BusinessInformationPage() {
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="facebook" className="text-muted-foreground">
-                  Facebook link
-                </Label>
+                <Label htmlFor="facebook">Facebook link</Label>
                 <div className="flex">
-                  <div className="flex items-center px-3 bg-muted border border-r-0 rounded-l-md">
+                  <div className="flex items-center px-3 bg-muted border border-r-0 rounded-l">
                     <span className="text-sm text-muted-foreground">
                       https://
                     </span>
@@ -355,7 +347,7 @@ function BusinessInformationPage() {
                   <Input
                     id="facebook"
                     placeholder="www.facebook.com"
-                    className="rounded-l-none bg-background"
+                    className="bg-background rounded rounded-l-none focus-visible:ring-[0spx]"
                     {...register("facebook")}
                   />
                 </div>
@@ -363,11 +355,9 @@ function BusinessInformationPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="instagram" className="text-muted-foreground">
-                  Instagram link
-                </Label>
+                <Label htmlFor="instagram">Instagram link</Label>
                 <div className="flex">
-                  <div className="flex items-center px-3 bg-muted border border-r-0 rounded-l-md">
+                  <div className="flex items-center px-3 bg-muted border border-r-0 rounded-l">
                     <span className="text-sm text-muted-foreground">
                       https://
                     </span>
@@ -375,7 +365,7 @@ function BusinessInformationPage() {
                   <Input
                     id="instagram"
                     placeholder="www.instagram.com"
-                    className="rounded-l-none bg-background"
+                    className="bg-background rounded rounded-l-none focus-visible:ring-[0spx]"
                     {...register("instagram")}
                   />
                 </div>
@@ -383,11 +373,9 @@ function BusinessInformationPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="twitter" className="text-muted-foreground">
-                  X (Twitter) link
-                </Label>
+                <Label htmlFor="twitter">X (Twitter) link</Label>
                 <div className="flex">
-                  <div className="flex items-center px-3 bg-muted border border-r-0 rounded-l-md">
+                  <div className="flex items-center px-3 bg-muted border border-r-0 rounded-l">
                     <span className="text-sm text-muted-foreground">
                       https://
                     </span>
@@ -395,7 +383,7 @@ function BusinessInformationPage() {
                   <Input
                     id="twitter"
                     placeholder="www.x.com"
-                    className="rounded-l-none bg-background"
+                    className="bg-background rounded rounded-l-none focus-visible:ring-[0spx]"
                     {...register("twitter")}
                   />
                 </div>
@@ -403,14 +391,11 @@ function BusinessInformationPage() {
               </div>
 
               <div className="space-y-2">
-                <Label
-                  htmlFor="googleBusinessProfileLink"
-                  className="text-muted-foreground"
-                >
+                <Label htmlFor="googleBusinessProfileLink">
                   Google Business Profile link
                 </Label>
                 <div className="flex">
-                  <div className="flex items-center px-3 bg-muted border border-r-0 rounded-l-md">
+                  <div className="flex items-center px-3 bg-muted border border-r-0 rounded-l">
                     <span className="text-sm text-muted-foreground">
                       https://
                     </span>
@@ -418,7 +403,7 @@ function BusinessInformationPage() {
                   <Input
                     id="googleBusinessProfileLink"
                     placeholder="maps.app.goo.gl/..."
-                    className="rounded-l-none bg-background"
+                    className="bg-background rounded rounded-l-none focus-visible:ring-[0spx]"
                     {...register("googleBusinessProfileLink")}
                   />
                 </div>
@@ -433,9 +418,10 @@ function BusinessInformationPage() {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="rounded bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
+              className="rounded group bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
             >
               Next
+              <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-all duration-300" />
             </Button>
           </div>
         </form>
