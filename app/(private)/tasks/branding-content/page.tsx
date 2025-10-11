@@ -15,6 +15,7 @@ import { useForm, type SubmitHandler } from "react-hook-form";
 import { OnboardingHeader } from "../business-information/page";
 import ErrorMessage from "../components/error-message";
 import { FileUploadArea } from "../components/file-upload-area";
+import ColorPickerInput from "./color-picker";
 
 interface OnboardingVideoProps {
   step: number;
@@ -52,7 +53,7 @@ const OnboardingVideo = ({ step }: OnboardingVideoProps) => {
 
 function BrandingContentPage() {
   const router = useRouter();
-  const [currentStep, setCurrentStep] = useState(2);
+  const [currentStep, setCurrentStep] = useState(1);
   const [selectedOption, setSelectedOption] = useState<string>("");
   const totalSteps = 2;
 
@@ -66,6 +67,10 @@ function BrandingContentPage() {
   } = useForm<BrandingFormData>({
     resolver: zodResolver(BrandingSchema),
     mode: "onBlur",
+    defaultValues: {
+      primaryBrandColor: "#0973ed",
+      secondaryBrandColor: "#6c757d",
+    },
   });
 
   const onSubmit: SubmitHandler<BrandingFormData> = (data) => {
@@ -100,13 +105,16 @@ function BrandingContentPage() {
     }
   };
 
+  const primaryColor = watch("primaryBrandColor");
+  const secondaryColor = watch("secondaryBrandColor");
+
   return (
     <div className="flex flex-col gap-4 min-h-screen">
       <SiteHeader>
         <OnboardingHeader />
       </SiteHeader>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col">
         <h2 className="text-balance text-3xl font-bold">Onboarding Setup</h2>
         <p className="text-pretty text-muted-foreground">
           Complete the required steps to ensure a smooth and successful project
@@ -120,7 +128,7 @@ function BrandingContentPage() {
       >
         <OnboardingVideo step={currentStep} />
 
-        <div className="space-y-6 lg:col-span-2 bg-background p-4 rounded">
+        <div className="space-y-4 lg:col-span-2 bg-background p-4 rounded">
           {currentStep === 1 && (
             <div className="space-y-4">
               <div className="mb-4">
@@ -131,11 +139,11 @@ function BrandingContentPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="fontLink" className="text-muted-foreground">
-                  Font Link*
+                <Label htmlFor="fontLink">
+                  Font Link<span className="text-primary">*</span>
                 </Label>
                 <div className="flex">
-                  <div className="flex items-center px-3 border border-r-0 rounded-l-md">
+                  <div className="flex bg-muted items-center px-3 border border-r-0 rounded-l">
                     <span className="text-sm text-muted-foreground">
                       https://
                     </span>
@@ -143,9 +151,7 @@ function BrandingContentPage() {
                   <Input
                     id="fontLink"
                     placeholder="www.fontlink.com"
-                    className={`rounded-l-none bg-background ${
-                      errors.fontLink ? "border-red-500" : ""
-                    }`}
+                    className="bg-background rounded rounded-l-none focus-visible:ring-[0px]"
                     {...register("fontLink")}
                   />
                 </div>
@@ -153,26 +159,60 @@ function BrandingContentPage() {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-muted-foreground">
-                  Brand Colors (Hex Code)
-                </Label>
+                <Label>Brand Colors (Hex Code)</Label>
                 <div className="flex flex-col gap-2">
                   <div>
-                    <Input
-                      id="primaryBrandColor"
-                      placeholder="e.g., #FF6B6B"
-                      className="bg-background"
-                      {...register("primaryBrandColor")}
+                    <ColorPickerInput
+                      value={primaryColor}
+                      onChange={(hex) => {
+                        setValue("primaryBrandColor", hex, {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        });
+                      }}
                     />
+
+                    <section className="rounded border bg-muted/20 p-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground">
+                          Preview
+                        </span>
+                        <code className="text-xs text-muted-foreground">
+                          {primaryColor}
+                        </code>
+                      </div>
+                      <div
+                        className="mt-4 h-12 w-full rounded border"
+                        style={{ backgroundColor: primaryColor }}
+                      />
+                    </section>
                     <ErrorMessage message={errors.primaryBrandColor?.message} />
                   </div>
                   <div>
-                    <Input
-                      id="secondaryBrandColor"
-                      placeholder="e.g., #4ECDC4"
-                      className="bg-background"
-                      {...register("secondaryBrandColor")}
+                    <ColorPickerInput
+                      value={secondaryColor}
+                      onChange={(hex) => {
+                        setValue("secondaryBrandColor", hex, {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        });
+                      }}
                     />
+
+                    <section className="rounded border bg-muted/20 p-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground">
+                          Preview
+                        </span>
+                        <code className="text-xs text-muted-foreground">
+                          {secondaryColor}
+                        </code>
+                      </div>
+                      <div
+                        className="mt-4 h-12 w-full rounded border"
+                        style={{ backgroundColor: secondaryColor }}
+                      />
+                    </section>
                     <ErrorMessage
                       message={errors.secondaryBrandColor?.message}
                     />
@@ -210,7 +250,7 @@ function BrandingContentPage() {
               />
 
               <div className="space-y-2 mb-32">
-                <Label className="text-muted-foreground">Team Members*</Label>
+                <Label>Team Members*</Label>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label
