@@ -11,13 +11,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { BusinessFormData, BusinessFormSchema } from "@/schema/business-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { SubmitHandler, useForm } from "react-hook-form";
-import ErrorMessage from "../components/error-message";
+import { ChangeEvent, useState } from "react";
 
 const generateYearOptions = (startYear: number, endYear: number) => {
   const years = [];
@@ -68,40 +65,70 @@ const OnboardingVideo = () => {
   );
 };
 
+interface FormData {
+  company: string;
+  startYear: string;
+  streetAddress: string;
+  postalCode: string;
+  city: string;
+  state: string;
+  country: string;
+  vatId: string;
+  contactName: string;
+  email: string;
+  contactNumber: string;
+  whatsappNumber: string;
+  website: string;
+  facebook: string;
+  instagram: string;
+  twitter: string;
+  googleBusinessProfileLink: string;
+}
+
 function BusinessInformationPage() {
   const router = useRouter();
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    formState: { errors, isSubmitting },
-  } = useForm<BusinessFormData>({
-    resolver: zodResolver(BusinessFormSchema),
-    defaultValues: {
-      company: "",
-      startYear: "",
-      streetAddress: "",
-      postalCode: "",
-      city: "",
-      state: "",
-      country: "",
-      vatId: "",
-      contactName: "",
-      email: "",
-      contactNumber: "",
-      whatsappNumber: "",
-      website: "",
-      facebook: "",
-      instagram: "",
-      twitter: "",
-      googleBusinessProfileLink: "",
-    },
+  const [formData, setFormData] = useState<FormData>({
+    company: "",
+    startYear: "",
+    streetAddress: "",
+    postalCode: "",
+    city: "",
+    state: "",
+    country: "",
+    vatId: "",
+    contactName: "",
+    email: "",
+    contactNumber: "",
+    whatsappNumber: "",
+    website: "",
+    facebook: "",
+    instagram: "",
+    twitter: "",
+    googleBusinessProfileLink: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const onSubmit: SubmitHandler<BusinessFormData> = (data) => {
-    console.log("Form Data Submitted:", data);
-    // handle API calls here
-    handleNext();
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    console.log("Submitting local data:", formData);
+
+    setTimeout(() => {
+      setIsSubmitting(false);
+      handleNext();
+    }, 1000);
+  };
+
+  const handleChange = (
+    event: ChangeEvent<HTMLInputElement> | string,
+    id: keyof FormData
+  ) => {
+    if (typeof event !== "string" && "target" in event) {
+      setFormData((prev) => ({ ...prev, [id]: event.target.value }));
+    } else if (typeof event === "string") {
+      setFormData((prev) => ({ ...prev, [id]: event }));
+    }
   };
 
   const handleNext = (): void => {
@@ -126,7 +153,7 @@ function BusinessInformationPage() {
         <OnboardingVideo />
 
         <form
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={handleSubmit}
           className="space-y-4 lg:col-span-2 bg-background p-4 rounded"
         >
           <div className="space-y-4">
@@ -139,16 +166,19 @@ function BusinessInformationPage() {
                   id="company"
                   type="text"
                   placeholder="Company Name"
-                  className="bg-background rounded focus-visible:ring-[0spx]"
-                  {...register("company")}
+                  className="bg-background rounded focus-visible:ring-[0px]"
+                  value={formData.company}
+                  onChange={(e) => handleChange(e, "company")}
                 />
-                <ErrorMessage message={errors.company?.message} />
               </div>
               <div className="space-y-2 col-span-1">
                 <Label htmlFor="startYear">
                   Start year <span className="text-primary">*</span>
                 </Label>
-                <Select onValueChange={(value) => setValue("startYear", value)}>
+                <Select
+                  onValueChange={(value) => handleChange(value, "startYear")}
+                  value={formData.startYear}
+                >
                   <SelectTrigger className="w-full bg-background cursor-pointer rounded focus-visible:ring-[0spx]">
                     <SelectValue placeholder="Year" />
                   </SelectTrigger>
@@ -164,7 +194,6 @@ function BusinessInformationPage() {
                     ))}
                   </SelectContent>
                 </Select>
-                <ErrorMessage message={errors.startYear?.message} />
               </div>
             </div>
 
@@ -176,10 +205,10 @@ function BusinessInformationPage() {
                 id="streetAddress"
                 type="text"
                 placeholder="123 Main St"
-                className="bg-background rounded focus-visible:ring-[0spx]"
-                {...register("streetAddress")}
+                className="bg-background rounded focus-visible:ring-[0px]"
+                value={formData.streetAddress}
+                onChange={(e) => handleChange(e, "streetAddress")}
               />
-              <ErrorMessage message={errors.streetAddress?.message} />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -191,10 +220,10 @@ function BusinessInformationPage() {
                   id="postalCode"
                   type="text"
                   placeholder="10001"
-                  className="bg-background rounded focus-visible:ring-[0spx]"
-                  {...register("postalCode")}
+                  className="bg-background rounded focus-visible:ring-[0px]"
+                  value={formData.postalCode}
+                  onChange={(e) => handleChange(e, "postalCode")}
                 />
-                <ErrorMessage message={errors.postalCode?.message} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="city">
@@ -204,10 +233,10 @@ function BusinessInformationPage() {
                   id="city"
                   type="text"
                   placeholder="New York"
-                  className="bg-background rounded focus-visible:ring-[0spx]"
-                  {...register("city")}
+                  className="bg-background rounded focus-visible:ring-[0px]"
+                  value={formData.city}
+                  onChange={(e) => handleChange(e, "city")}
                 />
-                <ErrorMessage message={errors.city?.message} />
               </div>
             </div>
 
@@ -220,10 +249,10 @@ function BusinessInformationPage() {
                   id="state"
                   type="text"
                   placeholder="NY"
-                  className="bg-background rounded focus-visible:ring-[0spx]"
-                  {...register("state")}
+                  className="bg-background rounded focus-visible:ring-[0px]"
+                  value={formData.state}
+                  onChange={(e) => handleChange(e, "state")}
                 />
-                <ErrorMessage message={errors.state?.message} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="country">
@@ -233,10 +262,10 @@ function BusinessInformationPage() {
                   id="country"
                   type="text"
                   placeholder="USA"
-                  className="bg-background rounded focus-visible:ring-[0spx]"
-                  {...register("country")}
+                  className="bg-background rounded focus-visible:ring-[0px]"
+                  value={formData.country}
+                  onChange={(e) => handleChange(e, "country")}
                 />
-                <ErrorMessage message={errors.country?.message} />
               </div>
             </div>
 
@@ -248,10 +277,10 @@ function BusinessInformationPage() {
                 id="vatId"
                 type="text"
                 placeholder="DE123456789"
-                className="bg-background rounded focus-visible:ring-[0spx]"
-                {...register("vatId")}
+                className="bg-background rounded focus-visible:ring-[0px]"
+                value={formData.vatId}
+                onChange={(e) => handleChange(e, "vatId")}
               />
-              <ErrorMessage message={errors.vatId?.message} />
             </div>
 
             <div className="grid grid-cols-2 gap-4 mt-4">
@@ -262,10 +291,10 @@ function BusinessInformationPage() {
                 <Input
                   id="contactName"
                   placeholder="Contact Name"
-                  className="bg-background rounded focus-visible:ring-[0spx]"
-                  {...register("contactName")}
+                  className="bg-background rounded focus-visible:ring-[0px]"
+                  value={formData.contactName}
+                  onChange={(e) => handleChange(e, "contactName")}
                 />
-                <ErrorMessage message={errors.contactName?.message} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">
@@ -275,10 +304,10 @@ function BusinessInformationPage() {
                   id="email"
                   type="email"
                   placeholder="info@yourcompany.com"
-                  className="bg-background rounded focus-visible:ring-[0spx]"
-                  {...register("email")}
+                  className="bg-background rounded focus-visible:ring-[0px]"
+                  value={formData.email}
+                  onChange={(e) => handleChange(e, "email")}
                 />
-                <ErrorMessage message={errors.email?.message} />
               </div>
             </div>
 
@@ -294,11 +323,11 @@ function BusinessInformationPage() {
                   <Input
                     id="contactNumber"
                     placeholder="+1 (555) 000-0000"
-                    className="bg-background rounded rounded-l-none focus-visible:ring-[0spx]"
-                    {...register("contactNumber")}
+                    className="bg-background rounded rounded-l-none focus-visible:ring-[0px]"
+                    value={formData.contactNumber}
+                    onChange={(e) => handleChange(e, "contactNumber")}
                   />
                 </div>
-                <ErrorMessage message={errors.contactNumber?.message} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="whatsappNumber">Whatsapp number</Label>
@@ -310,10 +339,10 @@ function BusinessInformationPage() {
                     id="whatsappNumber"
                     placeholder="+44 (555) 000-0000"
                     className="bg-background rounded rounded-l-none focus-visible:ring-[0px]"
-                    {...register("whatsappNumber")}
+                    value={formData.whatsappNumber}
+                    onChange={(e) => handleChange(e, "whatsappNumber")}
                   />
                 </div>
-                <ErrorMessage message={errors.whatsappNumber?.message} />
               </div>
             </div>
 
@@ -328,11 +357,11 @@ function BusinessInformationPage() {
                 <Input
                   id="website"
                   placeholder="www.yoursite.com"
-                  className="bg-background rounded rounded-l-none focus-visible:ring-[0spx]"
-                  {...register("website")}
+                  className="bg-background rounded rounded-l-none focus-visible:ring-[0px]"
+                  value={formData.website}
+                  onChange={(e) => handleChange(e, "website")}
                 />
               </div>
-              <ErrorMessage message={errors.website?.message} />
             </div>
 
             <div className="space-y-4">
@@ -347,11 +376,11 @@ function BusinessInformationPage() {
                   <Input
                     id="facebook"
                     placeholder="www.facebook.com"
-                    className="bg-background rounded rounded-l-none focus-visible:ring-[0spx]"
-                    {...register("facebook")}
+                    className="bg-background rounded rounded-l-none focus-visible:ring-[0px]"
+                    value={formData.facebook}
+                    onChange={(e) => handleChange(e, "facebook")}
                   />
                 </div>
-                <ErrorMessage message={errors.facebook?.message} />
               </div>
 
               <div className="space-y-2">
@@ -365,11 +394,11 @@ function BusinessInformationPage() {
                   <Input
                     id="instagram"
                     placeholder="www.instagram.com"
-                    className="bg-background rounded rounded-l-none focus-visible:ring-[0spx]"
-                    {...register("instagram")}
+                    className="bg-background rounded rounded-l-none focus-visible:ring-[0px]"
+                    value={formData.instagram}
+                    onChange={(e) => handleChange(e, "instagram")}
                   />
                 </div>
-                <ErrorMessage message={errors.instagram?.message} />
               </div>
 
               <div className="space-y-2">
@@ -383,11 +412,11 @@ function BusinessInformationPage() {
                   <Input
                     id="twitter"
                     placeholder="www.x.com"
-                    className="bg-background rounded rounded-l-none focus-visible:ring-[0spx]"
-                    {...register("twitter")}
+                    className="bg-background rounded rounded-l-none focus-visible:ring-[0px]"
+                    value={formData.twitter}
+                    onChange={(e) => handleChange(e, "twitter")}
                   />
                 </div>
-                <ErrorMessage message={errors.twitter?.message} />
               </div>
 
               <div className="space-y-2">
@@ -403,13 +432,13 @@ function BusinessInformationPage() {
                   <Input
                     id="googleBusinessProfileLink"
                     placeholder="maps.app.goo.gl/..."
-                    className="bg-background rounded rounded-l-none focus-visible:ring-[0spx]"
-                    {...register("googleBusinessProfileLink")}
+                    className="bg-background rounded rounded-l-none focus-visible:ring-[0px]"
+                    value={formData.googleBusinessProfileLink}
+                    onChange={(e) =>
+                      handleChange(e, "googleBusinessProfileLink")
+                    }
                   />
                 </div>
-                <ErrorMessage
-                  message={errors.googleBusinessProfileLink?.message}
-                />
               </div>
             </div>
           </div>
@@ -420,7 +449,7 @@ function BusinessInformationPage() {
               disabled={isSubmitting}
               className="rounded group bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
             >
-              Next
+              {isSubmitting ? "Saving..." : "Next"}
               <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-all duration-300" />
             </Button>
           </div>

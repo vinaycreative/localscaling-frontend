@@ -40,6 +40,8 @@ export function FileUploader({
   const [internalFiles, setInternalFiles] = useState<File[]>([]);
   const files = value ?? internalFiles;
 
+  console.log("internalFiles.length is ", internalFiles.length);
+
   const setFiles = useCallback(
     (next: File[]) => {
       if (onChange) onChange(next);
@@ -305,18 +307,20 @@ export function FileUploader({
             const url = previewUrls[key];
             return (
               <div key={key} className="relative rounded border h-24">
-                <Image
-                  src={url}
-                  alt={`${file.name} preview`}
-                  fill
-                  className="h-full w-full object-cover"
-                />
+                {url && (
+                  <Image
+                    src={url}
+                    alt={`${file.name} preview`}
+                    fill
+                    className="h-full w-full object-cover"
+                  />
+                )}
 
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="shrink-0 z-[9] absolute top-1 right-1 transition-all duration-300 hover:bg-muted/10"
+                  className="shrink-0 z-[9] absolute top-1 right-1 cursor-pointer transition-all duration-300 bg-muted/60 rounded hover:bg-muted/50"
                   onClick={(e) => {
                     e.stopPropagation();
                     removeFile(key);

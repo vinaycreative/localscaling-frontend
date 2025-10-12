@@ -1,75 +1,44 @@
 "use client";
 
-import {
-  useController,
-  type FieldValues,
-  type Path,
-  type PathValue,
-  type UseControllerProps,
-} from "react-hook-form";
-import ErrorMessage from "./error-message";
-import { FileUploader, FileUploaderProps } from "./file-uploader";
+import { useState } from "react";
+import { FileUploader } from "./file-uploader";
 
-type FileListValue = FileList | File[] | undefined | null;
-
-type FileUploaderFieldType<
-  TFieldValues extends FieldValues,
-  TName extends Path<TFieldValues>,
-> = PathValue<TFieldValues, TName>;
-
-interface FormFileUploaderProps<T extends FieldValues>
-  extends Omit<FileUploaderProps, "value" | "onChange" | "multiple">,
-    Omit<UseControllerProps<T>, "name" | "defaultValue"> {
-  name: Path<T>;
-  multiple?: boolean;
-  defaultValue?: FileUploaderFieldType<T, Path<T>> | FileListValue;
-}
-
-export function FormFileUploader<T extends FieldValues>({
-  name,
-  control,
-  shouldUnregister,
-  defaultValue,
-  multiple = false,
-  ...fileUploaderProps
-}: FormFileUploaderProps<T>) {
-  const {
-    field: { onBlur, value, onChange },
-    fieldState: { error },
-  } = useController({
-    name,
-    control,
-    shouldUnregister,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    defaultValue: defaultValue ?? ((multiple ? [] : undefined) as any),
-  });
-
-  const filesArray: File[] =
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (value as any) instanceof FileList
-      ? Array.from(value)
-      : Array.isArray(value)
-        ? value
-        : [];
-
-  const handleFileChange = (files: File[]) => {
-    const nextValue = multiple
-      ? files
-      : files.length > 0
-        ? files[0]
-        : undefined;
-    onChange(nextValue);
-  };
+export function FormFileUploader() {
+  const [files, setFiles] = useState<File[]>([]);
+  const [rejections, setRejections] = useState<
+    { file: File; reason: string }[]
+  >([]);
 
   return (
-    <div onBlur={onBlur}>
+    <div className="flex flex-col gap-4">
       <FileUploader
-        {...fileUploaderProps}
-        multiple={multiple}
-        value={multiple ? filesArray : filesArray.slice(0, 1)}
-        onChange={handleFileChange}
+        label="Images"
+        description="Drag and drop images here, or click to browse."
+        accept={["image/*", ".png", ".jpg", ".jpeg", ".gif", ".webp"]}
+        multiple
+        maxFiles={6}
+        maxSize={8 * 1024 * 1024}
+        value={files}
+        onChange={setFiles}
+        onReject={(r) => setRejections(r)}
       />
-      <ErrorMessage message={error?.message} />
+      {rejections.length > 0 && (
+        <div className="rounded border p-3 bg-muted/20 w-full">
+          <p className="text-sm">Some files were rejected:</p>
+          <ul className="mt-2 list-disc pl-5 space-y-1">
+            {rejections.map((r, idx) => (
+              <li
+                key={`${r.file.name}-${idx}`}
+                className="text-sm text-muted-foreground"
+              >
+                <span>{r.file.name}</span>
+                {" — "}
+                {r.reason}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

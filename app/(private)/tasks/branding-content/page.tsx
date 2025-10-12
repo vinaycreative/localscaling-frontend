@@ -64,7 +64,6 @@ function BrandingContentPage() {
     setValue,
     watch,
     trigger,
-    control,
   } = useForm<BrandingFormData>({
     resolver: zodResolver(BrandingSchema),
     mode: "onBlur",
@@ -218,14 +217,7 @@ function BrandingContentPage() {
                   </div>
                 </div>
               </div>
-              <FormFileUploader
-                name="logo"
-                control={control}
-                label="Company Logo"
-                multiple={false}
-                accept={[".svg", ".png", ".jpg", ".jpeg"]}
-                description="Click to upload or drag and drop below"
-              />
+              <FormFileUploader />
               <div className="space-y-2 mb-32">
                 <Label>Team Members*</Label>
                 <div className="grid grid-cols-2 gap-4">
