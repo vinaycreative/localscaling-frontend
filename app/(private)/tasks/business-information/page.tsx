@@ -14,7 +14,7 @@ import {
 import { ArrowLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { ChangeEvent, useState } from "react";
+import { useState } from "react";
 
 const generateYearOptions = (startYear: number, endYear: number) => {
   const years = [];
@@ -120,19 +120,16 @@ function BusinessInformationPage() {
     }, 1000);
   };
 
-  const handleChange = (
-    event: ChangeEvent<HTMLInputElement> | string,
-    id: keyof FormData
-  ) => {
-    if (typeof event !== "string" && "target" in event) {
-      setFormData((prev) => ({ ...prev, [id]: event.target.value }));
-    } else if (typeof event === "string") {
-      setFormData((prev) => ({ ...prev, [id]: event }));
-    }
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = event.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [id]: value,
+    }));
   };
 
   const handleNext = (): void => {
-    router.push("/dashboard/branding-content");
+    router.push("/tasks/branding-content");
   };
 
   return (
@@ -168,7 +165,7 @@ function BusinessInformationPage() {
                   placeholder="Company Name"
                   className="bg-background rounded focus-visible:ring-[0px]"
                   value={formData.company}
-                  onChange={(e) => handleChange(e, "company")}
+                  onChange={(event) => handleChange(event)}
                 />
               </div>
               <div className="space-y-2 col-span-1">
@@ -176,7 +173,9 @@ function BusinessInformationPage() {
                   Start year <span className="text-primary">*</span>
                 </Label>
                 <Select
-                  onValueChange={(value) => handleChange(value, "startYear")}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, startYear: value })
+                  }
                   value={formData.startYear}
                 >
                   <SelectTrigger className="w-full bg-background cursor-pointer rounded focus-visible:ring-[0spx]">
@@ -207,7 +206,7 @@ function BusinessInformationPage() {
                 placeholder="123 Main St"
                 className="bg-background rounded focus-visible:ring-[0px]"
                 value={formData.streetAddress}
-                onChange={(e) => handleChange(e, "streetAddress")}
+                onChange={(event) => handleChange(event)}
               />
             </div>
 
@@ -222,7 +221,7 @@ function BusinessInformationPage() {
                   placeholder="10001"
                   className="bg-background rounded focus-visible:ring-[0px]"
                   value={formData.postalCode}
-                  onChange={(e) => handleChange(e, "postalCode")}
+                  onChange={(event) => handleChange(event)}
                 />
               </div>
               <div className="space-y-2">
@@ -235,7 +234,7 @@ function BusinessInformationPage() {
                   placeholder="New York"
                   className="bg-background rounded focus-visible:ring-[0px]"
                   value={formData.city}
-                  onChange={(e) => handleChange(e, "city")}
+                  onChange={(event) => handleChange(event)}
                 />
               </div>
             </div>
@@ -251,7 +250,7 @@ function BusinessInformationPage() {
                   placeholder="NY"
                   className="bg-background rounded focus-visible:ring-[0px]"
                   value={formData.state}
-                  onChange={(e) => handleChange(e, "state")}
+                  onChange={(event) => handleChange(event)}
                 />
               </div>
               <div className="space-y-2">
@@ -264,7 +263,7 @@ function BusinessInformationPage() {
                   placeholder="USA"
                   className="bg-background rounded focus-visible:ring-[0px]"
                   value={formData.country}
-                  onChange={(e) => handleChange(e, "country")}
+                  onChange={(event) => handleChange(event)}
                 />
               </div>
             </div>
@@ -279,7 +278,7 @@ function BusinessInformationPage() {
                 placeholder="DE123456789"
                 className="bg-background rounded focus-visible:ring-[0px]"
                 value={formData.vatId}
-                onChange={(e) => handleChange(e, "vatId")}
+                onChange={(event) => handleChange(event)}
               />
             </div>
 
@@ -293,7 +292,7 @@ function BusinessInformationPage() {
                   placeholder="Contact Name"
                   className="bg-background rounded focus-visible:ring-[0px]"
                   value={formData.contactName}
-                  onChange={(e) => handleChange(e, "contactName")}
+                  onChange={(event) => handleChange(event)}
                 />
               </div>
               <div className="space-y-2">
@@ -306,7 +305,7 @@ function BusinessInformationPage() {
                   placeholder="info@yourcompany.com"
                   className="bg-background rounded focus-visible:ring-[0px]"
                   value={formData.email}
-                  onChange={(e) => handleChange(e, "email")}
+                  onChange={(event) => handleChange(event)}
                 />
               </div>
             </div>
@@ -325,7 +324,7 @@ function BusinessInformationPage() {
                     placeholder="+1 (555) 000-0000"
                     className="bg-background rounded rounded-l-none focus-visible:ring-[0px]"
                     value={formData.contactNumber}
-                    onChange={(e) => handleChange(e, "contactNumber")}
+                    onChange={(event) => handleChange(event)}
                   />
                 </div>
               </div>
@@ -340,7 +339,7 @@ function BusinessInformationPage() {
                     placeholder="+44 (555) 000-0000"
                     className="bg-background rounded rounded-l-none focus-visible:ring-[0px]"
                     value={formData.whatsappNumber}
-                    onChange={(e) => handleChange(e, "whatsappNumber")}
+                    onChange={(event) => handleChange(event)}
                   />
                 </div>
               </div>
@@ -359,7 +358,7 @@ function BusinessInformationPage() {
                   placeholder="www.yoursite.com"
                   className="bg-background rounded rounded-l-none focus-visible:ring-[0px]"
                   value={formData.website}
-                  onChange={(e) => handleChange(e, "website")}
+                  onChange={(event) => handleChange(event)}
                 />
               </div>
             </div>
@@ -378,7 +377,7 @@ function BusinessInformationPage() {
                     placeholder="www.facebook.com"
                     className="bg-background rounded rounded-l-none focus-visible:ring-[0px]"
                     value={formData.facebook}
-                    onChange={(e) => handleChange(e, "facebook")}
+                    onChange={(event) => handleChange(event)}
                   />
                 </div>
               </div>
@@ -396,7 +395,7 @@ function BusinessInformationPage() {
                     placeholder="www.instagram.com"
                     className="bg-background rounded rounded-l-none focus-visible:ring-[0px]"
                     value={formData.instagram}
-                    onChange={(e) => handleChange(e, "instagram")}
+                    onChange={(event) => handleChange(event)}
                   />
                 </div>
               </div>
@@ -414,7 +413,7 @@ function BusinessInformationPage() {
                     placeholder="www.x.com"
                     className="bg-background rounded rounded-l-none focus-visible:ring-[0px]"
                     value={formData.twitter}
-                    onChange={(e) => handleChange(e, "twitter")}
+                    onChange={(event) => handleChange(event)}
                   />
                 </div>
               </div>
@@ -434,9 +433,7 @@ function BusinessInformationPage() {
                     placeholder="maps.app.goo.gl/..."
                     className="bg-background rounded rounded-l-none focus-visible:ring-[0px]"
                     value={formData.googleBusinessProfileLink}
-                    onChange={(e) =>
-                      handleChange(e, "googleBusinessProfileLink")
-                    }
+                    onChange={(event) => handleChange(event)}
                   />
                 </div>
               </div>
