@@ -11,13 +11,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { BusinessFormData, BusinessFormSchema } from "@/schema/business-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { SubmitHandler, useForm } from "react-hook-form";
-import ErrorMessage from "../components/error-message";
+import { useState } from "react";
 
 const generateYearOptions = (startYear: number, endYear: number) => {
   const years = [];
@@ -31,8 +28,8 @@ const YEAR_OPTIONS = generateYearOptions(1900, CURRENT_YEAR);
 
 export const OnboardingHeader = () => (
   <div className="flex flex-col gap-4">
-    <div className="flex gap-2 text-primary items-center cursor-pointer">
-      <ArrowLeft className="h-3 w-3" />
+    <div className="flex gap-2 text-primary items-center cursor-pointer group">
+      <ArrowLeft className="h-3 w-3 group-hover:-translate-x-1 transition-all duration-300" />
       Dashboard
     </div>
   </div>
@@ -68,44 +65,71 @@ const OnboardingVideo = () => {
   );
 };
 
+interface FormData {
+  company: string;
+  startYear: string;
+  streetAddress: string;
+  postalCode: string;
+  city: string;
+  state: string;
+  country: string;
+  vatId: string;
+  contactName: string;
+  email: string;
+  contactNumber: string;
+  whatsappNumber: string;
+  website: string;
+  facebook: string;
+  instagram: string;
+  twitter: string;
+  googleBusinessProfileLink: string;
+}
+
 function BusinessInformationPage() {
   const router = useRouter();
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    formState: { errors, isSubmitting },
-  } = useForm<BusinessFormData>({
-    resolver: zodResolver(BusinessFormSchema),
-    defaultValues: {
-      company: "",
-      startYear: "",
-      streetAddress: "",
-      postalCode: "",
-      city: "",
-      state: "",
-      country: "",
-      vatId: "",
-      contactName: "",
-      email: "",
-      contactNumber: "",
-      whatsappNumber: "",
-      website: "",
-      facebook: "",
-      instagram: "",
-      twitter: "",
-      googleBusinessProfileLink: "",
-    },
+  const [formData, setFormData] = useState<FormData>({
+    company: "",
+    startYear: "",
+    streetAddress: "",
+    postalCode: "",
+    city: "",
+    state: "",
+    country: "",
+    vatId: "",
+    contactName: "",
+    email: "",
+    contactNumber: "",
+    whatsappNumber: "",
+    website: "",
+    facebook: "",
+    instagram: "",
+    twitter: "",
+    googleBusinessProfileLink: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const onSubmit: SubmitHandler<BusinessFormData> = (data) => {
-    console.log("Form Data Submitted:", data);
-    // handle API calls here
-    handleNext();
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    console.log("Submitting local data:", formData);
+
+    setTimeout(() => {
+      setIsSubmitting(false);
+      handleNext();
+    }, 1000);
+  };
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = event.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [id]: value,
+    }));
   };
 
   const handleNext = (): void => {
-    router.push("/dashboard/branding-content");
+    router.push("/tasks/branding-content");
   };
 
   return (
@@ -114,7 +138,7 @@ function BusinessInformationPage() {
         <OnboardingHeader />
       </SiteHeader>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col">
         <h2 className="text-balance text-3xl font-bold">Onboarding Setup</h2>
         <p className="text-pretty text-muted-foreground">
           Complete the required steps to ensure a smooth and successful project
@@ -126,207 +150,205 @@ function BusinessInformationPage() {
         <OnboardingVideo />
 
         <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="space-y-6 lg:col-span-2 bg-background p-4 rounded"
+          onSubmit={handleSubmit}
+          className="space-y-4 lg:col-span-2 bg-background p-4 rounded"
         >
           <div className="space-y-4">
             <div className="grid grid-cols-4 gap-4">
               <div className="space-y-2 col-span-3">
-                <Label htmlFor="company" className="text-muted-foreground">
-                  Company name*
+                <Label htmlFor="company">
+                  Company name <span className="text-primary">*</span>
                 </Label>
                 <Input
                   id="company"
                   type="text"
                   placeholder="Company Name"
-                  className="bg-background"
-                  {...register("company")}
+                  className="bg-background rounded focus-visible:ring-[0px]"
+                  value={formData.company}
+                  onChange={(event) => handleChange(event)}
                 />
-                <ErrorMessage message={errors.company?.message} />
               </div>
               <div className="space-y-2 col-span-1">
-                <Label htmlFor="startYear" className="text-muted-foreground">
-                  Start year*
+                <Label htmlFor="startYear">
+                  Start year <span className="text-primary">*</span>
                 </Label>
-                <Select onValueChange={(value) => setValue("startYear", value)}>
-                  <SelectTrigger className="w-full bg-background cursor-pointer">
+                <Select
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, startYear: value })
+                  }
+                  value={formData.startYear}
+                >
+                  <SelectTrigger className="w-full bg-background cursor-pointer rounded focus-visible:ring-[0spx]">
                     <SelectValue placeholder="Year" />
                   </SelectTrigger>
-                  <SelectContent className="cursor-pointer">
+                  <SelectContent className="cursor-pointer rounded">
                     {YEAR_OPTIONS.map((year) => (
-                      <SelectItem key={year} value={year}>
+                      <SelectItem
+                        key={year}
+                        value={year}
+                        className="cursor-pointer transition-all duration-300 rounded"
+                      >
                         {year}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                <ErrorMessage message={errors.startYear?.message} />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="streetAddress" className="text-muted-foreground">
-                Street Address*
+              <Label htmlFor="streetAddress">
+                Street Address <span className="text-primary">*</span>
               </Label>
               <Input
                 id="streetAddress"
                 type="text"
                 placeholder="123 Main St"
-                className="bg-background"
-                {...register("streetAddress")}
+                className="bg-background rounded focus-visible:ring-[0px]"
+                value={formData.streetAddress}
+                onChange={(event) => handleChange(event)}
               />
-              <ErrorMessage message={errors.streetAddress?.message} />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="postalCode" className="text-muted-foreground">
-                  Postal Code*
+                <Label htmlFor="postalCode">
+                  Postal Code <span className="text-primary">*</span>
                 </Label>
                 <Input
                   id="postalCode"
                   type="text"
                   placeholder="10001"
-                  className="bg-background"
-                  {...register("postalCode")}
+                  className="bg-background rounded focus-visible:ring-[0px]"
+                  value={formData.postalCode}
+                  onChange={(event) => handleChange(event)}
                 />
-                <ErrorMessage message={errors.postalCode?.message} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="city" className="text-muted-foreground">
-                  City*
+                <Label htmlFor="city">
+                  City<span className="text-primary">*</span>
                 </Label>
                 <Input
                   id="city"
                   type="text"
                   placeholder="New York"
-                  className="bg-background"
-                  {...register("city")}
+                  className="bg-background rounded focus-visible:ring-[0px]"
+                  value={formData.city}
+                  onChange={(event) => handleChange(event)}
                 />
-                <ErrorMessage message={errors.city?.message} />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="state" className="text-muted-foreground">
-                  State*
+                <Label htmlFor="state">
+                  State<span className="text-primary">*</span>
                 </Label>
                 <Input
                   id="state"
                   type="text"
                   placeholder="NY"
-                  className="bg-background"
-                  {...register("state")}
+                  className="bg-background rounded focus-visible:ring-[0px]"
+                  value={formData.state}
+                  onChange={(event) => handleChange(event)}
                 />
-                <ErrorMessage message={errors.state?.message} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="country" className="text-muted-foreground">
-                  Country*
+                <Label htmlFor="country">
+                  Country<span className="text-primary">*</span>
                 </Label>
                 <Input
                   id="country"
                   type="text"
                   placeholder="USA"
-                  className="bg-background"
-                  {...register("country")}
+                  className="bg-background rounded focus-visible:ring-[0px]"
+                  value={formData.country}
+                  onChange={(event) => handleChange(event)}
                 />
-                <ErrorMessage message={errors.country?.message} />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="vatId" className="text-muted-foreground">
-                VAT ID*
+              <Label htmlFor="vatId">
+                VAT ID<span className="text-primary">*</span>
               </Label>
               <Input
                 id="vatId"
                 type="text"
                 placeholder="DE123456789"
-                className="bg-background"
-                {...register("vatId")}
+                className="bg-background rounded focus-visible:ring-[0px]"
+                value={formData.vatId}
+                onChange={(event) => handleChange(event)}
               />
-              <ErrorMessage message={errors.vatId?.message} />
             </div>
 
             <div className="grid grid-cols-2 gap-4 mt-4">
               <div className="space-y-2">
-                <Label htmlFor="contactName" className="text-muted-foreground">
-                  Contact name*
+                <Label htmlFor="contactName">
+                  Contact name<span className="text-primary">*</span>
                 </Label>
                 <Input
                   id="contactName"
                   placeholder="Contact Name"
-                  className="bg-background"
-                  {...register("contactName")}
+                  className="bg-background rounded focus-visible:ring-[0px]"
+                  value={formData.contactName}
+                  onChange={(event) => handleChange(event)}
                 />
-                <ErrorMessage message={errors.contactName?.message} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-muted-foreground">
-                  Contact email*
+                <Label htmlFor="email">
+                  Contact email<span className="text-primary">*</span>
                 </Label>
                 <Input
                   id="email"
                   type="email"
                   placeholder="info@yourcompany.com"
-                  className="bg-background"
-                  {...register("email")}
+                  className="bg-background rounded focus-visible:ring-[0px]"
+                  value={formData.email}
+                  onChange={(event) => handleChange(event)}
                 />
-                <ErrorMessage message={errors.email?.message} />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label
-                  htmlFor="contactNumber"
-                  className="text-muted-foreground"
-                >
-                  Contact number*
+                <Label htmlFor="contactNumber">
+                  Contact number<span className="text-primary">*</span>
                 </Label>
                 <div className="flex">
-                  <div className="flex items-center px-3 bg-muted border border-r-0 rounded-l-md">
+                  <div className="flex items-center px-3 bg-muted border border-r-0 rounded-l">
                     <span className="text-sm text-muted-foreground">DE</span>
                   </div>
                   <Input
                     id="contactNumber"
                     placeholder="+1 (555) 000-0000"
-                    className="rounded-l-none bg-background"
-                    {...register("contactNumber")}
+                    className="bg-background rounded rounded-l-none focus-visible:ring-[0px]"
+                    value={formData.contactNumber}
+                    onChange={(event) => handleChange(event)}
                   />
                 </div>
-                <ErrorMessage message={errors.contactNumber?.message} />
               </div>
               <div className="space-y-2">
-                <Label
-                  htmlFor="whatsappNumber"
-                  className="text-muted-foreground"
-                >
-                  Whatsapp number
-                </Label>
+                <Label htmlFor="whatsappNumber">Whatsapp number</Label>
                 <div className="flex">
-                  <div className="flex items-center px-3 bg-muted border border-r-0 rounded-l-md">
+                  <div className="flex items-center px-3 bg-muted border border-r-0 rounded-l">
                     <span className="text-sm text-muted-foreground">DE</span>
                   </div>
                   <Input
                     id="whatsappNumber"
                     placeholder="+44 (555) 000-0000"
-                    className="rounded-l-none bg-background"
-                    {...register("whatsappNumber")}
+                    className="bg-background rounded rounded-l-none focus-visible:ring-[0px]"
+                    value={formData.whatsappNumber}
+                    onChange={(event) => handleChange(event)}
                   />
                 </div>
-                <ErrorMessage message={errors.whatsappNumber?.message} />
               </div>
             </div>
 
             <div className="space-y-2 mt-4">
-              <Label htmlFor="website" className="text-muted-foreground">
-                Current website
-              </Label>
+              <Label htmlFor="website">Current website</Label>
               <div className="flex">
-                <div className="flex items-center px-3 bg-muted border border-r-0 rounded-l-md">
+                <div className="flex items-center px-3 bg-muted border border-r-0 rounded-l">
                   <span className="text-sm text-muted-foreground">
                     https://
                   </span>
@@ -334,20 +356,18 @@ function BusinessInformationPage() {
                 <Input
                   id="website"
                   placeholder="www.yoursite.com"
-                  className="rounded-l-none bg-background"
-                  {...register("website")}
+                  className="bg-background rounded rounded-l-none focus-visible:ring-[0px]"
+                  value={formData.website}
+                  onChange={(event) => handleChange(event)}
                 />
               </div>
-              <ErrorMessage message={errors.website?.message} />
             </div>
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="facebook" className="text-muted-foreground">
-                  Facebook link
-                </Label>
+                <Label htmlFor="facebook">Facebook link</Label>
                 <div className="flex">
-                  <div className="flex items-center px-3 bg-muted border border-r-0 rounded-l-md">
+                  <div className="flex items-center px-3 bg-muted border border-r-0 rounded-l">
                     <span className="text-sm text-muted-foreground">
                       https://
                     </span>
@@ -355,19 +375,17 @@ function BusinessInformationPage() {
                   <Input
                     id="facebook"
                     placeholder="www.facebook.com"
-                    className="rounded-l-none bg-background"
-                    {...register("facebook")}
+                    className="bg-background rounded rounded-l-none focus-visible:ring-[0px]"
+                    value={formData.facebook}
+                    onChange={(event) => handleChange(event)}
                   />
                 </div>
-                <ErrorMessage message={errors.facebook?.message} />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="instagram" className="text-muted-foreground">
-                  Instagram link
-                </Label>
+                <Label htmlFor="instagram">Instagram link</Label>
                 <div className="flex">
-                  <div className="flex items-center px-3 bg-muted border border-r-0 rounded-l-md">
+                  <div className="flex items-center px-3 bg-muted border border-r-0 rounded-l">
                     <span className="text-sm text-muted-foreground">
                       https://
                     </span>
@@ -375,19 +393,17 @@ function BusinessInformationPage() {
                   <Input
                     id="instagram"
                     placeholder="www.instagram.com"
-                    className="rounded-l-none bg-background"
-                    {...register("instagram")}
+                    className="bg-background rounded rounded-l-none focus-visible:ring-[0px]"
+                    value={formData.instagram}
+                    onChange={(event) => handleChange(event)}
                   />
                 </div>
-                <ErrorMessage message={errors.instagram?.message} />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="twitter" className="text-muted-foreground">
-                  X (Twitter) link
-                </Label>
+                <Label htmlFor="twitter">X (Twitter) link</Label>
                 <div className="flex">
-                  <div className="flex items-center px-3 bg-muted border border-r-0 rounded-l-md">
+                  <div className="flex items-center px-3 bg-muted border border-r-0 rounded-l">
                     <span className="text-sm text-muted-foreground">
                       https://
                     </span>
@@ -395,22 +411,19 @@ function BusinessInformationPage() {
                   <Input
                     id="twitter"
                     placeholder="www.x.com"
-                    className="rounded-l-none bg-background"
-                    {...register("twitter")}
+                    className="bg-background rounded rounded-l-none focus-visible:ring-[0px]"
+                    value={formData.twitter}
+                    onChange={(event) => handleChange(event)}
                   />
                 </div>
-                <ErrorMessage message={errors.twitter?.message} />
               </div>
 
               <div className="space-y-2">
-                <Label
-                  htmlFor="googleBusinessProfileLink"
-                  className="text-muted-foreground"
-                >
+                <Label htmlFor="googleBusinessProfileLink">
                   Google Business Profile link
                 </Label>
                 <div className="flex">
-                  <div className="flex items-center px-3 bg-muted border border-r-0 rounded-l-md">
+                  <div className="flex items-center px-3 bg-muted border border-r-0 rounded-l">
                     <span className="text-sm text-muted-foreground">
                       https://
                     </span>
@@ -418,13 +431,11 @@ function BusinessInformationPage() {
                   <Input
                     id="googleBusinessProfileLink"
                     placeholder="maps.app.goo.gl/..."
-                    className="rounded-l-none bg-background"
-                    {...register("googleBusinessProfileLink")}
+                    className="bg-background rounded rounded-l-none focus-visible:ring-[0px]"
+                    value={formData.googleBusinessProfileLink}
+                    onChange={(event) => handleChange(event)}
                   />
                 </div>
-                <ErrorMessage
-                  message={errors.googleBusinessProfileLink?.message}
-                />
               </div>
             </div>
           </div>
@@ -433,9 +444,10 @@ function BusinessInformationPage() {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="rounded bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
+              className="rounded group bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
             >
-              Next
+              {isSubmitting ? "Saving..." : "Next"}
+              <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-all duration-300" />
             </Button>
           </div>
         </form>
