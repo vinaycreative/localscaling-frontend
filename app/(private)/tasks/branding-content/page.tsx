@@ -10,8 +10,8 @@ import { useRouter } from "next/navigation";
 import type React from "react";
 import { useState } from "react";
 import { OnboardingHeader } from "../business-information/page";
+import BrandAssetUploader from "../components/brand-asset-uploader";
 import ColorPickerInput from "../components/color-picker";
-import { FormFileUploader } from "../components/form-file-uploader";
 
 interface OnboardingVideoProps {
   step: number;
@@ -27,6 +27,7 @@ interface BrandingContentFormData {
   primaryBrandColor: string;
   secondaryBrandColor: string;
   logoFile: File | null;
+  teamPhotos: File[] | null;
   teamMembers: TeamMember[];
   ceoVideo: File | string | null;
   videoCreationOption: "upload" | "studio" | "remote" | "";
@@ -37,6 +38,7 @@ const initialFormData: BrandingContentFormData = {
   primaryBrandColor: "#007BFF",
   secondaryBrandColor: "#6C757D",
   logoFile: null,
+  teamPhotos: null,
   teamMembers: [{ name: "", position: "" }],
   ceoVideo: null,
   videoCreationOption: "upload",
@@ -106,8 +108,8 @@ function BrandingContentPage() {
   };
 
   const handleFileUpload = (
-    file: File | null,
-    field: keyof BrandingContentFormData
+    file: File | File[] | null,
+    field: "logoFile" | "teamPhotos"
   ) => {
     setFormData((prevData) => ({
       ...prevData,
@@ -262,7 +264,23 @@ function BrandingContentPage() {
                   </div>
                 </div>
               </div>
-              <FormFileUploader />
+              <BrandAssetUploader
+                label="Company Logo"
+                field="logoFile"
+                multiple={false}
+                value={formData.logoFile}
+                onChange={handleFileUpload}
+                maxFiles={1}
+              />
+
+              <BrandAssetUploader
+                label="Team Photos (Portrait in corporate shirt)"
+                field="teamPhotos"
+                multiple={true}
+                value={formData.teamPhotos}
+                onChange={handleFileUpload}
+                maxFiles={6}
+              />
               <div className="space-y-2 mb-32">
                 <Label>
                   Team Members<span className="text-primary">*</span>
