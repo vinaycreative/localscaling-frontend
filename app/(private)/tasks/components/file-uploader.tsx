@@ -220,6 +220,7 @@ export function FileUploader({
     <div className={cn("w-full", className)}>
       <label className="block text-sm font-medium text-foreground mb-2">
         {label}
+        <span className="text-primary">*</span>
       </label>
       <div
         role="button"
@@ -265,27 +266,12 @@ export function FileUploader({
           >
             <ImageUp />
           </div>
-          <p className="text-sm">{description}</p>
-          <div className="text-xs text-muted-foreground">
-            {normalizeAccept ? (
-              <span>
-                {"Accepted: "}
-                {normalizeAccept.join(", ")}
-              </span>
-            ) : (
-              <span>{"Any file type"}</span>
-            )}
-            <span>
-              {" • Max size: "}
-              {formatSize(maxSize)}
-            </span>
-            {multiple && (
-              <span>
-                {" • Max files: "}
-                {maxFiles}
-              </span>
-            )}
-          </div>
+          <p className="text-sm">
+            <span className="text-primary cursor-pointer">Click to upload</span>{" "}
+            or drag and drop
+          </p>
+          <p className="text-sm"> SVG, PNG or JPG</p>
+
           <div className="mt-2">
             <Button
               type="button"
