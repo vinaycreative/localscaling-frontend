@@ -189,13 +189,13 @@ const data: Ticket[] = [
 ]
 
 const COL_WIDTHS = {
-  select: "w-[40px]",
-  id: "w-[120px]",
-  category: "w-[140px]",
-  priority: "w-[110px]",
-  status: "w-[120px]",
-  updated: "w-[110px]",
-  actions: "w-[60px]",
+  select: "w-[40px] max-w-[100px]",
+  id: "w-[120px] max-w-[150px]",
+  category: "w-[140px] max-w-[200px]",
+  priority: "w-[110px] max-w-[200px]",
+  status: "w-[120px] max-w-[220px]",
+  updated: "w-[110px] max-w-[210px]",
+  actions: "w-[60px] max-w-[160px]",
 } as const
 
 /** Returns the Tailwind width class for a header id, plus any extras you pass. */
@@ -212,21 +212,25 @@ const columns: ColumnDef<Ticket>[] = [
   {
     id: "select",
     header: ({ table }) => (
-      <Checkbox
-        aria-label="Select all"
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
-      />
+      <div className="flex items-center justify-center">
+        <Checkbox
+          aria-label="Select all"
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
+        />
+      </div>
     ),
     cell: ({ row }) => (
-      <Checkbox
-        aria-label={`Select ${row.original.id}`}
-        checked={row.getIsSelected()}
-        onCheckedChange={(v) => row.toggleSelected(!!v)}
-      />
+      <div className="flex items-center justify-center">
+        <Checkbox
+          aria-label={`Select ${row.original.id}`}
+          checked={row.getIsSelected()}
+          onCheckedChange={(v) => row.toggleSelected(!!v)}
+        />
+      </div>
     ),
     enableSorting: false,
     enableHiding: false,
@@ -237,21 +241,16 @@ const columns: ColumnDef<Ticket>[] = [
     header: ({ column }) => (
       <button
         className="inline-flex items-center gap-1"
-        onClick={() =>
-          column.toggleSorting(column.getIsSorted() === "asc")
-        }
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Ticket ID{" "}
-        <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />
+        Ticket ID <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />
       </button>
     ),
     cell: ({ row }) => {
       const t = row.original
       return (
         <div className="flex items-center gap-2">
-          {t.hasAttachment && (
-            <Paperclip className="h-4 w-4 text-muted-foreground" />
-          )}
+          {t.hasAttachment && <Paperclip className="h-4 w-4 text-muted-foreground" />}
           <Link href="#" className="hover:underline">
             {t.id}
           </Link>
@@ -266,38 +265,29 @@ const columns: ColumnDef<Ticket>[] = [
     header: ({ column }) => (
       <button
         className="inline-flex items-center gap-1"
-        onClick={() =>
-          column.toggleSorting(column.getIsSorted() === "asc")
-        }
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Subject{" "}
-        <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />
+        Subject <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />
       </button>
     ),
     cell: ({ getValue }) => (
-      <span className="text-xs text-foreground/90">
-        {getValue<string>()}
-      </span>
+      <span className="text-xs text-foreground/90 break-all">{getValue<string>()}</span>
     ),
     enableSorting: true,
+    
   },
   {
     accessorKey: "category",
     header: ({ column }) => (
       <button
         className="inline-flex items-center gap-1"
-        onClick={() =>
-          column.toggleSorting(column.getIsSorted() === "asc")
-        }
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Category{" "}
-        <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />
+        Category <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />
       </button>
     ),
     cell: ({ getValue }) => (
-      <span className="text-xs text-muted-foreground">
-        {getValue<string>()}
-      </span>
+      <span className="text-xs text-muted-foreground">{getValue<string>()}</span>
     ),
     enableSorting: true,
     size: 140,
@@ -307,17 +297,12 @@ const columns: ColumnDef<Ticket>[] = [
     header: ({ column }) => (
       <button
         className="inline-flex items-center gap-1"
-        onClick={() =>
-          column.toggleSorting(column.getIsSorted() === "asc")
-        }
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Priority{" "}
-        <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />
+        Priority <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />
       </button>
     ),
-    cell: ({ getValue }) => (
-      <span className="text-xs capitalize">{getValue<string>()}</span>
-    ),
+    cell: ({ getValue }) => <span className="text-xs capitalize">{getValue<string>()}</span>,
     enableSorting: true,
     size: 110,
   },
@@ -326,17 +311,12 @@ const columns: ColumnDef<Ticket>[] = [
     header: ({ column }) => (
       <button
         className="inline-flex items-center gap-1"
-        onClick={() =>
-          column.toggleSorting(column.getIsSorted() === "asc")
-        }
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Status{" "}
-        <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />
+        Status <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />
       </button>
     ),
-    cell: ({ getValue }) => (
-      <StatusBadge status={getValue<"open" | "resolved">()} />
-    ),
+    cell: ({ getValue }) => <StatusBadge status={getValue<"open" | "resolved">()} />,
     enableSorting: true,
     size: 120,
   },
@@ -345,18 +325,13 @@ const columns: ColumnDef<Ticket>[] = [
     header: ({ column }) => (
       <button
         className="inline-flex items-center gap-1"
-        onClick={() =>
-          column.toggleSorting(column.getIsSorted() === "asc")
-        }
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Updated{" "}
-        <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />
+        Updated <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />
       </button>
     ),
     cell: ({ getValue }) => (
-      <span className="text-xs text-muted-foreground">
-        {getValue<string>()}
-      </span>
+      <span className="text-xs text-muted-foreground">{getValue<string>()}</span>
     ),
     enableSorting: true,
     size: 110,
@@ -369,7 +344,6 @@ const columns: ColumnDef<Ticket>[] = [
     size: 60,
   },
 ]
-
 
 export function SupportTable() {
   const [sorting, setSorting] = React.useState<SortingState>([])
@@ -390,7 +364,7 @@ export function SupportTable() {
 
   return (
     <div className="rounded-lg border bg-card">
-      <Table className="text-xs">
+      <Table className="text-xs table-fixed">
         <TableHeader>
           {table.getHeaderGroups().map((hg) => (
             <TableRow key={hg.id}>
@@ -402,7 +376,7 @@ export function SupportTable() {
                   }}
                   className={cn(
                     colWidthClass(header.column.id),
-                    "text-muted-foreground font-semibold"
+                    "text-muted-foreground font-semibold break-all"
                   )}
                 >
                   {header.isPlaceholder
