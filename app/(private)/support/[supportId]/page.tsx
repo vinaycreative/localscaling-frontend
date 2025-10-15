@@ -21,7 +21,9 @@ import {
   PanelRight,
   Keyboard,
   CheckCheck,
+  SquareSlash,
 } from "lucide-react"
+import { toDate } from "date-fns"
 
 /* ----------------------------- your data ----------------------------- */
 type Attachment = { type: "file"; name: string; size: string; url: string }
@@ -120,19 +122,38 @@ const THREAD: Thread = {
 /* --------------------------- helpers --------------------------- */
 
 const CURRENT_USER_ID = "user_002"
+type Dateish = Date | string | number;
+type BaseFmt = {
+  /** e.g. "en-US" */
+  locale?: string;
+  /** IANA TZ, e.g. "America/Los_Angeles" */
+  timeZone?: string;
+};
 
 function formatTime(ts: string) {
   const d = new Date(ts)
   return d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
 }
+function formatDateTime(input: Dateish, opts: BaseFmt = {}): string {
+  const d = toDate(input);
+  return d.toLocaleString(opts.locale, {
+    weekday: "short",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZone: opts.timeZone,
+  });
+}
 
-function formatDateLabel(ts: string) {
+function TimeLabel(ts: string) {
   const d = new Date(ts)
   // e.g. "Thu 11:40 AM" or "Today"
   const today = new Date()
   const isSameDay = d.toDateString() === today.toDateString()
   if (isSameDay) return "Today"
-  return d.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" })
+  return d.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" , year:"numeric" })
 }
 
 function needsDateDivider(prev: Message | null, curr: Message) {
@@ -205,10 +226,10 @@ export default function SupportChatPage() {
                   return (
                     <React.Fragment key={m.id}>
                       {showDivider && (
-                        <div className="my-2 flex items-center gap-3">
+                        <div className="my-4 flex items-center gap-3">
                           <Separator className="flex-1" />
                           <span className="text-xs text-muted-foreground">
-                            {formatDateLabel(m.timestamp)}
+                            {TimeLabel(m.timestamp)}
                           </span>
                           <Separator className="flex-1" />
                         </div>
@@ -217,7 +238,7 @@ export default function SupportChatPage() {
                         author={isYou ? you.name : sender.name}
                         avatarUrl={isYou ? you.avatar_url : sender.avatar_url}
                         isYou={isYou}
-                        time={formatTime(m.timestamp)}
+                        time={`${TimeLabel(m.timestamp)}, ${formatTime(m.timestamp)}`}
                         text={m.content}
                         attachments={m.attachments}
                       />
@@ -241,8 +262,8 @@ export default function SupportChatPage() {
               {/* Footer bar */}
               <div className="flex items-center gap-4 rounded-b-lg bg-muted/20 px-3 py-2">
                 <div className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                  <Keyboard className="h-4 w-4" />
-                  <span>Shortcuts</span>
+                  <SquareSlash className="h-4 w-4" />
+                  <span className="font-semibold text-gray-600 text-xs">Shortcuts</span>
                 </div>
 
                 <button
@@ -251,7 +272,7 @@ export default function SupportChatPage() {
                   onClick={() => fileRef.current?.click()}
                 >
                   <Paperclip className="h-4 w-4" />
-                  <span>Attach</span>
+                  <span className="font-semibold text-gray-600 text-xs">Attach</span>
                 </button>
 
                 {/* hidden file input */}
@@ -305,9 +326,9 @@ export function MessageBubble(props: {
         </Avatar>
       )}
 
-      <div className={cn("flex max-w-[78%] flex-col", isYou && "items-end ml-auto")}>
+      <div className={cn("flex min-w-auto max-w-[78%] flex-col", isYou && "items-end ml-auto")}>
         {/* Header line */}
-        <div className="mb-1 flex w-full items-center text-[11px] leading-none text-muted-foreground">
+        <div className="mb-1 flex gap-2 w-full items-center text-[11px] leading-none text-muted-foreground">
           <span className="font-medium">{isYou ? "You" : author}</span>
           <span className="ml-auto inline-flex items-center gap-1">
             {time}
@@ -316,7 +337,7 @@ export function MessageBubble(props: {
         </div>
 
         {/* Bubble */}
-        <div className={cn("rounded-lg border px-3 py-2", isYou ? "bg-muted/50" : "bg-background")}>
+        <div className={cn("rounded-lg border px-3 py-2", isYou ? "rounded-tr-none" : "bg-muted/60 rounded-tl-none")}>
           {text && <p className={cn("text-sm leading-5", isYou && "text-foreground/90")}>{text}</p>}
 
           {!!attachments?.length && (
