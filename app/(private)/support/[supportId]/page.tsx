@@ -4,7 +4,6 @@ import * as React from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
@@ -17,13 +16,12 @@ import {
   CalendarClock,
   PhoneCall,
   ChevronRight,
-  Ellipsis,
   PanelRight,
-  Keyboard,
   CheckCheck,
   SquareSlash,
 } from "lucide-react"
 import { toDate } from "date-fns"
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso"
 
 /* ----------------------------- your data ----------------------------- */
 type Attachment = { type: "file"; name: string; size: string; url: string }
@@ -110,6 +108,13 @@ const THREAD: Thread = {
       attachments: [],
     },
     {
+      id: "msg_006",
+      sender_id: "user_002",
+      timestamp: "2025-10-15T14:31:00Z",
+      content: "Sure thing, I'll have a look today. They're looking great!",
+      attachments: [],
+    },
+    {
       id: "msg_007",
       sender_id: "user_001",
       timestamp: "2025-10-15T14:32:00Z",
@@ -122,20 +127,21 @@ const THREAD: Thread = {
 /* --------------------------- helpers --------------------------- */
 
 const CURRENT_USER_ID = "user_002"
-type Dateish = Date | string | number;
+type Dateish = Date | string | number
 type BaseFmt = {
   /** e.g. "en-US" */
-  locale?: string;
+  locale?: string
   /** IANA TZ, e.g. "America/Los_Angeles" */
-  timeZone?: string;
-};
+  timeZone?: string
+}
 
 function formatTime(ts: string) {
   const d = new Date(ts)
   return d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
 }
+
 function formatDateTime(input: Dateish, opts: BaseFmt = {}): string {
-  const d = toDate(input);
+  const d = toDate(input)
   return d.toLocaleString(opts.locale, {
     weekday: "short",
     year: "numeric",
@@ -144,7 +150,7 @@ function formatDateTime(input: Dateish, opts: BaseFmt = {}): string {
     hour: "numeric",
     minute: "2-digit",
     timeZone: opts.timeZone,
-  });
+  })
 }
 
 function TimeLabel(ts: string) {
@@ -153,7 +159,12 @@ function TimeLabel(ts: string) {
   const today = new Date()
   const isSameDay = d.toDateString() === today.toDateString()
   if (isSameDay) return "Today"
-  return d.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" , year:"numeric" })
+  return d.toLocaleDateString([], {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  })
 }
 
 function needsDateDivider(prev: Message | null, curr: Message) {
@@ -172,12 +183,30 @@ export default function SupportChatPage() {
   const { supportId } = useParams<{ supportId: string }>()
   const router = useRouter()
 
+  const [message, setMessage] = React.useState("")
+  const [isGenerating, setIsGenerating] = React.useState(false)
+  const timeout = React.useRef<number | null>(null)
+
+  const cancelTimeout = () => {
+    if (timeout.current) {
+      window.clearTimeout(timeout.current)
+    }
+  }
+
+  const setNewTimeout = (callback: () => void, ms: number) => {
+    cancelTimeout()
+    const id = window.setTimeout(callback, ms)
+    timeout.current = id
+  }
+
   // you could fetch by `supportId`; here we just assert it matches
   const thread = THREAD?.thread_id === supportId ? THREAD : THREAD
   const you = byId(thread?.participants, CURRENT_USER_ID)!
   const other = thread.participants.find((p) => p.id !== CURRENT_USER_ID)!
 
   const fileRef = React.useRef<HTMLInputElement>(null)
+  const virtuosoRef = React.useRef<VirtuosoHandle>(null)
+  const [files, setFiles] = React.useState<File[] | null>(null)
 
   return (
     <div className="mx-auto w-full px-4 py-6 bg-background">
@@ -215,39 +244,44 @@ export default function SupportChatPage() {
             </div>
           </div>
           <div className="flex h-[78vh] flex-col">
-            {/* messages */}
-            <div className="flex-1 px-4 py-3 overflow-y-scroll">
-              <div className="mx-auto space-y-5">
-                {thread?.messages?.map((m, i) => {
-                  const prev = i > 0 ? thread.messages[i - 1] : null
-                  const showDivider = needsDateDivider(prev, m)
-                  const sender = byId(thread.participants, m.sender_id)!
-                  const isYou = m.sender_id === CURRENT_USER_ID
-                  return (
-                    <React.Fragment key={m.id}>
-                      {showDivider && (
-                        <div className="my-4 flex items-center gap-3">
-                          <Separator className="flex-1" />
-                          <span className="text-xs text-muted-foreground">
-                            {TimeLabel(m.timestamp)}
-                          </span>
-                          <Separator className="flex-1" />
-                        </div>
-                      )}
-                      <MessageBubble
-                        author={isYou ? you.name : sender.name}
-                        avatarUrl={isYou ? you.avatar_url : sender.avatar_url}
-                        isYou={isYou}
-                        time={`${TimeLabel(m.timestamp)}, ${formatTime(m.timestamp)}`}
-                        text={m.content}
-                        attachments={m.attachments}
-                      />
-                    </React.Fragment>
-                  )
-                })}
-              </div>
-            </div>
-            {/* composer */}
+            <Virtuoso
+              className="space-y-4 scrollbar-thin scrollbar-thumb-blue-400 scrollbar-track-rounded-full overflow-y-scroll overflow-x-hidden"
+              ref={virtuosoRef}
+              data={thread?.messages}
+              // context={{ isScrolling }}
+              // isScrolling={setIsScrolling}
+              totalCount={thread?.messages?.length - 1}
+              initialTopMostItemIndex={thread?.messages?.length}
+              itemContent={(index, message) => {
+                const prev = index > 0 ? thread.messages[index - 1] : null
+                const showDivider = needsDateDivider(prev, message)
+                const sender = byId(thread.participants, message.sender_id)!
+                const isYou = message.sender_id === CURRENT_USER_ID
+
+                return (
+                  <React.Fragment key={message.id}>
+                    {showDivider && (
+                      <div className="my-4 flex items-center gap-3">
+                        <Separator className="flex-1" />
+                        <span className="text-xs text-muted-foreground">
+                          {TimeLabel(message.timestamp)}
+                        </span>
+                        <Separator className="flex-1" />
+                      </div>
+                    )}
+                    <MessageBubble
+                      author={isYou ? you.name : sender.name}
+                      avatarUrl={isYou ? you.avatar_url : sender.avatar_url}
+                      isYou={isYou}
+                      time={`${TimeLabel(message.timestamp)}, ${formatTime(message.timestamp)}`}
+                      text={message.content}
+                      attachments={message.attachments}
+                    />
+                  </React.Fragment>
+                )
+              }}
+            />
+
             <div className={cn("rounded-lg border bg-background")}>
               <Textarea
                 placeholder="Message"
@@ -257,6 +291,8 @@ export default function SupportChatPage() {
                   "focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none", // no focus ring
                   "px-3 py-3"
                 )}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
               />
 
               {/* Footer bar */}
@@ -317,7 +353,7 @@ export function MessageBubble(props: {
   const { author, avatarUrl, isYou, time, text, attachments, read } = props
 
   return (
-    <div className={cn("flex gap-3", isYou ? "justify-end" : "items-start")}>
+    <div className={cn("flex gap-3 mb-4", isYou ? "justify-end" : "items-start")}>
       {/* Avatar only for incoming */}
       {!isYou && (
         <Avatar className="h-7 w-7 mt-3">
@@ -337,7 +373,12 @@ export function MessageBubble(props: {
         </div>
 
         {/* Bubble */}
-        <div className={cn("rounded-lg border px-3 py-2", isYou ? "rounded-tr-none" : "bg-muted/60 rounded-tl-none")}>
+        <div
+          className={cn(
+            "rounded-lg border px-3 py-2",
+            isYou ? "rounded-tr-none" : "bg-muted/60 rounded-tl-none"
+          )}
+        >
           {text && <p className={cn("text-sm leading-5", isYou && "text-foreground/90")}>{text}</p>}
 
           {!!attachments?.length && (
@@ -349,11 +390,13 @@ export function MessageBubble(props: {
                   target="_blank"
                   className="inline-flex items-center gap-2 rounded-md border px-2 py-1 text-xs hover:bg-muted"
                 >
-                  <Badge variant="secondary" className="rounded-sm bg-red-500/10 text-red-600">
-                    PDF
+                  <Badge variant="secondary" className="rounded-sm capitalize bg-red-500/10 text-red-600">
+                    {a.type}
                   </Badge>
-                  <span className="truncate">{a.name}</span>
-                  <span className="text-muted-foreground">{a.size}</span>
+                  <div>
+                    <p className="truncate">{a.name}</p>
+                    <p className="text-muted-foreground">{a.size}</p>
+                  </div>
                 </Link>
               ))}
             </div>
@@ -389,13 +432,13 @@ function RightSidebar({ other }: { other: Participant }) {
           Schedule Call
         </Button>
 
-        <Card className="p-3">
-          <p className="mb-2 text-xs font-medium text-muted-foreground">Next appointment</p>
+        <div>
+          <p className="mb-2 text-xs font-semibold">Next appointment</p>
 
-          <div className="flex items-center gap-3 rounded-md border p-3">
-            <div className="flex h-10 w-10 flex-col items-center justify-center rounded-md bg-muted text-[10px] font-semibold">
-              <span>JAN</span>
-              <span className="text-base leading-none">10</span>
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 flex-col items-center justify-center rounded-md border text-[12px] px-4 gap-1 py-2 font-semibold">
+              <span className="text-muted-foreground">JAN</span>
+              <span className="text-base leading-none text-primary">10</span>
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
@@ -406,26 +449,7 @@ function RightSidebar({ other }: { other: Participant }) {
             </div>
             <ChevronRight className="ml-auto h-4 w-4 text-muted-foreground" />
           </div>
-        </Card>
-
-        <Card className="p-3">
-          <div className="mb-2 flex items-center justify-between">
-            <p className="text-xs font-medium text-muted-foreground">About</p>
-            <Button variant="ghost" size="icon" className="h-7 w-7">
-              <Ellipsis className="h-4 w-4" />
-            </Button>
-          </div>
-          <div className="space-y-2 text-xs">
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Company</span>
-              <span className="font-medium">LocalScaling</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Role</span>
-              <span className="font-medium">PM</span>
-            </div>
-          </div>
-        </Card>
+        </div>
       </div>
     </div>
   )
