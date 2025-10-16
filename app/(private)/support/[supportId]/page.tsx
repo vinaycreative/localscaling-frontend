@@ -23,6 +23,104 @@ import {
 import { toDate } from "date-fns"
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso"
 
+import {
+  File,
+  FileText,
+  FileImage,
+  FileAudio,
+  FileVideo,
+  FileArchive,
+  FileCode,
+  FileSpreadsheet,
+  
+  FileJson,
+} from "lucide-react"
+
+/**
+ * Returns an SVG icon component based on file type or extension.
+ * You can use this anywhere in your UI to render icons dynamically.
+ */
+function getFileIcon(filename: string) {
+  const ext = filename.split(".").pop()?.toLowerCase() || ""
+
+  switch (ext) {
+    // 🖼️ Images
+    case "png":
+    case "jpg":
+    case "jpeg":
+    case "gif":
+    case "bmp":
+    case "svg":
+    case "webp":
+      return <FileImage className="h-5 w-5 text-blue-500" />
+
+    // 🎧 Audio
+    case "mp3":
+    case "wav":
+    case "ogg":
+    case "m4a":
+    case "flac":
+      return <FileAudio className="h-5 w-5 text-purple-500" />
+
+    // 🎬 Video
+    case "mp4":
+    case "mov":
+    case "avi":
+    case "mkv":
+    case "webm":
+      return <FileVideo className="h-5 w-5 text-orange-500" />
+
+    // 📄 Documents
+    case "pdf":
+    case "doc":
+    case "docx":
+    case "txt":
+    case "rtf":
+    case "md":
+      return <FileText className="h-5 w-5 text-red-500" />
+
+    // 🧮 Spreadsheets
+    case "xls":
+    case "xlsx":
+    case "csv":
+    case "ods":
+      return <FileSpreadsheet className="h-5 w-5 text-green-500" />
+
+    // 🧩 Archives
+    case "zip":
+    case "rar":
+    case "7z":
+    case "tar":
+    case "gz":
+      return <FileArchive className="h-5 w-5 text-yellow-500" />
+
+    // 💻 Code files
+    case "js":
+    case "ts":
+    case "tsx":
+    case "jsx":
+    case "html":
+    case "css":
+    case "json":
+    case "yml":
+    case "yaml":
+    case "py":
+    case "java":
+    case "c":
+    case "cpp":
+    case "sh":
+      return <FileCode className="h-5 w-5 text-sky-500" />
+
+    // 🧱 JSON specifically
+    case "json":
+      return <FileJson className="h-5 w-5 text-teal-500" />
+
+    // Default generic file
+    default:
+      return <File className="h-5 w-5 text-gray-500" />
+  }
+}
+
 /* ----------------------------- your data ----------------------------- */
 type Attachment = { type: "file"; name: string; size: string; url: string }
 type Message = {
@@ -390,13 +488,16 @@ export function MessageBubble(props: {
                   target="_blank"
                   className="inline-flex items-center gap-2 rounded-md border px-2 py-1 text-xs hover:bg-muted"
                 >
-                  <Badge variant="secondary" className="rounded-sm capitalize bg-red-500/10 text-red-600">
+                  <Badge
+                    variant="secondary"
+                    className="rounded-sm capitalize bg-red-500/10 text-red-600"
+                  >
                     {a.type}
+                    {getFileIcon(a.type)}
                   </Badge>
-                  <div>
-                    <p className="truncate">{a.name}</p>
-                    <p className="text-muted-foreground">{a.size}</p>
-                  </div>
+
+                  <p className="truncate inline-flex">{a.name}</p>
+                  <p className="text-muted-foreground inline-flex">{a.size}</p>
                 </Link>
               ))}
             </div>
@@ -411,9 +512,10 @@ function RightSidebar({ other }: { other: Participant }) {
   return (
     <div className="h-full p-4">
       <div className="flex items-center gap-3">
-        <Avatar className="h-12 w-12">
+        <Avatar className="h-12 w-12 relative border">
           <AvatarImage src={other.avatar_url} alt={other.name} />
           <AvatarFallback>{other.name.slice(0, 2).toUpperCase()}</AvatarFallback>
+          <span className="h-2 w-2 rounded-full bg-emerald-500 absolute bottom-0 right-0" />
         </Avatar>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
