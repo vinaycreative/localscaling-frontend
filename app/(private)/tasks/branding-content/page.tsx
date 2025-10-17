@@ -132,6 +132,8 @@ function BrandingContentPage() {
     e.preventDefault();
     setIsSubmitting(true);
     console.log("Form Data Submitted:", formData);
+    setIsSubmitting(false);
+    router.push("/tasks/website-setup");
   };
 
   const handleNext = () => {
