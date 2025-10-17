@@ -44,6 +44,34 @@ const SEO_CITY_SUGGESTIONS = [
   "Hanover",
 ];
 
+const OnboardingVideo = () => {
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="space-y-0">
+        <h2 className="font-semibold text-foreground">3. Website Setup</h2>
+        <p className="text-sm text-muted-foreground">
+          Grant access for website configuration.
+        </p>
+      </div>
+
+      <div className="relative aspect-video bg-muted rounded overflow-hidden mx-auto">
+        <Image
+          src="/video.jpg"
+          alt="Business consultation video"
+          className="w-full h-full object-cover"
+          width={300}
+          height={300}
+        />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-16 h-16 bg-primary/80 rounded-full flex items-center justify-center">
+            <div className="w-0 h-0 border-l-[12px] border-l-primary-foreground border-y-[8px] border-y-transparent ml-1"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function WebsiteSetupPage() {
   const router = useRouter();
 
@@ -89,62 +117,46 @@ export default function WebsiteSetupPage() {
   };
 
   return (
-    <div className="flex flex-col gap-6 ">
+    <div className="flex flex-col gap-4 min-h-screen">
       <SiteHeader>
         <OnboardingHeader />
       </SiteHeader>
 
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold text-balance">Onboarding Setup</h1>
-        <p className="text-muted-foreground">
+      <div className="flex flex-col">
+        <h2 className="text-balance text-3xl font-bold">Onboarding Setup</h2>
+        <p className="text-pretty text-muted-foreground">
           Complete the required steps to ensure a smooth and successful project
           launch.
         </p>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-8">
-        <div className="flex flex-col gap-4">
-          <div className="space-y-0">
-            <h2 className="font-semibold text-foreground">3. Website Setup</h2>
-            <p className="text-sm text-muted-foreground">
-              Grant access for website configuration.
-            </p>
-          </div>
-
-          <div className="relative aspect-video bg-muted rounded overflow-hidden mx-auto">
-            <Image
-              src="/video.jpg"
-              alt="Business consultation video"
-              className="w-full h-full object-cover"
-              width={300}
-              height={300}
-            />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-16 h-16 bg-primary/80 rounded-full flex items-center justify-center">
-                <div className="w-0 h-0 border-l-[12px] border-l-primary-foreground border-y-[8px] border-y-transparent ml-1"></div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <OnboardingVideo />
 
         <div className="lg:col-span-2 bg-card rounded border p-4 sm:p-6 space-y-6">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <Label htmlFor="domainProvider" className="text-muted-foreground">
-                Domain provider *
+              <Label htmlFor="domainProvider">
+                Domain provider <span className="text-primary">*</span>
               </Label>
-              <Info className="w-4 h-4 text-muted-foreground" />
             </div>
 
             <div className="flex items-center justify-between gap-4">
               <Select value={domainProvider} onValueChange={setDomainProvider}>
-                <SelectTrigger id="domainProvider" className="w-full">
+                <SelectTrigger
+                  id="domainProvider"
+                  className="w-full rounded cursor-pointer focus-visible:ring-[0px]"
+                >
                   <SelectValue placeholder="Select domain provider (Fields – Strato, GoDaddy, etc.)" />
                 </SelectTrigger>
-                <SelectContent>
-                  {DOMAIN_PROVIDERS.map((p) => (
-                    <SelectItem key={p} value={p}>
-                      {p}
+                <SelectContent className="rounded">
+                  {DOMAIN_PROVIDERS.map((domain) => (
+                    <SelectItem
+                      className="rounded cursor-pointer"
+                      key={domain}
+                      value={domain}
+                    >
+                      {domain}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -152,8 +164,9 @@ export default function WebsiteSetupPage() {
               <Button
                 type="button"
                 variant={accessGranted ? "default" : "outline"}
-                className={`rounded ${accessGranted ? "bg-primary text-primary-foreground" : ""}`}
+                className={`rounded ${accessGranted && "bg-primary text-primary-foreground"}`}
                 onClick={() => setAccessGranted((v) => !v)}
+                disabled={!domainProvider}
                 aria-pressed={accessGranted}
               >
                 {accessGranted ? (

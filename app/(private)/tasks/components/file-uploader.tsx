@@ -276,7 +276,7 @@ export function FileUploader({
             <Button
               type="button"
               variant="outline"
-              className="cursor-pointer bg-transparent font-normal hover:bg-muted/20 transition-all duration-300"
+              className="cursor-pointer rounded-xs bg-transparent font-normal hover:bg-muted/20 transition-all duration-300"
               disabled={disabled}
             >
               Browse files
