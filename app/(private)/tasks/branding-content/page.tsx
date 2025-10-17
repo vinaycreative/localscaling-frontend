@@ -4,7 +4,7 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ChevronLeft, ChevronRight, Upload } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import type React from "react";
@@ -12,9 +12,19 @@ import { useState } from "react";
 import { OnboardingHeader } from "../business-information/page";
 import BrandAssetUploader from "../components/brand-asset-uploader";
 import ColorPickerInput from "../components/color-picker";
+import { TeamMemberList } from "./member-entry-list";
+import { VideoUpload } from "./video-upload";
+
+type videoCreationOption = "upload" | "studio" | "remote";
 
 interface OnboardingVideoProps {
   step: number;
+}
+
+export interface CeoVideoData {
+  file?: File;
+  url?: string;
+  preview?: string;
 }
 
 interface TeamMember {
@@ -29,8 +39,8 @@ interface BrandingContentFormData {
   logoFile: File | null;
   teamPhotos: File[] | null;
   teamMembers: TeamMember[];
-  ceoVideo: File | string | null;
-  videoCreationOption: "upload" | "studio" | "remote" | "";
+  ceoVideo: CeoVideoData | null;
+  videoCreationOption: videoCreationOption;
 }
 
 const initialFormData: BrandingContentFormData = {
@@ -79,21 +89,22 @@ function BrandingContentPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] =
     useState<BrandingContentFormData>(initialFormData);
-  const [selectedOption, setSelectedOption] = useState<string>("");
+  const [selectedOption, setSelectedOption] =
+    useState<videoCreationOption>("upload");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const totalSteps = 2;
 
-  const handleTeamMemberChange = (
-    index: number,
-    field: "name" | "position",
-    value: string
-  ) => {
-    const updatedMembers = formData.teamMembers.map((member, i) =>
-      i === index ? { ...member, [field]: value } : member
-    );
+  const handleCeoVideoChange = (videoData: CeoVideoData | null) => {
     setFormData((prevData) => ({
       ...prevData,
-      teamMembers: updatedMembers,
+      ceoVideo: videoData,
+    }));
+  };
+
+  const handleTeamMembersChange = (nextMembers: TeamMember[]) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      teamMembers: nextMembers,
     }));
   };
 
@@ -117,31 +128,10 @@ function BrandingContentPage() {
     }));
   };
 
-  const handleVideoOptionSelect = (option: "studio" | "remote") => {
-    setFormData((prevData) => ({
-      ...prevData,
-      videoCreationOption: option,
-      ceoVideo: null,
-    }));
-  };
-
-  const handleUploadClick = () => {
-    setFormData((prevData) => ({
-      ...prevData,
-      videoCreationOption: "upload",
-    }));
-    console.log("Upload button clicked. Implement file dialog trigger.");
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     console.log("Form Data Submitted:", formData);
-
-    setTimeout(() => {
-      setIsSubmitting(false);
-      router.push("/onboarding/success");
-    }, 2000);
   };
 
   const handleNext = () => {
@@ -282,47 +272,15 @@ function BrandingContentPage() {
                 maxFiles={6}
               />
               <div className="space-y-2 mb-32">
-                <Label>
-                  Team Members<span className="text-primary">*</span>
-                </Label>
-                {formData.teamMembers.length > 0 && (
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="teamMemberName"
-                        className="text-sm text-muted-foreground"
-                      >
-                        Name
-                      </Label>
-                      <Input
-                        id="teamMemberName"
-                        value={formData.teamMembers[0].name}
-                        onChange={(e) =>
-                          handleTeamMemberChange(0, "name", e.target.value)
-                        }
-                        placeholder="Enter name"
-                        className={`bg-background`}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="teamMemberPosition"
-                        className="text-sm text-muted-foreground"
-                      >
-                        Position
-                      </Label>
-                      <Input
-                        id="teamMemberPosition"
-                        value={formData.teamMembers[0].position}
-                        onChange={(e) =>
-                          handleTeamMemberChange(0, "position", e.target.value)
-                        }
-                        placeholder="Enter position"
-                        className={`bg-background `}
-                      />
-                    </div>
-                  </div>
-                )}
+                <TeamMemberList
+                  label="Team Members"
+                  value={formData.teamMembers}
+                  onChange={handleTeamMembersChange}
+                  addButtonLabel="Add Team Member"
+                  minRows={1}
+                  required={true}
+                  className="mt-4"
+                />
               </div>
             </div>
           )}
@@ -337,32 +295,14 @@ function BrandingContentPage() {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-muted-foreground">
-                  CEO introductory video*
+                <Label>
+                  CEO introductory video <span className="text-primary">*</span>
                 </Label>
 
-                <div className="border rounded p-8 text-center">
-                  <div className="flex flex-col items-center gap-1">
-                    <div className="w-12 h-12 rounded border flex items-center justify-center">
-                      <Upload className="w-6 h-6 text-muted-foreground" />
-                    </div>
-                    <div>
-                      <button
-                        type="button"
-                        className="text-primary hover:underline font-medium"
-                      >
-                        Click to upload
-                      </button>
-                      <span className="text-muted-foreground">
-                        {" "}
-                        or drag and drop
-                      </span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      MP4, MOV or URL (YouTube/Vimeo/Drive link)
-                    </p>
-                  </div>
-                </div>
+                <VideoUpload
+                  onChange={handleCeoVideoChange}
+                  value={formData.ceoVideo}
+                />
               </div>
 
               <div className="space-y-4 pt-4">
@@ -380,6 +320,7 @@ function BrandingContentPage() {
                       selectedOption === "studio" &&
                       "border-primary bg-primary/5"
                     }`}
+                    disabled={!!formData.ceoVideo}
                   >
                     Schedule a Studio Session
                   </Button>
@@ -399,6 +340,7 @@ function BrandingContentPage() {
                       selectedOption === "remote" &&
                       "border-primary bg-primary/5"
                     }`}
+                    disabled={!!formData.ceoVideo}
                   >
                     Record Remotely
                   </Button>
@@ -411,7 +353,6 @@ function BrandingContentPage() {
             </div>
           )}
 
-          {/* Navigation buttons */}
           <div className="flex p-2 pt-4 gap-2 justify-end border-t">
             <Button
               type="button"
