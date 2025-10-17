@@ -1,11 +1,16 @@
 "use client"
+import { SiteHeader } from "@/components/layout/site-header"
 import { SupportTable } from "./components/support-table"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
+import DynamicHeader from "@/components/ui/dynamic-header"
 
 export default function SupportPage() {
   return (
     <main className="flex flex-col gap-4 min-h-screen space-y-8">
+      <SiteHeader>
+        <DynamicHeader />
+      </SiteHeader>
       <div className="px-4 py-4 lg:px-0">
         {/* Top breadcrumb-ish row */}
         <div className="mb-2 flex items-center gap-2 text-sm text-muted-foreground">
