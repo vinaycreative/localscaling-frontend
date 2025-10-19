@@ -10,6 +10,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  DOMAIN_PROVIDERS,
+  SEO_CITY_SUGGESTIONS,
+} from "@/constants/website-setup";
 import { Check, ChevronLeft, ChevronRight, Info } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -18,31 +22,6 @@ import { OnboardingHeader } from "../business-information/page";
 import { LinkAdder } from "../components/link-adder";
 import { SeoSuggestions } from "../components/seo-suggestions";
 import { TagInput } from "../components/tag-input";
-
-const DOMAIN_PROVIDERS = [
-  "Strato",
-  "GoDaddy",
-  "Namecheap",
-  "Cloudflare",
-  "Google Domains",
-  "IONOS",
-  "Other",
-];
-
-const SEO_CITY_SUGGESTIONS = [
-  "Hamburg",
-  "Mainz",
-  "Dortmund",
-  "Leipzig",
-  "Munich",
-  "Berlin",
-  "Cologne",
-  "Augsburg",
-  "Essen",
-  "Stuttgart",
-  "Bonn",
-  "Hanover",
-];
 
 const OnboardingVideo = () => {
   return (

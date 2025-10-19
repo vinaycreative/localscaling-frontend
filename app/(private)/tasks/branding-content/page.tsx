@@ -4,6 +4,13 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  BrandingContentFormData,
+  CeoVideoData,
+  OnboardingVideoProps,
+  TeamMember,
+  VideoCreationOption,
+} from "@/interfaces/branding-content";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -14,34 +21,6 @@ import BrandAssetUploader from "../components/brand-asset-uploader";
 import ColorPickerInput from "../components/color-picker";
 import { TeamMemberList } from "./member-entry-list";
 import { VideoUpload } from "./video-upload";
-
-type videoCreationOption = "upload" | "studio" | "remote";
-
-interface OnboardingVideoProps {
-  step: number;
-}
-
-export interface CeoVideoData {
-  file?: File;
-  url?: string;
-  preview?: string;
-}
-
-interface TeamMember {
-  name: string;
-  position: string;
-}
-
-interface BrandingContentFormData {
-  fontLink: string;
-  primaryBrandColor: string;
-  secondaryBrandColor: string;
-  logoFile: File | null;
-  teamPhotos: File[] | null;
-  teamMembers: TeamMember[];
-  ceoVideo: CeoVideoData | null;
-  videoCreationOption: videoCreationOption;
-}
 
 const initialFormData: BrandingContentFormData = {
   fontLink: "",
@@ -90,7 +69,7 @@ function BrandingContentPage() {
   const [formData, setFormData] =
     useState<BrandingContentFormData>(initialFormData);
   const [selectedOption, setSelectedOption] =
-    useState<videoCreationOption>("upload");
+    useState<VideoCreationOption>("upload");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const totalSteps = 2;
 

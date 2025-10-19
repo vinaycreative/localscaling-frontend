@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { BusinessFormData } from "@/interfaces/business-information";
 import { ArrowLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -65,29 +66,9 @@ const OnboardingVideo = () => {
   );
 };
 
-interface FormData {
-  company: string;
-  startYear: string;
-  streetAddress: string;
-  postalCode: string;
-  city: string;
-  state: string;
-  country: string;
-  vatId: string;
-  contactName: string;
-  email: string;
-  contactNumber: string;
-  whatsappNumber: string;
-  website: string;
-  facebook: string;
-  instagram: string;
-  twitter: string;
-  googleBusinessProfileLink: string;
-}
-
 function BusinessInformationPage() {
   const router = useRouter();
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<BusinessFormData>({
     company: "",
     startYear: "",
     streetAddress: "",
