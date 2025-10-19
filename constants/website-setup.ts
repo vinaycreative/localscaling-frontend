@@ -1,4 +1,4 @@
-export const DOMAIN_PROVIDERS = [
+export const domainProviders = [
   "Strato",
   "GoDaddy",
   "Namecheap",
@@ -6,19 +6,4 @@ export const DOMAIN_PROVIDERS = [
   "Google Domains",
   "IONOS",
   "Other",
-];
-
-export const SEO_CITY_SUGGESTIONS = [
-  "Hamburg",
-  "Mainz",
-  "Dortmund",
-  "Leipzig",
-  "Munich",
-  "Berlin",
-  "Cologne",
-  "Augsburg",
-  "Essen",
-  "Stuttgart",
-  "Bonn",
-  "Hanover",
 ];

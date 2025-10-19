@@ -17,10 +17,10 @@ import { useRouter } from "next/navigation";
 import type React from "react";
 import { useState } from "react";
 import { OnboardingHeader } from "../business-information/page";
-import BrandAssetUploader from "../components/brand-asset-uploader";
-import ColorPickerInput from "../components/color-picker";
-import { TeamMemberList } from "./member-entry-list";
-import { VideoUpload } from "./video-upload";
+import BrandAssetUploader from "./components/brand-asset-uploader";
+import ColorPickerInput from "./components/color-picker";
+import { TeamMemberList } from "./components/member-entry-list";
+import { VideoUpload } from "./components/video-upload";
 
 const initialFormData: BrandingContentFormData = {
   fontLink: "",
@@ -107,8 +107,7 @@ function BrandingContentPage() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     setIsSubmitting(true);
     console.log("Form Data Submitted:", formData);
     setIsSubmitting(false);
@@ -151,7 +150,7 @@ function BrandingContentPage() {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="grid lg:grid-cols-3 gap-8">
+      <div className="grid lg:grid-cols-3 gap-8">
         <OnboardingVideo step={currentStep} />
 
         <div className="space-y-4 lg:col-span-2 bg-background p-4 rounded">
@@ -304,7 +303,6 @@ function BrandingContentPage() {
 
           <div className="flex p-2 pt-4 gap-2 justify-end border-t">
             <Button
-              type="button"
               variant="outline"
               className="rounded bg-transparent cursor-pointer group"
               onClick={handlePrevious}
@@ -315,7 +313,6 @@ function BrandingContentPage() {
 
             {currentStep < totalSteps ? (
               <Button
-                type="button"
                 className="rounded bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer group"
                 onClick={handleNext}
               >
@@ -324,7 +321,7 @@ function BrandingContentPage() {
               </Button>
             ) : (
               <Button
-                type="submit"
+                onClick={handleSubmit}
                 className="rounded bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer group"
                 disabled={isSubmitting}
               >
@@ -334,7 +331,7 @@ function BrandingContentPage() {
             )}
           </div>
         </div>
-      </form>
+      </div>
     </div>
   );
 }
