@@ -213,21 +213,6 @@ function BrandingContentPage() {
                         handleColorChange("primaryBrandColor", hex)
                       }
                     />
-
-                    <section className="rounded border bg-muted/20 p-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">
-                          Preview
-                        </span>
-                        <code className="text-xs text-muted-foreground">
-                          {formData.primaryBrandColor}
-                        </code>
-                      </div>
-                      <div
-                        className="mt-4 h-12 w-full rounded border"
-                        style={{ backgroundColor: formData.primaryBrandColor }}
-                      />
-                    </section>
                   </div>
                   <div>
                     <ColorPickerInput
@@ -236,23 +221,6 @@ function BrandingContentPage() {
                         handleColorChange("secondaryBrandColor", hex)
                       }
                     />
-
-                    <section className="rounded border bg-muted/20 p-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">
-                          Preview
-                        </span>
-                        <code className="text-xs text-muted-foreground">
-                          {formData.secondaryBrandColor}
-                        </code>
-                      </div>
-                      <div
-                        className="mt-4 h-12 w-full rounded border"
-                        style={{
-                          backgroundColor: formData.secondaryBrandColor,
-                        }}
-                      />
-                    </section>
                   </div>
                 </div>
               </div>
