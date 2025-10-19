@@ -142,7 +142,15 @@ export default function WebsiteSetupPage() {
             </div>
 
             <div className="flex items-center justify-between gap-4">
-              <Select value={domainProvider} onValueChange={setDomainProvider}>
+              <Select
+                value={domainProvider}
+                onValueChange={(newProvider) => {
+                  setDomainProvider(newProvider);
+                  if (accessGranted) {
+                    setAccessGranted(false);
+                  }
+                }}
+              >
                 <SelectTrigger
                   id="domainProvider"
                   className="w-full rounded cursor-pointer focus-visible:ring-[0px]"
@@ -164,18 +172,12 @@ export default function WebsiteSetupPage() {
               <Button
                 type="button"
                 variant={accessGranted ? "default" : "outline"}
-                className={`rounded ${accessGranted && "bg-primary text-primary-foreground"}`}
+                className={`rounded cursor-pointer ${accessGranted && "bg-primary text-primary-foreground"}`}
                 onClick={() => setAccessGranted((v) => !v)}
                 disabled={!domainProvider}
                 aria-pressed={accessGranted}
               >
-                {accessGranted ? (
-                  <>
-                    Granted <Check className="w-4 h-4 ml-2" />
-                  </>
-                ) : (
-                  "Grant access"
-                )}
+                {accessGranted ? "Granted" : "Grant access"}
               </Button>
             </div>
           </div>
