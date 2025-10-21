@@ -9,6 +9,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 type Accept = string | string[];
 
+export interface FileRejection {
+  file: File;
+  reason: string;
+}
+
 export type FileUploaderProps = {
   accept?: Accept;
   multiple?: boolean;
@@ -20,7 +25,7 @@ export type FileUploaderProps = {
   className?: string;
   label?: string;
   description?: string;
-  onReject?: (rejections: { file: File; reason: string }[]) => void;
+  onReject?: (rejections: FileRejection[]) => void;
 };
 
 export function FileUploader({
@@ -33,7 +38,6 @@ export function FileUploader({
   disabled,
   className,
   label = "Upload files",
-  description = "Drag and drop files here, or click to browse.",
   onReject,
 }: FileUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null);

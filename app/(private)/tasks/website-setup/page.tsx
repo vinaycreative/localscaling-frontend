@@ -17,6 +17,8 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { OnboardingHeader } from "../business-information/page";
+import LegalAssetUploader from "./components/legal-asset-uploader";
+import LegalLinkInput from "./components/legal-link-input";
 import { TagInput } from "./components/tag-input";
 
 const OnboardingVideo = () => {
@@ -51,7 +53,8 @@ const initialWebsiteSetupFormData: WebsiteSetupFormData = {
   domainProvider: "",
   accessGranted: false,
   businessClientsWorked: [],
-  legalLinksOrFiles: [],
+  legalFiles: null,
+  legalLinks: [],
 };
 
 export default function WebsiteSetupPage() {
@@ -68,6 +71,20 @@ export default function WebsiteSetupPage() {
     setFormData((prev) => ({
       ...prev,
       businessClientsWorked: newClients,
+    }));
+  };
+
+  const handleLegalFilesChange = (newFiles: File[]) => {
+    setFormData((prev) => ({
+      ...prev,
+      legalFiles: newFiles,
+    }));
+  };
+
+  const handleLegalLinksChange = (newLinks: string[]) => {
+    setFormData((prev) => ({
+      ...prev,
+      legalLinks: newLinks,
     }));
   };
 
@@ -90,11 +107,9 @@ export default function WebsiteSetupPage() {
 
         <div className="lg:col-span-2 bg-card rounded border p-4 sm:p-6 space-y-6">
           <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Label htmlFor="domainProvider">
-                Domain provider <span className="text-primary">*</span>
-              </Label>
-            </div>
+            <Label htmlFor="domainProvider">
+              Domain provider <span className="text-primary">*</span>
+            </Label>
 
             <div className="flex items-center justify-between gap-4">
               <Select
@@ -159,6 +174,21 @@ export default function WebsiteSetupPage() {
                 Enter a client name and press Enter to add it as a tag. Press
                 Backspace to remove the last tag.
               </p>
+            </div>
+
+            <div className="space-y-2 pt-4">
+              <LegalAssetUploader
+                label="Legal Asset Uploader"
+                multiple={true}
+                value={formData.legalFiles}
+                onChange={handleLegalFilesChange}
+                maxFiles={5}
+              />
+
+              <LegalLinkInput
+                value={formData.legalLinks}
+                onChange={handleLegalLinksChange}
+              />
             </div>
           </div>
 

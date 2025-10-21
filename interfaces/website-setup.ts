@@ -2,5 +2,6 @@ export interface WebsiteSetupFormData {
   accessGranted: boolean;
   domainProvider: string;
   businessClientsWorked: string[];
-  legalLinksOrFiles: string[];
+  legalLinks: string[];
+  legalFiles: File[] | null;
 }
