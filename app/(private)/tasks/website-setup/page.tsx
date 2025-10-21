@@ -17,6 +17,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { OnboardingHeader } from "../business-information/page";
+import { TagInput } from "./components/tag-input";
 
 const OnboardingVideo = () => {
   return (
@@ -49,6 +50,7 @@ const OnboardingVideo = () => {
 const initialWebsiteSetupFormData: WebsiteSetupFormData = {
   domainProvider: "",
   accessGranted: false,
+  businessClientsWorked: [],
 };
 
 export default function WebsiteSetupPage() {
@@ -59,6 +61,13 @@ export default function WebsiteSetupPage() {
 
   const onNext = () => {
     router.push("/tasks/tracking-analytics");
+  };
+
+  const handleClientsChange = (newClients: string[]) => {
+    setFormData((prev) => ({
+      ...prev,
+      businessClientsWorked: newClients,
+    }));
   };
 
   return (
@@ -135,6 +144,20 @@ export default function WebsiteSetupPage() {
               >
                 {formData.accessGranted ? "Granted" : "Grant access"}
               </Button>
+            </div>
+
+            <div className="space-y-2 pt-4">
+              <TagInput
+                label="Business Clients Worked"
+                placeholder="e.g., Google, Amazon, Acme Corp (Press Enter to add)"
+                value={formData.businessClientsWorked}
+                onChange={handleClientsChange}
+                required={true}
+              />
+              <p className="text-xs text-muted-foreground mt-[2px]">
+                Enter a client name and press Enter to add it as a tag. Press
+                Backspace to remove the last tag.
+              </p>
             </div>
           </div>
 
