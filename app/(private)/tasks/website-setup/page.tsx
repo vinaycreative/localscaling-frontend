@@ -55,6 +55,7 @@ const initialWebsiteSetupFormData: WebsiteSetupFormData = {
   businessClientsWorked: [],
   legalFiles: null,
   legalLinks: [],
+  seoLocations: [],
 };
 
 export default function WebsiteSetupPage() {
@@ -71,6 +72,13 @@ export default function WebsiteSetupPage() {
     setFormData((prev) => ({
       ...prev,
       businessClientsWorked: newClients,
+    }));
+  };
+
+  const handleSEOChange = (seoLocations: string[]) => {
+    setFormData((prev) => ({
+      ...prev,
+      seoLocations,
     }));
   };
 
@@ -188,6 +196,15 @@ export default function WebsiteSetupPage() {
               <LegalLinkInput
                 value={formData.legalLinks}
                 onChange={handleLegalLinksChange}
+              />
+            </div>
+            <div className="space-y-2 pt-4">
+              <TagInput
+                label="Most Important Locations for SEO"
+                placeholder="Enter SEO Location"
+                value={formData.seoLocations}
+                onChange={handleSEOChange}
+                required={true}
               />
             </div>
           </div>

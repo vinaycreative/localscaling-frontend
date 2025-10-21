@@ -4,4 +4,5 @@ export interface WebsiteSetupFormData {
   businessClientsWorked: string[];
   legalLinks: string[];
   legalFiles: File[] | null;
+  seoLocations:string[];
 }
