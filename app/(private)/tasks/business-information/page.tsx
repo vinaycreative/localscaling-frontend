@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { BusinessFormData } from "@/interfaces/business-information";
 import { ArrowLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -65,29 +66,9 @@ const OnboardingVideo = () => {
   );
 };
 
-interface FormData {
-  company: string;
-  startYear: string;
-  streetAddress: string;
-  postalCode: string;
-  city: string;
-  state: string;
-  country: string;
-  vatId: string;
-  contactName: string;
-  email: string;
-  contactNumber: string;
-  whatsappNumber: string;
-  website: string;
-  facebook: string;
-  instagram: string;
-  twitter: string;
-  googleBusinessProfileLink: string;
-}
-
 function BusinessInformationPage() {
   const router = useRouter();
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<BusinessFormData>({
     company: "",
     startYear: "",
     streetAddress: "",
@@ -170,7 +151,7 @@ function BusinessInformationPage() {
               </div>
               <div className="space-y-2 col-span-1">
                 <Label htmlFor="startYear">
-                  Start year <span className="text-primary">*</span>
+                  Company Start year <span className="text-primary">*</span>
                 </Label>
                 <Select
                   onValueChange={(value) =>
@@ -346,7 +327,9 @@ function BusinessInformationPage() {
             </div>
 
             <div className="space-y-2 mt-4">
-              <Label htmlFor="website">Current website</Label>
+              <Label htmlFor="website">
+                Current website<span className="text-primary">*</span>
+              </Label>
               <div className="flex">
                 <div className="flex items-center px-3 bg-muted border border-r-0 rounded-l">
                   <span className="text-sm text-muted-foreground">

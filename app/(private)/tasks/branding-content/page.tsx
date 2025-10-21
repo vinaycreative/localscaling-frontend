@@ -4,44 +4,22 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  BrandingContentFormData,
+  IntroductoryVideoOption,
+  OnboardingVideoProps,
+  TeamMember,
+} from "@/interfaces/branding-content";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import type React from "react";
 import { useState } from "react";
 import { OnboardingHeader } from "../business-information/page";
-import BrandAssetUploader from "../components/brand-asset-uploader";
-import ColorPickerInput from "../components/color-picker";
-import { TeamMemberList } from "./member-entry-list";
-import { VideoUpload } from "./video-upload";
-
-type videoCreationOption = "upload" | "studio" | "remote";
-
-interface OnboardingVideoProps {
-  step: number;
-}
-
-export interface CeoVideoData {
-  file?: File;
-  url?: string;
-  preview?: string;
-}
-
-interface TeamMember {
-  name: string;
-  position: string;
-}
-
-interface BrandingContentFormData {
-  fontLink: string;
-  primaryBrandColor: string;
-  secondaryBrandColor: string;
-  logoFile: File | null;
-  teamPhotos: File[] | null;
-  teamMembers: TeamMember[];
-  ceoVideo: CeoVideoData | null;
-  videoCreationOption: videoCreationOption;
-}
+import BrandAssetUploader from "./components/brand-asset-uploader";
+import ColorPickerInput from "./components/color-picker";
+import { TeamMemberList } from "./components/member-entry-list";
+import { VideoUpload } from "./components/video-upload";
 
 const initialFormData: BrandingContentFormData = {
   fontLink: "",
@@ -50,8 +28,9 @@ const initialFormData: BrandingContentFormData = {
   logoFile: null,
   teamPhotos: null,
   teamMembers: [{ name: "", position: "" }],
-  ceoVideo: null,
   videoCreationOption: "upload",
+  ceoVideo: null,
+  videoTestimonial: null,
 };
 
 const OnboardingVideo = ({ step }: OnboardingVideoProps) => {
@@ -89,17 +68,10 @@ function BrandingContentPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] =
     useState<BrandingContentFormData>(initialFormData);
-  const [selectedOption, setSelectedOption] =
-    useState<videoCreationOption>("upload");
+  const [introVideoOption, setIntroVideoOption] =
+    useState<IntroductoryVideoOption>("upload");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const totalSteps = 2;
-
-  const handleCeoVideoChange = (videoData: CeoVideoData | null) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      ceoVideo: videoData,
-    }));
-  };
+  const totalSteps = 3;
 
   const handleTeamMembersChange = (nextMembers: TeamMember[]) => {
     setFormData((prevData) => ({
@@ -118,18 +90,7 @@ function BrandingContentPage() {
     }));
   };
 
-  const handleFileUpload = (
-    file: File | File[] | null,
-    field: "logoFile" | "teamPhotos"
-  ) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      [field]: file,
-    }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     setIsSubmitting(true);
     console.log("Form Data Submitted:", formData);
     setIsSubmitting(false);
@@ -158,6 +119,24 @@ function BrandingContentPage() {
     }));
   };
 
+  const handleFileUpload = (
+    file: File | File[] | null,
+    field: "logoFile" | "teamPhotos" | "ceoVideo" | "videoTestimonial"
+  ) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [field]: file,
+    }));
+
+    if (field === "ceoVideo" && file) {
+      setIntroVideoOption("upload");
+      setFormData((prevData) => ({
+        ...prevData,
+        videoCreationOption: "upload",
+      }));
+    }
+  };
+
   return (
     <div className="flex flex-col gap-4 min-h-screen">
       <SiteHeader>
@@ -172,7 +151,7 @@ function BrandingContentPage() {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="grid lg:grid-cols-3 gap-8">
+      <div className="grid lg:grid-cols-3 gap-8">
         <OnboardingVideo step={currentStep} />
 
         <div className="space-y-4 lg:col-span-2 bg-background p-4 rounded">
@@ -213,21 +192,6 @@ function BrandingContentPage() {
                         handleColorChange("primaryBrandColor", hex)
                       }
                     />
-
-                    <section className="rounded border bg-muted/20 p-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">
-                          Preview
-                        </span>
-                        <code className="text-xs text-muted-foreground">
-                          {formData.primaryBrandColor}
-                        </code>
-                      </div>
-                      <div
-                        className="mt-4 h-12 w-full rounded border"
-                        style={{ backgroundColor: formData.primaryBrandColor }}
-                      />
-                    </section>
                   </div>
                   <div>
                     <ColorPickerInput
@@ -236,23 +200,6 @@ function BrandingContentPage() {
                         handleColorChange("secondaryBrandColor", hex)
                       }
                     />
-
-                    <section className="rounded border bg-muted/20 p-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">
-                          Preview
-                        </span>
-                        <code className="text-xs text-muted-foreground">
-                          {formData.secondaryBrandColor}
-                        </code>
-                      </div>
-                      <div
-                        className="mt-4 h-12 w-full rounded border"
-                        style={{
-                          backgroundColor: formData.secondaryBrandColor,
-                        }}
-                      />
-                    </section>
                   </div>
                 </div>
               </div>
@@ -302,8 +249,8 @@ function BrandingContentPage() {
                 </Label>
 
                 <VideoUpload
-                  onChange={handleCeoVideoChange}
                   value={formData.ceoVideo}
+                  onChange={(file) => handleFileUpload(file, "ceoVideo")}
                 />
               </div>
 
@@ -317,10 +264,16 @@ function BrandingContentPage() {
                   <Button
                     type="button"
                     variant={"outline"}
-                    onClick={() => setSelectedOption("studio")}
-                    className={`rounded cursor-pointer transition-all duration-300 ${
-                      selectedOption === "studio" &&
-                      "border-primary bg-primary/5"
+                    onClick={() => {
+                      setIntroVideoOption("studio");
+                      setFormData((prev) => ({
+                        ...prev,
+                        videoCreationOption: "studio",
+                      }));
+                    }}
+                    className={`rounded cursor-pointer transition-all duration-300 w-fit justify-start ${
+                      introVideoOption === "studio" &&
+                      "ring-2 ring-primary border-primary bg-accent/20"
                     }`}
                     disabled={!!formData.ceoVideo}
                   >
@@ -338,9 +291,16 @@ function BrandingContentPage() {
                   <Button
                     type="button"
                     variant={"outline"}
-                    className={`rounded cursor-pointer transition-all duration-300 ${
-                      selectedOption === "remote" &&
-                      "border-primary bg-primary/5"
+                    onClick={() => {
+                      setIntroVideoOption("remote");
+                      setFormData((prev) => ({
+                        ...prev,
+                        videoCreationOption: "remote",
+                      }));
+                    }}
+                    className={`rounded cursor-pointer transition-all duration-300 w-fit justify-start ${
+                      introVideoOption === "remote" &&
+                      "ring-2 ring-primary border-primary bg-accent/20"
                     }`}
                     disabled={!!formData.ceoVideo}
                   >
@@ -355,9 +315,32 @@ function BrandingContentPage() {
             </div>
           )}
 
+          {currentStep === 3 && (
+            <div className="space-y-4">
+              <div className="mb-4">
+                <p className="text-muted-foreground italic text-xs">
+                  Please watch the entire video, before proceeding with the
+                  form.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label>
+                  Video testimonials <span className="text-primary">*</span>
+                </Label>
+
+                <VideoUpload
+                  value={formData.videoTestimonial}
+                  onChange={(file) =>
+                    handleFileUpload(file, "videoTestimonial")
+                  }
+                />
+              </div>
+            </div>
+          )}
+
           <div className="flex p-2 pt-4 gap-2 justify-end border-t">
             <Button
-              type="button"
               variant="outline"
               className="rounded bg-transparent cursor-pointer group"
               onClick={handlePrevious}
@@ -368,7 +351,6 @@ function BrandingContentPage() {
 
             {currentStep < totalSteps ? (
               <Button
-                type="button"
                 className="rounded bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer group"
                 onClick={handleNext}
               >
@@ -377,7 +359,7 @@ function BrandingContentPage() {
               </Button>
             ) : (
               <Button
-                type="submit"
+                onClick={handleSubmit}
                 className="rounded bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer group"
                 disabled={isSubmitting}
               >
@@ -387,7 +369,7 @@ function BrandingContentPage() {
             )}
           </div>
         </div>
-      </form>
+      </div>
     </div>
   );
 }

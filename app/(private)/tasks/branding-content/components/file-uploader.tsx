@@ -1,12 +1,18 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { ImageUp, X } from "lucide-react";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 type Accept = string | string[];
+
+export interface FileRejection {
+  file: File;
+  reason: string;
+}
 
 export type FileUploaderProps = {
   accept?: Accept;
@@ -19,7 +25,7 @@ export type FileUploaderProps = {
   className?: string;
   label?: string;
   description?: string;
-  onReject?: (rejections: { file: File; reason: string }[]) => void;
+  onReject?: (rejections: FileRejection[]) => void;
 };
 
 export function FileUploader({
@@ -32,7 +38,6 @@ export function FileUploader({
   disabled,
   className,
   label = "Upload files",
-  description = "Drag and drop files here, or click to browse.",
   onReject,
 }: FileUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -218,10 +223,10 @@ export function FileUploader({
 
   return (
     <div className={cn("w-full", className)}>
-      <label className="block text-sm font-medium text-foreground mb-2">
+      <Label className="mb-2">
         {label}
         <span className="text-primary">*</span>
-      </label>
+      </Label>
       <div
         role="button"
         tabIndex={disabled ? -1 : 0}
@@ -266,11 +271,15 @@ export function FileUploader({
           >
             <ImageUp />
           </div>
-          <p className="text-sm">
-            <span className="text-primary cursor-pointer">Click to upload</span>{" "}
-            or drag and drop
-          </p>
-          <p className="text-sm"> SVG, PNG or JPG</p>
+          <div className="flex flex-col gap-1">
+            <p className="text-sm text-muted-foreground">
+              <span className="text-primary cursor-pointer">
+                Click to upload
+              </span>{" "}
+              or drag and drop
+            </p>
+            <p className="text-xs text-muted-foreground"> SVG, PNG or JPG</p>
+          </div>
 
           <div className="mt-2">
             <Button
