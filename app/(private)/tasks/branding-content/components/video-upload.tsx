@@ -1,33 +1,52 @@
 "use client";
 
-import type React from "react";
-
 import { useToastContext } from "@/components/providers/toast";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
-import { CloudUpload, ExternalLink, X } from "lucide-react";
-import Link from "next/link";
-import { useRef, useState } from "react";
-import { CeoVideoData } from "./page";
+import { Button } from "@/components/ui/button";
+import { CloudUpload, X } from "lucide-react";
+import type React from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface VideoUploadProps {
   maxSize?: number;
-  onChange: (videoData: CeoVideoData | null) => void;
-  value: CeoVideoData | null;
+  value: File | null;
+  onChange: (file: File | null) => void;
 }
 
+const createFileState = (file: File | null) => {
+  if (!file) return null;
+  return {
+    file,
+    preview: URL.createObjectURL(file),
+  };
+};
+
 export function VideoUpload({
-  value,
   maxSize = 100,
+  value,
   onChange,
 }: VideoUploadProps) {
-  const [video, setVideo] = useState(value);
+  const [videoState, setVideoState] = useState<{
+    file: File;
+    preview: string;
+  } | null>(createFileState(value));
+
   const { setToastMessage } = useToastContext();
   const [isDragging, setIsDragging] = useState(false);
-  const [urlInput, setUrlInput] = useState("");
-  const [showUrlInput, setShowUrlInput] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (value !== videoState?.file) {
+      if (videoState?.preview) {
+        URL.revokeObjectURL(videoState.preview);
+      }
+      setVideoState(createFileState(value));
+    }
+    return () => {
+      if (videoState?.preview) {
+        URL.revokeObjectURL(videoState.preview);
+      }
+    };
+  }, [value, videoState?.file, videoState?.preview]);
 
   const supportedFormats = ["MP4", "MOV", "WebM", "AVI"];
 
@@ -56,10 +75,7 @@ export function VideoUpload({
 
   const handleFileSelect = (file: File) => {
     if (!validateFile(file)) return;
-
-    const preview = URL.createObjectURL(file);
-    setVideo({ file, preview });
-    onChange({ file, preview });
+    onChange(file);
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
@@ -72,31 +88,19 @@ export function VideoUpload({
     }
   };
 
-  const handleUrlSubmit = () => {
-    if (!urlInput.trim()) {
-      setToastMessage("Please enter a valid URL");
-      return;
-    }
-
-    setVideo({ url: urlInput });
-    setUrlInput("");
-    setShowUrlInput(false);
-    onChange({ url: urlInput });
-  };
-
   const handleClear = () => {
-    setVideo(null);
-    setUrlInput("");
     onChange(null);
-    setShowUrlInput(false);
+
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   };
 
+  const isVideoPresent = !!videoState;
+
   return (
     <div className="w-full space-y-4">
-      {!video ? (
+      {!isVideoPresent ? (
         <div
           className={`border rounded border-dashed hover:bg-muted/20 transition-all duration-300 cursor-pointer ${
             isDragging && "bg-muted/20"
@@ -116,15 +120,10 @@ export function VideoUpload({
               </div>
             </div>
 
-            <div className="space-y-2">
-              <p className="font-medium text-foreground">
-                <span className="text-primary">Click to upload</span> or drag
-                and drop
-              </p>
-              <p className="text-xs text-muted-foreground">
-                MP4, MOV or URL (Youtube/Vimeo/Drive Link)
-              </p>
-            </div>
+            <p className="font-medium text-foreground">
+              <span className="text-primary">Click to upload</span> or drag and
+              drop
+            </p>
 
             <div className="flex gap-2 justify-center">
               <Button
@@ -138,43 +137,7 @@ export function VideoUpload({
               >
                 Choose File
               </Button>
-              <Button
-                type="button"
-                variant="outline"
-                className="font-normal hover:bg-muted/20 transition-all duration-300 cursor-pointer rounded"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowUrlInput(!showUrlInput);
-                }}
-              >
-                Paste URL
-              </Button>
             </div>
-
-            {showUrlInput && (
-              <div className="flex gap-2 pt-2">
-                <Input
-                  placeholder="Enter YouTube, Vimeo, or Drive link..."
-                  value={urlInput}
-                  onChange={(e) => setUrlInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleUrlSubmit()}
-                  className="text-sm rounded"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                />
-                <Button
-                  type="button"
-                  className="rounded"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleUrlSubmit();
-                  }}
-                >
-                  Add
-                </Button>
-              </div>
-            )}
 
             <input
               ref={fileInputRef}
@@ -189,10 +152,10 @@ export function VideoUpload({
         </div>
       ) : (
         <div className="p-4 border overflow-hidden">
-          {video.preview && (
+          {videoState?.preview && (
             <div className="relative aspect-video flex items-center justify-center">
               <video
-                src={video.preview}
+                src={videoState.preview}
                 className="w-full h-full object-cover rounded "
                 controls
               />
@@ -200,37 +163,21 @@ export function VideoUpload({
           )}
 
           <div className="p-4 space-y-3">
-            {video.file && (
+            {videoState?.file && (
               <div className="space-y-1 flex gap-2 justify-between items-center">
                 <p className="text-sm font-medium text-foreground truncate">
-                  {video.file.name}
+                  {videoState.file.name}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {(video.file.size / (1024 * 1024)).toFixed(2)} MB
+                  {(videoState.file.size / (1024 * 1024)).toFixed(2)} MB
                 </p>
               </div>
             )}
-            <div className="flex gap-2 w-full ">
-              {video.url && (
-                <Link
-                  href={video.url}
-                  className={cn(
-                    buttonVariants({ variant: "outline" }),
-                    " flex-1 hover:bg-muted/20 transition-all duration-300 font-normal rounded cursor-pointer"
-                  )}
-                  target="_blank"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                >
-                  View Video
-                  <ExternalLink className="w-4 h-4 ml-2" />
-                </Link>
-              )}
+            <div className="flex gap-2 ">
               <Button
                 type="button"
                 variant="outline"
-                className="flex-1 hover:bg-muted/20 transition-all duration-300 font-normal rounded cursor-pointer"
+                className="w-full hover:bg-muted/20 transition-all duration-300 font-normal rounded"
                 onClick={handleClear}
               >
                 <X className="w-4 h-4 mr-2" />

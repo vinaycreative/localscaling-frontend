@@ -1,13 +1,7 @@
-export type VideoCreationOption = "upload" | "studio" | "remote";
+export type IntroductoryVideoOption = "upload" | "studio" | "remote";
 
 export interface OnboardingVideoProps {
   step: number;
-}
-
-export interface CeoVideoData {
-  file?: File;
-  url?: string;
-  preview?: string;
 }
 
 export interface TeamMember {
@@ -22,6 +16,7 @@ export interface BrandingContentFormData {
   logoFile: File | null;
   teamPhotos: File[] | null;
   teamMembers: TeamMember[];
-  ceoVideo: CeoVideoData | null;
-  videoCreationOption: VideoCreationOption;
+  ceoVideo: File | null;
+  videoCreationOption: IntroductoryVideoOption;
+  videoTestimonial: File | null;
 }

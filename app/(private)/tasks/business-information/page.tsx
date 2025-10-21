@@ -151,7 +151,7 @@ function BusinessInformationPage() {
               </div>
               <div className="space-y-2 col-span-1">
                 <Label htmlFor="startYear">
-                  Start year <span className="text-primary">*</span>
+                  Company Start year <span className="text-primary">*</span>
                 </Label>
                 <Select
                   onValueChange={(value) =>
@@ -327,7 +327,9 @@ function BusinessInformationPage() {
             </div>
 
             <div className="space-y-2 mt-4">
-              <Label htmlFor="website">Current website</Label>
+              <Label htmlFor="website">
+                Current website<span className="text-primary">*</span>
+              </Label>
               <div className="flex">
                 <div className="flex items-center px-3 bg-muted border border-r-0 rounded-l">
                   <span className="text-sm text-muted-foreground">

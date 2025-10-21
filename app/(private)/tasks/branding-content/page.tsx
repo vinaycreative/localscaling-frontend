@@ -6,10 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   BrandingContentFormData,
-  CeoVideoData,
+  IntroductoryVideoOption,
   OnboardingVideoProps,
   TeamMember,
-  VideoCreationOption,
 } from "@/interfaces/branding-content";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
@@ -29,8 +28,9 @@ const initialFormData: BrandingContentFormData = {
   logoFile: null,
   teamPhotos: null,
   teamMembers: [{ name: "", position: "" }],
-  ceoVideo: null,
   videoCreationOption: "upload",
+  ceoVideo: null,
+  videoTestimonial: null,
 };
 
 const OnboardingVideo = ({ step }: OnboardingVideoProps) => {
@@ -68,17 +68,10 @@ function BrandingContentPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] =
     useState<BrandingContentFormData>(initialFormData);
-  const [selectedOption, setSelectedOption] =
-    useState<VideoCreationOption>("upload");
+  const [introVideoOption, setIntroVideoOption] =
+    useState<IntroductoryVideoOption>("upload");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const totalSteps = 2;
-
-  const handleCeoVideoChange = (videoData: CeoVideoData | null) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      ceoVideo: videoData,
-    }));
-  };
+  const totalSteps = 3;
 
   const handleTeamMembersChange = (nextMembers: TeamMember[]) => {
     setFormData((prevData) => ({
@@ -94,16 +87,6 @@ function BrandingContentPage() {
     setFormData((prevData) => ({
       ...prevData,
       [field]: hex,
-    }));
-  };
-
-  const handleFileUpload = (
-    file: File | File[] | null,
-    field: "logoFile" | "teamPhotos"
-  ) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      [field]: file,
     }));
   };
 
@@ -134,6 +117,24 @@ function BrandingContentPage() {
       ...prevData,
       [id]: value,
     }));
+  };
+
+  const handleFileUpload = (
+    file: File | File[] | null,
+    field: "logoFile" | "teamPhotos" | "ceoVideo" | "videoTestimonial"
+  ) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [field]: file,
+    }));
+
+    if (field === "ceoVideo" && file) {
+      setIntroVideoOption("upload");
+      setFormData((prevData) => ({
+        ...prevData,
+        videoCreationOption: "upload",
+      }));
+    }
   };
 
   return (
@@ -248,8 +249,8 @@ function BrandingContentPage() {
                 </Label>
 
                 <VideoUpload
-                  onChange={handleCeoVideoChange}
                   value={formData.ceoVideo}
+                  onChange={(file) => handleFileUpload(file, "ceoVideo")}
                 />
               </div>
 
@@ -263,10 +264,16 @@ function BrandingContentPage() {
                   <Button
                     type="button"
                     variant={"outline"}
-                    onClick={() => setSelectedOption("studio")}
-                    className={`rounded cursor-pointer transition-all duration-300 ${
-                      selectedOption === "studio" &&
-                      "border-primary bg-primary/5"
+                    onClick={() => {
+                      setIntroVideoOption("studio");
+                      setFormData((prev) => ({
+                        ...prev,
+                        videoCreationOption: "studio",
+                      }));
+                    }}
+                    className={`rounded cursor-pointer transition-all duration-300 w-fit justify-start ${
+                      introVideoOption === "studio" &&
+                      "ring-2 ring-primary border-primary bg-accent/20"
                     }`}
                     disabled={!!formData.ceoVideo}
                   >
@@ -284,9 +291,16 @@ function BrandingContentPage() {
                   <Button
                     type="button"
                     variant={"outline"}
-                    className={`rounded cursor-pointer transition-all duration-300 ${
-                      selectedOption === "remote" &&
-                      "border-primary bg-primary/5"
+                    onClick={() => {
+                      setIntroVideoOption("remote");
+                      setFormData((prev) => ({
+                        ...prev,
+                        videoCreationOption: "remote",
+                      }));
+                    }}
+                    className={`rounded cursor-pointer transition-all duration-300 w-fit justify-start ${
+                      introVideoOption === "remote" &&
+                      "ring-2 ring-primary border-primary bg-accent/20"
                     }`}
                     disabled={!!formData.ceoVideo}
                   >
@@ -297,6 +311,30 @@ function BrandingContentPage() {
                     video call and edit it for you.
                   </p>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {currentStep === 3 && (
+            <div className="space-y-4">
+              <div className="mb-4">
+                <p className="text-muted-foreground italic text-xs">
+                  Please watch the entire video, before proceeding with the
+                  form.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label>
+                  Video testimonials <span className="text-primary">*</span>
+                </Label>
+
+                <VideoUpload
+                  value={formData.videoTestimonial}
+                  onChange={(file) =>
+                    handleFileUpload(file, "videoTestimonial")
+                  }
+                />
               </div>
             </div>
           )}

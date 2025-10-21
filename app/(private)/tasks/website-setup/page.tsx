@@ -51,6 +51,7 @@ const initialWebsiteSetupFormData: WebsiteSetupFormData = {
   domainProvider: "",
   accessGranted: false,
   businessClientsWorked: [],
+  legalLinksOrFiles: [],
 };
 
 export default function WebsiteSetupPage() {

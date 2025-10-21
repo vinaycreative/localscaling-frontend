@@ -9,7 +9,7 @@ export const InputField = forwardRef<
     <input
       ref={ref}
       className={cn(
-        "flex-1 bg-transparent outline-none text-foreground placeholder:text-muted-foreground",
+        "flex-1 bg-transparent outline-none text-sm text-foreground placeholder:text-muted-foreground",
         "min-w-[120px]",
         className
       )}
