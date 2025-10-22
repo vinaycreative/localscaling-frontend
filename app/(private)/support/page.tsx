@@ -7,18 +7,18 @@ import DynamicHeader from "@/components/ui/dynamic-header"
 
 export default function SupportPage() {
   return (
-    <main className="flex flex-col gap-4 min-h-screen space-y-8">
+    <main className="flex flex-col gap-4 min-h-screen">
       <SiteHeader>
-        <DynamicHeader />
+        <DynamicHeader
+          text={
+            <p>
+              <span className="hover:underline cursor-pointer">Tasks Pending</span>
+              <span className="text-red-500 ml-1">(3)</span>
+            </p>
+          }
+        />
       </SiteHeader>
-      <div className="px-4 py-4 lg:px-0">
-        {/* Top breadcrumb-ish row */}
-        <div className="mb-2 flex items-center gap-2 text-sm text-muted-foreground">
-          <ArrowLeft className="h-4 w-4" />
-          <span className="hover:underline cursor-pointer">Tasks pending</span>
-          <span className="text-red-500">(3)</span>
-        </div>
-
+      <div>
         {/* Title + CTA */}
         <div className="mb-2 flex items-center justify-between">
           <div className="flex flex-col">
