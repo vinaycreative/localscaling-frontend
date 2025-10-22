@@ -9,7 +9,7 @@ interface TagProps {
 
 export function Tag({ label, onRemove }: TagProps) {
   return (
-    <div className="inline-flex border items-center gap-2 px-3 py-1.5 rounded text-sm font-medium transition-all duration-300  hover:bg-muted/20">
+    <div className="inline-flex border items-center gap-2 px-3 py-[3px] rounded text-sm transition-all duration-300  hover:bg-muted/20">
       <span>{label}</span>
       <button
         onClick={onRemove}

@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { BusinessFormData } from "@/interfaces/business-information";
+import { BusinessFormData } from "@/interfaces/onboarding/business-information";
 import { ArrowLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
