@@ -32,9 +32,11 @@ import {
   FileArchive,
   FileCode,
   FileSpreadsheet,
-  
   FileJson,
 } from "lucide-react"
+import ChatLoading from "../components/chat-loading"
+import { SiteHeader } from "@/components/layout/site-header"
+import { OnboardingHeader } from "../../tasks/business-information/page"
 
 /**
  * Returns an SVG icon component based on file type or extension.
@@ -281,6 +283,7 @@ export default function SupportChatPage() {
   const { supportId } = useParams<{ supportId: string }>()
   const router = useRouter()
 
+  const [loading, setLoading] = React.useState<boolean>(true)
   const [message, setMessage] = React.useState("")
   const [isGenerating, setIsGenerating] = React.useState(false)
   const timeout = React.useRef<number | null>(null)
@@ -306,133 +309,150 @@ export default function SupportChatPage() {
   const virtuosoRef = React.useRef<VirtuosoHandle>(null)
   const [files, setFiles] = React.useState<File[] | null>(null)
 
+  React.useEffect(() => {
+    setTimeout(() => {
+      setLoading(false)
+    }, 2000)
+  }, [])
+
   return (
     <div className="mx-auto w-full px-4 py-6 bg-background">
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-[1fr_320px]">
-        {/* Left */}
+      <SiteHeader>
+        <OnboardingHeader />
+      </SiteHeader>
+      {loading ? (
+        <ChatLoading />
+      ) : (
         <div>
-          {/* header */}
-          <div className="mb-4 flex items-center gap-3">
-            <div className="flex flex-col items-start">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="gap-1 px-0"
-                onClick={() => router.back()}
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Back
-              </Button>
-              <h1 className="text-xl font-semibold tracking-tight">#{thread.thread_id}</h1>
-            </div>
-
-            {/* mobile sidebar trigger */}
-            <div className="ml-auto md:hidden">
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button variant="outline" size="sm" className="gap-2">
-                    <PanelRight className="h-4 w-4" />
-                    Details
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-[1fr_320px]">
+            
+            {/* Left */}
+            <div>
+              {/* header */}
+              <div className="mb-4 flex items-center gap-3">
+                <div className="flex flex-col items-start">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="gap-1 px-0"
+                    onClick={() => router.back()}
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                    Back
                   </Button>
-                </SheetTrigger>
-                <SheetContent side="right" className="w-[320px] p-0">
-                  <RightSidebar other={other} />
-                </SheetContent>
-              </Sheet>
-            </div>
-          </div>
-          <div className="flex h-[78vh] flex-col">
-            <Virtuoso
-              className="space-y-4 scrollbar-thin scrollbar-thumb-blue-400 scrollbar-track-rounded-full overflow-y-scroll overflow-x-hidden"
-              ref={virtuosoRef}
-              data={thread?.messages}
-              // context={{ isScrolling }}
-              // isScrolling={setIsScrolling}
-              totalCount={thread?.messages?.length - 1}
-              initialTopMostItemIndex={thread?.messages?.length}
-              itemContent={(index, message) => {
-                const prev = index > 0 ? thread.messages[index - 1] : null
-                const showDivider = needsDateDivider(prev, message)
-                const sender = byId(thread.participants, message.sender_id)!
-                const isYou = message.sender_id === CURRENT_USER_ID
-
-                return (
-                  <React.Fragment key={message.id}>
-                    {showDivider && (
-                      <div className="my-4 flex items-center gap-3">
-                        <Separator className="flex-1" />
-                        <span className="text-xs text-muted-foreground">
-                          {TimeLabel(message.timestamp)}
-                        </span>
-                        <Separator className="flex-1" />
-                      </div>
-                    )}
-                    <MessageBubble
-                      author={isYou ? you.name : sender.name}
-                      avatarUrl={isYou ? you.avatar_url : sender.avatar_url}
-                      isYou={isYou}
-                      time={`${TimeLabel(message.timestamp)}, ${formatTime(message.timestamp)}`}
-                      text={message.content}
-                      attachments={message.attachments}
-                    />
-                  </React.Fragment>
-                )
-              }}
-            />
-
-            <div className={cn("rounded-lg border bg-background")}>
-              <Textarea
-                placeholder="Message"
-                rows={3}
-                className={cn(
-                  "min-h-[64px] max-h-[100px] w-full border-1 border-muted-foreground/20", // remove inner border
-                  "focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none", // no focus ring
-                  "px-3 py-3"
-                )}
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-              />
-
-              {/* Footer bar */}
-              <div className="flex items-center gap-4 rounded-b-lg bg-muted/20 px-3 py-2">
-                <div className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                  <SquareSlash className="h-4 w-4" />
-                  <span className="font-semibold text-gray-600 text-xs">Shortcuts</span>
+                  <h1 className="text-xl font-semibold tracking-tight">#{thread.thread_id}</h1>
                 </div>
 
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-                  onClick={() => fileRef.current?.click()}
-                >
-                  <Paperclip className="h-4 w-4" />
-                  <span className="font-semibold text-gray-600 text-xs">Attach</span>
-                </button>
+                {/* mobile sidebar trigger */}
+                <div className="ml-auto md:hidden">
+                  <Sheet>
+                    <SheetTrigger asChild>
+                      <Button variant="outline" size="sm" className="gap-2">
+                        <PanelRight className="h-4 w-4" />
+                        Details
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent side="right" className="w-[320px] p-0">
+                      <RightSidebar other={other} />
+                    </SheetContent>
+                  </Sheet>
+                </div>
+              </div>
+              <div className="flex h-[78vh] flex-col">
+                <Virtuoso
+                  className="space-y-4 scrollbar-thin scrollbar-thumb-blue-400 scrollbar-track-rounded-full overflow-y-scroll overflow-x-hidden"
+                  ref={virtuosoRef}
+                  data={thread?.messages}
+                  // context={{ isScrolling }}
+                  // isScrolling={setIsScrolling}
+                  totalCount={thread?.messages?.length - 1}
+                  initialTopMostItemIndex={thread?.messages?.length}
+                  itemContent={(index, message) => {
+                    const prev = index > 0 ? thread.messages[index - 1] : null
+                    const showDivider = needsDateDivider(prev, message)
+                    const sender = byId(thread.participants, message.sender_id)!
+                    const isYou = message.sender_id === CURRENT_USER_ID
 
-                {/* hidden file input */}
-                <input
-                  ref={fileRef}
-                  type="file"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0]
-                    // if (f && onAttach) onAttach(f)
-                    // reset so same file can be re-selected
-                    e.currentTarget.value = ""
+                    return (
+                      <React.Fragment key={message.id}>
+                        {showDivider && (
+                          <div className="my-4 flex items-center gap-3">
+                            <Separator className="flex-1" />
+                            <span className="text-xs text-muted-foreground">
+                              {TimeLabel(message.timestamp)}
+                            </span>
+                            <Separator className="flex-1" />
+                          </div>
+                        )}
+                        <MessageBubble
+                          author={isYou ? you.name : sender.name}
+                          avatarUrl={isYou ? you.avatar_url : sender.avatar_url}
+                          isYou={isYou}
+                          time={`${TimeLabel(message.timestamp)}, ${formatTime(message.timestamp)}`}
+                          text={message.content}
+                          attachments={message.attachments}
+                        />
+                      </React.Fragment>
+                    )
                   }}
                 />
+
+                <div className={cn("rounded-lg border bg-background")}>
+                  <Textarea
+                    placeholder="Message"
+                    rows={3}
+                    className={cn(
+                      "min-h-[64px] max-h-[100px] w-full border-1 border-muted-foreground/20", // remove inner border
+                      "focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none", // no focus ring
+                      "px-3 py-3"
+                    )}
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                  />
+
+                  {/* Footer bar */}
+                  <div className="flex items-center gap-4 rounded-b-lg bg-muted/20 px-3 py-2">
+                    <div className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                      <SquareSlash className="h-4 w-4" />
+                      <span className="font-semibold text-gray-600 text-xs">Shortcuts</span>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+                      onClick={() => fileRef.current?.click()}
+                    >
+                      <Paperclip className="h-4 w-4" />
+                      <span className="font-semibold text-gray-600 text-xs">Attach</span>
+                    </button>
+
+                    {/* hidden file input */}
+                    <input
+                      ref={fileRef}
+                      type="file"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        // if (f && onAttach) onAttach(f)
+                        // reset so same file can be re-selected
+                        e.currentTarget.value = ""
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right sidebar */}
+            <div>
+              {/* right sidebar (desktop only) */}
+              <div className="hidden md:block bg-background">
+                <RightSidebar other={other} />
               </div>
             </div>
           </div>
         </div>
-        {/* Right sidebar */}
-        <div>
-          {/* right sidebar (desktop only) */}
-          <div className="hidden md:block bg-background">
-            <RightSidebar other={other} />
-          </div>
-        </div>
-      </div>
+      )}
     </div>
   )
 }
