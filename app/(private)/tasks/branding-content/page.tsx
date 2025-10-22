@@ -9,7 +9,7 @@ import {
   IntroductoryVideoOption,
   OnboardingVideoProps,
   TeamMember,
-} from "@/interfaces/branding-content";
+} from "@/interfaces/onboarding/branding-content";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
