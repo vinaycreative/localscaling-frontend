@@ -316,7 +316,7 @@ export default function SupportChatPage() {
   }, [])
 
   return (
-    <div className="mx-auto w-full px-4 py-6 bg-background">
+    <div className="mx-auto w-full px-4 py-2 md:py-4 bg-background">
       <SiteHeader>
         <OnboardingHeader />
       </SiteHeader>
@@ -330,7 +330,7 @@ export default function SupportChatPage() {
             <div>
               {/* header */}
               <div className="mb-4 flex items-center gap-3">
-                <div className="flex flex-col items-start">
+                <div className="flex flex-row items-center ">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -358,7 +358,7 @@ export default function SupportChatPage() {
                   </Sheet>
                 </div>
               </div>
-              <div className="flex h-[78vh] flex-col">
+              <div className="flex h-[78vh] md:h-[80vh] flex-col">
                 <Virtuoso
                   className="space-y-4 scrollbar-thin scrollbar-thumb-blue-400 scrollbar-track-rounded-full overflow-y-scroll overflow-x-hidden"
                   ref={virtuosoRef}
