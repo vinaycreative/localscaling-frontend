@@ -325,12 +325,11 @@ export default function SupportChatPage() {
       ) : (
         <div>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-[1fr_320px]">
-            
             {/* Left */}
             <div>
               {/* header */}
               <div className="mb-4 flex items-center gap-3">
-                <div className="flex flex-row items-center ">
+                <div>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -358,7 +357,7 @@ export default function SupportChatPage() {
                   </Sheet>
                 </div>
               </div>
-              <div className="flex h-[78vh] md:h-[80vh] flex-col">
+              <div className="flex h-[74vh] md:h-[76vh] flex-col">
                 <Virtuoso
                   className="space-y-4 scrollbar-thin scrollbar-thumb-blue-400 scrollbar-track-rounded-full overflow-y-scroll overflow-x-hidden"
                   ref={virtuosoRef}
@@ -531,8 +530,8 @@ export function MessageBubble(props: {
 function RightSidebar({ other }: { other: Participant }) {
   return (
     <div className="h-full p-4">
-      <div className="flex items-center gap-3">
-        <Avatar className="h-12 w-12 relative border">
+      <div className="flex flex-col items-start gap-2">
+        <Avatar className="h-14 w-14 relative border mb-2">
           <AvatarImage src={other.avatar_url} alt={other.name} />
           <AvatarFallback>{other.name.slice(0, 2).toUpperCase()}</AvatarFallback>
           <span className="h-2 w-2 rounded-full bg-emerald-500 absolute bottom-0 right-0" />
@@ -565,7 +564,7 @@ function RightSidebar({ other }: { other: Participant }) {
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <CalendarClock className="h-4 w-4 text-muted-foreground" />
-                <span className="truncate text-sm font-medium">12.10.2025, 14.00 Uhr</span>
+                <span className="truncate text-sm font-semibold">12.10.2025, 14.00 Uhr</span>
               </div>
               <p className="truncate text-xs text-muted-foreground">Google Meet Call</p>
             </div>
