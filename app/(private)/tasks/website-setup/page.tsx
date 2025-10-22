@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { domainProviders } from "@/constants/website-setup";
-import { WebsiteSetupFormData } from "@/interfaces/website-setup";
+import { WebsiteSetupFormData } from "@/interfaces/onboarding/website-setup";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -64,8 +64,12 @@ export default function WebsiteSetupPage() {
     initialWebsiteSetupFormData
   );
 
-  const onNext = () => {
-    router.push("/tasks/tracking-analytics");
+  const handlePrev = () => {
+    router.push("/tasks/branding-content");
+  };
+
+  const handleNext = () => {
+    router.push("/tasks/tools-access");
   };
 
   const handleClientsChange = (newClients: string[]) => {
@@ -114,63 +118,64 @@ export default function WebsiteSetupPage() {
         <OnboardingVideo />
 
         <div className="lg:col-span-2 bg-card rounded border p-4 sm:p-6 space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="domainProvider">
-              Domain provider <span className="text-primary">*</span>
-            </Label>
-
-            <div className="flex items-center justify-between gap-4">
-              <Select
-                value={formData.domainProvider}
-                onValueChange={(newProvider) => {
-                  setFormData({
-                    ...formData,
-                    domainProvider: newProvider,
-                  });
-                  if (formData.accessGranted) {
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="domainProvider">
+                Domain provider <span className="text-primary">*</span>
+              </Label>
+              <div className="flex items-center justify-between gap-4">
+                <Select
+                  value={formData.domainProvider}
+                  onValueChange={(newProvider) => {
                     setFormData({
                       ...formData,
-                      accessGranted: false,
+                      domainProvider: newProvider,
                     });
-                  }
-                }}
-              >
-                <SelectTrigger
-                  id="domainProvider"
-                  className="w-full rounded cursor-pointer focus-visible:ring-[0px]"
+                    if (formData.accessGranted) {
+                      setFormData({
+                        ...formData,
+                        accessGranted: false,
+                      });
+                    }
+                  }}
                 >
-                  <SelectValue placeholder="Select domain provider (Fields – Strato, GoDaddy, etc.)" />
-                </SelectTrigger>
-                <SelectContent className="rounded">
-                  {domainProviders.map((domain) => (
-                    <SelectItem
-                      className="rounded cursor-pointer"
-                      key={domain}
-                      value={domain}
-                    >
-                      {domain}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button
-                type="button"
-                variant={formData.accessGranted ? "default" : "outline"}
-                className={`rounded cursor-pointer ${formData.accessGranted && "bg-primary text-primary-foreground"}`}
-                onClick={() =>
-                  setFormData({
-                    ...formData,
-                    accessGranted: !formData.accessGranted,
-                  })
-                }
-                disabled={!formData.domainProvider}
-                aria-pressed={formData.accessGranted}
-              >
-                {formData.accessGranted ? "Granted" : "Grant access"}
-              </Button>
+                  <SelectTrigger
+                    id="domainProvider"
+                    className="w-full rounded cursor-pointer focus-visible:ring-[0px]"
+                  >
+                    <SelectValue placeholder="Select domain provider (Fields – Strato, GoDaddy, etc.)" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded">
+                    {domainProviders.map((domain) => (
+                      <SelectItem
+                        className="rounded cursor-pointer"
+                        key={domain}
+                        value={domain}
+                      >
+                        {domain}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button
+                  type="button"
+                  variant={formData.accessGranted ? "default" : "outline"}
+                  className={`rounded cursor-pointer ${formData.accessGranted && "bg-primary text-primary-foreground"}`}
+                  onClick={() =>
+                    setFormData({
+                      ...formData,
+                      accessGranted: !formData.accessGranted,
+                    })
+                  }
+                  disabled={!formData.domainProvider}
+                  aria-pressed={formData.accessGranted}
+                >
+                  {formData.accessGranted ? "Granted" : "Grant access"}
+                </Button>
+              </div>
             </div>
 
-            <div className="space-y-2 pt-4">
+            <div className="space-y-2">
               <TagInput
                 label="Business Clients Worked"
                 placeholder="e.g., Google, Amazon, Acme Corp (Press Enter to add)"
@@ -184,7 +189,7 @@ export default function WebsiteSetupPage() {
               </p>
             </div>
 
-            <div className="space-y-2 pt-4">
+            <div className="space-y-2">
               <LegalAssetUploader
                 label="Legal Asset Uploader"
                 multiple={true}
@@ -198,15 +203,14 @@ export default function WebsiteSetupPage() {
                 onChange={handleLegalLinksChange}
               />
             </div>
-            <div className="space-y-2 pt-4">
-              <TagInput
-                label="Most Important Locations for SEO"
-                placeholder="Enter SEO Location"
-                value={formData.seoLocations}
-                onChange={handleSEOChange}
-                required={true}
-              />
-            </div>
+
+            <TagInput
+              label="Most Important Locations for SEO"
+              placeholder="Enter SEO Location"
+              value={formData.seoLocations}
+              onChange={handleSEOChange}
+              required={true}
+            />
           </div>
 
           <div className="flex p-2 pt-4 gap-2 justify-end border-t">
@@ -214,7 +218,7 @@ export default function WebsiteSetupPage() {
               type="button"
               variant="outline"
               className="rounded bg-transparent cursor-pointer group"
-              onClick={() => router.back()}
+              onClick={handlePrev}
             >
               <ChevronLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-all duration-300" />
               Previous
@@ -223,7 +227,7 @@ export default function WebsiteSetupPage() {
             <Button
               type="button"
               className="rounded bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer group"
-              onClick={onNext}
+              onClick={handleNext}
             >
               Next
               <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-all duration-300" />
