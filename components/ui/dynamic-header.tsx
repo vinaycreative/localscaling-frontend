@@ -1,10 +1,10 @@
 "use client"
 
 import { ArrowLeft } from "lucide-react"
-import React from "react"
+import React, { ReactNode } from "react"
 import { usePathname } from "next/navigation"
 
-const DynamicHeader = () => {
+const DynamicHeader = ({ text }: { text?: string | ReactNode }) => {
   const pathname = usePathname()
 
   // Convert pathname into something readable, e.g. "/dashboard/settings" → "Dashboard / Settings"
@@ -19,7 +19,7 @@ const DynamicHeader = () => {
     <div className="flex flex-col gap-4">
       <div className="flex gap-2 text-primary items-center cursor-pointer group">
         <ArrowLeft className="h-3 w-3 group-hover:-translate-x-1 transition-all duration-300" />
-        {formattedPath}
+        {text ? text : formattedPath}
       </div>
     </div>
   )
