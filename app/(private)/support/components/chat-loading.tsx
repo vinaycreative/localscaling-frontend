@@ -55,7 +55,7 @@ function ThreadSkeleton() {
         </div>
 
         {/* message composer */}
-        <div className="sticky border -bottom-4 mt-3 bg-background/80 p-0 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="sticky -bottom-4 mt-3 bg-background/80 p-0 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="rounded-xl border p-3">
             <Skeleton className="mb-3 h-16 w-full rounded-lg" />
           </div>
