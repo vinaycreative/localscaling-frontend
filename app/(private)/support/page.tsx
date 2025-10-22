@@ -4,8 +4,11 @@ import { SupportTable } from "./components/support-table"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
 import DynamicHeader from "@/components/ui/dynamic-header"
+import { CreateTicketModal } from "./components/create-ticket-modal"
+import { useState } from "react"
 
 export default function SupportPage() {
+  const [createTicket, setCreateTicket] = useState(true)
   return (
     <main className="flex flex-col gap-4 min-h-screen">
       <SiteHeader>
@@ -28,13 +31,21 @@ export default function SupportPage() {
             </p>
           </div>
 
-          <Button>Create a new ticket</Button>
+          <Button
+            onClick={() => {
+              setCreateTicket((prev) => !prev)
+            }}
+          >
+            Create a new ticket
+          </Button>
         </div>
 
         <div className="pt-4">
           <SupportTable />
         </div>
       </div>
+      <CreateTicketModal open={createTicket} onOpenChange={setCreateTicket} onSubmit={() => {}} />
+        
     </main>
   )
 }
