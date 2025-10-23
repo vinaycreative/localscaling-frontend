@@ -175,7 +175,7 @@ function LocationsBudgetPage() {
               className="rounded bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer group"
               onClick={handleNext}
             >
-              Next
+              Submit
               <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-all duration-300" />
             </Button>
           </div>
