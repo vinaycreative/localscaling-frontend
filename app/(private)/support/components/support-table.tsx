@@ -395,7 +395,7 @@ export function SupportTable() {
   return (
     <>
       <div className="rounded-lg border bg-card">
-        <Table className="text-xs table-fixed">
+        <Table className="text-xs table-fixed" containerClassName="max-w-[88vw] max-h-[70vh] overflow-y-scroll">
           <TableHeader>
             {table.getHeaderGroups().map((hg) => (
               <TableRow key={hg.id}>

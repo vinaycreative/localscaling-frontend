@@ -39,7 +39,7 @@ export default function SupportPage() {
           </Button>
         </div>
 
-        <div className="pt-4">
+        <div className="py-4">
           <SupportTable />
         </div>
       </div>
