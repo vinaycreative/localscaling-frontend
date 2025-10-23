@@ -407,7 +407,7 @@ export function CreateTicketModal({
                   </div>
                 </ScrollArea>
 
-                <DialogFooter className="p-6 py-3">
+                <DialogFooter className="p-6 py-3 pb-6">
                   {/* Footer */}
                   <div className="flex items-center justify-end gap-2">
                     <Button

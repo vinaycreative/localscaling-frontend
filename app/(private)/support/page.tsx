@@ -22,7 +22,7 @@ export default function SupportPage() {
       </SiteHeader>
       <div>
         {/* Title + CTA */}
-        <div className="mb-2 flex items-center justify-between">
+        <div className="mb-2 flex flex-col md:flex-row items-start md:items-center justify-between gap-2">
           <div className="flex flex-col gap-2">
             <h2 className="text-balance text-3xl font-bold">Support</h2>
             <p className="text-pretty text-muted-foreground">

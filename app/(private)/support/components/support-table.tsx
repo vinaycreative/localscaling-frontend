@@ -394,7 +394,7 @@ export function SupportTable() {
 
   return (
     <>
-      <div className="rounded-lg border bg-card">
+      <div className="rounded-lg border bg-card overflow-hidden">
         <Table className="text-xs table-fixed" containerClassName="max-w-[88vw] max-h-[70vh] overflow-y-scroll">
           <TableHeader>
             {table.getHeaderGroups().map((hg) => (
@@ -407,7 +407,7 @@ export function SupportTable() {
                     }}
                     className={cn(
                       colWidthClass(header.column.id),
-                      "text-muted-foreground font-semibold break-all"
+                      "text-muted-foreground font-semibold break-all sticky top-0 bg-background"
                     )}
                   >
                     {header.isPlaceholder
@@ -427,7 +427,7 @@ export function SupportTable() {
                 className="hover:bg-muted/40"
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
+                  <TableCell key={cell.id} className="break-words">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
