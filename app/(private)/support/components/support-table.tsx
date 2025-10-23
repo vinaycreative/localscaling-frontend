@@ -507,10 +507,10 @@ function RowMenu({ row, setOpen, setCurrentDetails }: RowMenuProps) {
     setCurrentDetails(row)
   }
 
-  const handleChangeAssignee = () => {
-    // maybe open a modal, etc.
-    console.log("Change assignee for", row.id)
-  }
+  // const handleChangeAssignee = () => {
+  //   // maybe open a modal, etc.
+  //   console.log("Change assignee for", row.id)
+  // }
 
   return (
     <DropdownMenu>
@@ -521,9 +521,9 @@ function RowMenu({ row, setOpen, setCurrentDetails }: RowMenuProps) {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-[180px]">
-        <DropdownMenuItem onClick={handleChangeAssignee} className="text-xs">
+        {/* <DropdownMenuItem onClick={handleChangeAssignee} className="text-xs">
           <User className="mr-2 h-4 w-4" /> Change assignee
-        </DropdownMenuItem>
+        </DropdownMenuItem> */}
 
         <DropdownMenuItem onClick={handleViewDetails} className="text-xs">
           <Layers2 className="mr-2 h-4 w-4" /> View details
