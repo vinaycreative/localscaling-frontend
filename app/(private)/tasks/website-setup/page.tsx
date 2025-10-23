@@ -31,7 +31,7 @@ const OnboardingVideo = () => {
         </p>
       </div>
 
-      <div className="relative aspect-video bg-muted rounded overflow-hidden mx-auto">
+      <div className="relative aspect-video bg-muted rounded overflow-hidden">
         <Image
           src="/video.jpg"
           alt="Business consultation video"

@@ -35,7 +35,7 @@ const initialFormData: BrandingContentFormData = {
 
 const OnboardingVideo = ({ step }: OnboardingVideoProps) => {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 ">
       <div className="space-y-0">
         <h1 className="font-semibold text-foreground">
           {`2.${step} Branding & Content`}
