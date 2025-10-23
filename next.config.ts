@@ -1,4 +1,4 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
   compiler: {
@@ -20,15 +20,15 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/",
-        destination: "/tasks/business-information",
+        destination: "/dashboard",
         permanent: false,
       },
-    ];
+    ]
   },
   eslint: {
     // Prevent build failures if local ESLint deps/rules are missing
     ignoreDuringBuilds: true,
   },
-};
+}
 
-export default nextConfig;
+export default nextConfig

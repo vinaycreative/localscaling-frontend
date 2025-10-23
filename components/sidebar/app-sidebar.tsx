@@ -19,26 +19,26 @@ const data = {
   },
 
   navSecondary: [
-    {
-      title: "Tools",
-      url: "#",
-      icon: MessageCircle,
-    },
+    // {
+    //   title: "Tools",
+    //   url: "#",
+    //   icon: MessageCircle,
+    // },
     {
       title: "Support",
-      url: "#",
+      url: "/support",
       icon: MessageCircle,
     },
-    {
-      title: "Meetings",
-      url: "#",
-      icon: MessageCircle,
-    },
-    {
-      title: "Invoices",
-      url: "#",
-      icon: MessageCircle,
-    },
+    // {
+    //   title: "Meetings",
+    //   url: "#",
+    //   icon: MessageCircle,
+    // },
+    // {
+    //   title: "Invoices",
+    //   url: "#",
+    //   icon: MessageCircle,
+    // },
   ],
 };
 
