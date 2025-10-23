@@ -106,50 +106,49 @@ export function TicketDetailsModal({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[700px] px-6 pr-3 overflow-hidden">
+        <DialogContent className="sm:max-w-[700px] p-0">
+          <DialogHeader className="px-6 pt-6">
+            <div className="text-xs font-medium text-muted-foreground">{ticket?.created_by}</div>
+
+            <div className="flex flex-col md:flex-row items-start md:items-center gap-1 md:gap-2">
+              <div className="text-muted-foreground shrink-0">#{ticket?.id}</div>
+
+              {/* let this one actually truncate inside a flex container */}
+              <div className="text-xl font-semibold tracking-tight w-full md:flex-1 md:text-left text-left">
+                {ticket?.title || "Untitled ticket"}
+              </div>
+            </div>
+
+            <DialogDescription className="sr-only">View and edit ticket</DialogDescription>
+          </DialogHeader>
+
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)}>
-              <DialogHeader className="space-y-1">
-                <div className="text-xs font-medium text-muted-foreground">{ticket?.created_by}</div>
-
-                <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-2">
-                  <div className="text-muted-foreground shrink-0">#{ticket?.id}</div>
-
-                  {/* let this one actually truncate inside a flex container */}
-                  <div className="text-xl font-semibold tracking-tight min-w-0 md:flex-1 md:text-left text-center">
-                    {ticket?.title || "Untitled ticket"}
-                  </div>
-                </div>
-
-                <DialogDescription className="sr-only">View and edit ticket</DialogDescription>
-              </DialogHeader>
-
               <ScrollArea className="h-[400px] w-full">
-                <div className="">
-                  {/* Top facts row */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mt-5 text-xs">
-                    <div>
-                      <div className="text-muted-foreground mb-1">Client</div>
-                      <div className="font-medium">{ticket.created_by}</div>
-                    </div>
-                    <div>
-                      <div className="text-muted-foreground mb-1">Category</div>
-                      <Badge variant="outline" className="text-[11px]">
-                        {ticket.category}
-                      </Badge>
-                    </div>
-                    <div>
-                      <div className="text-muted-foreground mb-1">Status</div>
-                      <StatusBadge status={ticket.status} />
-                    </div>
-                    <div>
-                      <div className="text-muted-foreground mb-1">Priority</div>
-                      <PriorityBadge priority={ticket?.priority} />
+                <div className="px-6 py-6 pt-0 space-y-5">
+                  <div className="">
+                    {/* Top facts row */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-xs">
+                      <div>
+                        <div className="text-muted-foreground mb-1">Client</div>
+                        <div className="font-medium">{ticket.created_by}</div>
+                      </div>
+                      <div>
+                        <div className="text-muted-foreground mb-1">Category</div>
+                        <Badge variant="outline" className="text-[11px]">
+                          {ticket.category}
+                        </Badge>
+                      </div>
+                      <div>
+                        <div className="text-muted-foreground mb-1">Status</div>
+                        <StatusBadge status={ticket.status} />
+                      </div>
+                      <div>
+                        <div className="text-muted-foreground mb-1">Priority</div>
+                        <PriorityBadge priority={ticket?.priority} />
+                      </div>
                     </div>
                   </div>
-                </div>
-
-                <div className="pr-3 pt-4 space-y-6">
                   <FormField
                     control={form.control}
                     name="description"
@@ -232,7 +231,7 @@ export function TicketDetailsModal({
                 </div>
               </ScrollArea>
 
-              <DialogFooter className="pt-4">
+              <DialogFooter className="p-6 pb-6 pt-3">
                 <div className="flex justify-end">
                   <Button type="submit" className="w-full sm:w-auto">
                     Done
