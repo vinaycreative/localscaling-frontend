@@ -235,7 +235,6 @@ export function CreateTicketModal({
           if (!submitting) onOpenChange(v)
         }}
       >
-        
         <div className="px-6 pb-6 space-y-5">
           <DialogContent className="sm:max-w-[590px] p-0 ">
             <DialogHeader className="px-6 pt-6">
@@ -442,25 +441,26 @@ export function CreateTicketModal({
             </AlertDialogDescription>
           </AlertDialogHeader>
 
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id="dont-show-again"
-              checked={dontShowAgain}
-              onCheckedChange={(v) => setDontShowAgain(!!v)}
-            />
-            <Label htmlFor="dont-show-again" className="text-xs text-muted-foreground">
-              Don’t show again
-            </Label>
-          </div>
-
-          <AlertDialogFooter>
-            <AlertDialogCancel className="sm:mr-2">Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={form.handleSubmit(actuallySubmit)}
-              className="bg-primary text-primary-foreground"
-            >
-              Submit ticket
-            </AlertDialogAction>
+          <AlertDialogFooter className="flex-col xs:flex-row sm:justify-between">
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="dont-show-again"
+                checked={dontShowAgain}
+                onCheckedChange={(v) => setDontShowAgain(!!v)}
+              />
+              <Label htmlFor="dont-show-again" className="text-xs text-muted-foreground">
+                Don’t show again
+              </Label>
+            </div>
+            <div>
+              <AlertDialogCancel className="mr-2">Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={form.handleSubmit(actuallySubmit)}
+                className="bg-primary text-primary-foreground"
+              >
+                Submit ticket
+              </AlertDialogAction>
+            </div>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
