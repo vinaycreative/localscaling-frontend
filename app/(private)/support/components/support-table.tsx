@@ -304,7 +304,7 @@ export function SupportTable() {
         </button>
       ),
       cell: ({ getValue }) => (
-        <span className="text-xs text-foreground/90 break-all">{getValue<string>()}</span>
+        <span className="text-xs text-foreground/90 break-words whitespace-break-spaces">{getValue<string>()}</span>
       ),
       enableSorting: true,
     },
