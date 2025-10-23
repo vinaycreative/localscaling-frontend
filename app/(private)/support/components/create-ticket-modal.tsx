@@ -1,10 +1,9 @@
 // components/tickets/CreateTicketModal.tsx
 import * as React from "react"
-import { useState, useCallback, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-
 import {
   Dialog,
   DialogContent,
@@ -24,7 +23,6 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select"
-import { Progress } from "@/components/ui/progress"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -38,18 +36,7 @@ import {
   AlertDialogTitle,
   AlertDialogDescription,
 } from "@/components/ui/alert-dialog"
-import { cn } from "@/lib/utils"
-import {
-  Paperclip,
-  UploadCloud,
-  Info,
-  Trash2,
-  File as FileIcon,
-  Upload,
-  X,
-  CloudUpload,
-  Trash,
-} from "lucide-react"
+import { Info, Trash2, File as FileIcon, CloudUpload } from "lucide-react"
 import {
   FileUpload,
   FileUploadDropzone,
@@ -59,10 +46,7 @@ import {
   FileUploadItemPreview,
   FileUploadItemProgress,
   FileUploadList,
-  FileUploadTrigger,
 } from "@/components/ui/file-upload"
-
-// ✅ shadcn form primitives
 import {
   Form,
   FormControl,
@@ -81,13 +65,6 @@ const TicketSchema = z.object({
 })
 export type CreateTicketValues = z.infer<typeof TicketSchema>
 
-type FileItem = {
-  id: string
-  file: File
-  progress: number
-  status: "pending" | "uploading" | "complete" | "error"
-}
-
 export type CreateTicketModalProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -104,7 +81,8 @@ export function CreateTicketModal({
   onOpenChange,
   onSubmit,
   categories = [
-    { label: "Website, Ads etc", value: "website" },
+    { label: "Website", value: "website" },
+    { label: "Ads", value: "Ads" },
     { label: "Billing", value: "billing" },
     { label: "Account", value: "account" },
     { label: "Other", value: "other" },
@@ -114,7 +92,6 @@ export function CreateTicketModal({
     { label: "Medium", value: "medium" },
     { label: "High", value: "high" },
   ],
-  maxImageResolutionHint = "SVG, PNG, JPG or GIF (max. 800×400px)",
 }: CreateTicketModalProps) {
   const [files, setFiles] = React.useState<File[]>([])
   const [submitting, setSubmitting] = useState(false)
@@ -258,197 +235,200 @@ export function CreateTicketModal({
           if (!submitting) onOpenChange(v)
         }}
       >
-        <Form {...form}>
-          <form className="px-6 pb-6 space-y-5" onSubmit={form.handleSubmit(requestSubmit)}>
-            <DialogContent className="sm:max-w-[590px] overflow-hidden p-0">
-              <DialogHeader className="px-6 pt-6">
-                <DialogTitle>Create Ticket</DialogTitle>
-                <DialogDescription>
-                  Tell us what’s going on so we can help quickly.
-                </DialogDescription>
-              </DialogHeader>
+        
+        <div className="px-6 pb-6 space-y-5">
+          <DialogContent className="sm:max-w-[590px] p-0 ">
+            <DialogHeader className="px-6 pt-6">
+              <DialogTitle>Create Ticket</DialogTitle>
+              <DialogDescription>Tell us what’s going on so we can help quickly.</DialogDescription>
+            </DialogHeader>
 
-              <ScrollArea className="max-h-[450px] w-full">
-                <div className="px-6 pb-6 space-y-5">
-                  {/* Title */}
-                  <FormField
-                    control={form.control}
-                    name="title"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Title of your ticket</FormLabel>
-                        <FormControl>
-                          <Input placeholder="What is your title?" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  {/* Category + Priority */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(requestSubmit)}>
+                <ScrollArea className="h-[450px] w-full">
+                  <div className="px-6 py-6 space-y-5">
+                    {/* Title */}
                     <FormField
                       control={form.control}
-                      name="category"
+                      name="title"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Category</FormLabel>
+                          <FormLabel>Title of your ticket</FormLabel>
                           <FormControl>
-                            <Select value={field.value} onValueChange={(v) => field.onChange(v)}>
-                              <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Select a category" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {categories.map((c) => (
-                                  <SelectItem key={c.value} value={c.value}>
-                                    {c.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                            <Input placeholder="What is your title?" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
 
+                    {/* Category + Priority */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="category"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Category</FormLabel>
+                            <FormControl>
+                              <Select value={field.value} onValueChange={(v) => field.onChange(v)}>
+                                <SelectTrigger className="w-full">
+                                  <SelectValue placeholder="Select a category" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {categories.map((c) => (
+                                    <SelectItem key={c.value} value={c.value}>
+                                      {c.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="priority"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Priority</FormLabel>
+                            <FormControl>
+                              <Select
+                                value={field.value}
+                                onValueChange={(v: "low" | "medium" | "high") => field.onChange(v)}
+                              >
+                                <SelectTrigger className="w-full">
+                                  <SelectValue placeholder="Low, Medium, High" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {priorities.map((p) => (
+                                    <SelectItem key={p.value} value={p.value}>
+                                      {p.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    {/* Description */}
                     <FormField
                       control={form.control}
-                      name="priority"
+                      name="description"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Priority</FormLabel>
-                          <FormControl>
-                            <Select
-                              value={field.value}
-                              onValueChange={(v: "low" | "medium" | "high") => field.onChange(v)}
-                            >
-                              <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Low, Medium, High" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {priorities.map((p) => (
-                                  <SelectItem key={p.value} value={p.value}>
-                                    {p.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  {/* Description */}
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <div className="flex items-center gap-2">
-                          <FormLabel>Please tell us about your issue</FormLabel>
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Info className="h-4 w-4 text-muted-foreground" />
-                              </TooltipTrigger>
-                              <TooltipContent side="top">
-                                Be specific: what happened, where, expected vs actual, and steps to
-                                reproduce.
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </div>
-                        <FormControl>
-                          <Textarea
-                            placeholder="e.g. I joined Stripe's Customer Success team to help them scale..."
-                            className="min-h-[110px] resize-y"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  {/* Uploader */}
-                  <div className="space-y-3">
-                    <Label>Attachments</Label>
-                    <FileUpload
-                      value={files}
-                      onValueChange={setFiles}
-                      onFileValidate={onFileValidate}
-                      onFileReject={onFileReject}
-                      className="w-full"
-                      multiple
-                      onUpload={onUpload}
-                    >
-                      <FileUploadDropzone>
-                        <div className="flex flex-col items-center gap-2">
-                          <div className="flex items-center justify-center rounded-sm border p-2.5">
-                            <CloudUpload />
+                          <div className="flex items-center gap-2">
+                            <FormLabel>Please tell us about your issue</FormLabel>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Info className="h-4 w-4 text-muted-foreground" />
+                                </TooltipTrigger>
+                                <TooltipContent side="top">
+                                  Be specific: what happened, where, expected vs actual, and steps
+                                  to reproduce.
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
                           </div>
-                          <p className="font-medium text-sm text-primary">
-                            Click to Upload
-                            <span className="text-muted-foreground font-normal">
-                              {" "}
-                              or drag & drop
-                            </span>
-                          </p>
-                          <p className="text-muted-foreground text-xs ">
-                            SVG, PNG, JPG or GIF (max. 800x400px)
-                          </p>
-                        </div>
-                      </FileUploadDropzone>
-                      <FileUploadList>
-                        {files.map((file) => {
-                          return (
-                            <FileUploadItem key={file.name} value={file} className="relative">
-                              <div className="w-full">
-                                <div className="flex gap-2">
-                                  <FileUploadItemPreview />
-                                  <div className="w-full">
-                                    <FileUploadItemMetadata />
-                                    <FileUploadItemProgress />
+                          <FormControl>
+                            <Textarea
+                              placeholder="e.g. I joined Stripe's Customer Success team to help them scale..."
+                              className="min-h-[110px] resize-y"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Uploader */}
+                    <div className="space-y-3">
+                      <Label>Attachments</Label>
+                      <FileUpload
+                        value={files}
+                        onValueChange={setFiles}
+                        onFileValidate={onFileValidate}
+                        onFileReject={onFileReject}
+                        className="w-full"
+                        multiple
+                        onUpload={onUpload}
+                      >
+                        <FileUploadDropzone>
+                          <div className="flex flex-col items-center gap-2">
+                            <div className="flex items-center justify-center rounded-sm border p-2.5">
+                              <CloudUpload />
+                            </div>
+                            <p className="font-medium text-sm text-primary">
+                              Click to Upload
+                              <span className="text-muted-foreground font-normal">
+                                {" "}
+                                or drag & drop
+                              </span>
+                            </p>
+                            <p className="text-muted-foreground text-xs ">
+                              SVG, PNG, JPG or GIF (max. 800x400px)
+                            </p>
+                          </div>
+                        </FileUploadDropzone>
+                        <FileUploadList>
+                          {files.map((file) => {
+                            return (
+                              <FileUploadItem key={file.name} value={file} className="relative">
+                                <div className="w-full">
+                                  <div className="flex gap-2">
+                                    <FileUploadItemPreview />
+                                    <div className="w-full">
+                                      <FileUploadItemMetadata />
+                                      <FileUploadItemProgress />
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
 
-                              <FileUploadItemDelete asChild className="absolute top-2 right-2">
-                                <Button variant="ghost" size="icon" className="size-7">
-                                  <Trash2 className="text-muted-foreground" />
-                                </Button>
-                              </FileUploadItemDelete>
-                            </FileUploadItem>
-                          )
-                        })}
-                      </FileUploadList>
-                    </FileUpload>
+                                <FileUploadItemDelete asChild className="absolute top-2 right-2">
+                                  <Button variant="ghost" size="icon" className="size-7">
+                                    <Trash2 className="text-muted-foreground" />
+                                  </Button>
+                                </FileUploadItemDelete>
+                              </FileUploadItem>
+                            )
+                          })}
+                        </FileUploadList>
+                      </FileUpload>
+                    </div>
                   </div>
-                </div>
-              </ScrollArea>
+                </ScrollArea>
 
-              <DialogFooter className="p-6 py-3">
-                {/* Footer */}
-                <div className="flex items-center justify-end gap-2">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={() => onOpenChange(false)}
-                    disabled={submitting}
-                  >
-                    Cancel
-                  </Button>
-                  <Button type="submit" className="w-full sm:w-auto z-10" disabled={submitting}>
-                    {submitting ? "Submitting..." : "Submit ticket"}
-                  </Button>
-                </div>
-              </DialogFooter>
-            </DialogContent>
-          </form>
-        </Form>
+                <DialogFooter className="p-6 py-3">
+                  {/* Footer */}
+                  <div className="flex items-center justify-end gap-2">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => onOpenChange(false)}
+                      disabled={submitting}
+                    >
+                      Cancel
+                    </Button>
+                    <Button type="submit" className="w-full sm:w-auto z-10" disabled={submitting}>
+                      {submitting ? "Submitting..." : "Submit ticket"}
+                    </Button>
+                  </div>
+                </DialogFooter>
+              </form>
+            </Form>
+          </DialogContent>
+        </div>
+        {/* </form>
+        </Form> */}
       </Dialog>
 
       {/* CONFIRMATION MODAL */}
