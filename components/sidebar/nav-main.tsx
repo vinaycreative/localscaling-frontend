@@ -65,7 +65,7 @@ export function NavMain() {
                       {item.name}
                       <Badge
                         variant={"outline"}
-                        className="border-destructive/40 text-destructive/60 bg-destructive/10"
+                        className="border-destructive/40 text-destructive/60 bg-destructive/10 rounded-lg"
                       >
                         {item.count}
                       </Badge>

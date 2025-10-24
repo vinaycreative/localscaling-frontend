@@ -318,7 +318,15 @@ export default function SupportChatPage() {
   return (
     <div className="mx-auto w-full px-4 py-2 md:py-4 bg-background">
       <SiteHeader>
-        <OnboardingHeader />
+        <Button
+          variant="secondary"
+          size="sm"
+          className="gap-1 px-0"
+          onClick={() => router.back()}
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back
+        </Button>
       </SiteHeader>
       {loading ? (
         <ChatLoading />
@@ -330,16 +338,9 @@ export default function SupportChatPage() {
               {/* header */}
               <div className="mb-4 flex items-center gap-3">
                 <div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="gap-1 px-0"
-                    onClick={() => router.back()}
-                  >
-                    <ArrowLeft className="h-4 w-4" />
-                    Back
-                  </Button>
-                  <h1 className="text-xl font-semibold tracking-tight">#{thread.thread_id}</h1>
+                  <h1 className="text-xl font-semibold tracking-tight">
+                    #{thread.thread_id}
+                  </h1>
                 </div>
 
                 {/* mobile sidebar trigger */}
@@ -413,7 +414,9 @@ export default function SupportChatPage() {
                   <div className="flex items-center gap-4 rounded-b-lg bg-muted/20 px-3 py-2">
                     <div className="inline-flex items-center gap-1 text-xs text-muted-foreground">
                       <SquareSlash className="h-4 w-4" />
-                      <span className="font-semibold text-gray-600 text-xs">Shortcuts</span>
+                      <span className="font-semibold text-gray-600 text-xs">
+                        Shortcuts
+                      </span>
                     </div>
 
                     <button
@@ -479,7 +482,12 @@ export function MessageBubble(props: {
         </Avatar>
       )}
 
-      <div className={cn("flex min-w-auto max-w-[78%] flex-col", isYou && "items-end ml-auto")}>
+      <div
+        className={cn(
+          "flex min-w-auto max-w-[78%] flex-col",
+          isYou && "items-end ml-auto"
+        )}
+      >
         {/* Header line */}
         <div className="mb-1 flex gap-2 w-full items-center text-[11px] leading-none text-muted-foreground">
           <span className="font-medium">{isYou ? "You" : author}</span>
@@ -496,7 +504,11 @@ export function MessageBubble(props: {
             isYou ? "rounded-tr-none" : "bg-muted/60 rounded-tl-none"
           )}
         >
-          {text && <p className={cn("text-sm leading-5", isYou && "text-foreground/90")}>{text}</p>}
+          {text && (
+            <p className={cn("text-sm leading-5", isYou && "text-foreground/90")}>
+              {text}
+            </p>
+          )}
 
           {!!attachments?.length && (
             <div className="mt-2 space-y-1">
@@ -564,7 +576,9 @@ function RightSidebar({ other }: { other: Participant }) {
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <CalendarClock className="h-4 w-4 text-muted-foreground" />
-                <span className="truncate text-sm font-semibold">12.10.2025, 14.00 Uhr</span>
+                <span className="truncate text-sm font-semibold">
+                  12.10.2025, 14.00 Uhr
+                </span>
               </div>
               <p className="truncate text-xs text-muted-foreground">Google Meet Call</p>
             </div>
