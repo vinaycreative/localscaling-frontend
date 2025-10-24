@@ -1,16 +1,16 @@
 // components/tickets/CreateTicketModal.tsx
 import * as React from "react"
-import { useState, useCallback, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -23,7 +23,6 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select"
-import { Progress } from "@/components/ui/progress"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -37,10 +36,17 @@ import {
   AlertDialogTitle,
   AlertDialogDescription,
 } from "@/components/ui/alert-dialog"
-import { cn } from "@/lib/utils"
-import { Paperclip, UploadCloud, Info, Trash2, File as FileIcon } from "lucide-react"
-
-// ✅ shadcn form primitives
+import { Info, Trash2, File as FileIcon, CloudUpload } from "lucide-react"
+import {
+  FileUpload,
+  FileUploadDropzone,
+  FileUploadItem,
+  FileUploadItemDelete,
+  FileUploadItemMetadata,
+  FileUploadItemPreview,
+  FileUploadItemProgress,
+  FileUploadList,
+} from "@/components/ui/file-upload"
 import {
   Form,
   FormControl,
@@ -59,13 +65,6 @@ const TicketSchema = z.object({
 })
 export type CreateTicketValues = z.infer<typeof TicketSchema>
 
-type FileItem = {
-  id: string
-  file: File
-  progress: number
-  status: "pending" | "uploading" | "complete" | "error"
-}
-
 export type CreateTicketModalProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -82,7 +81,8 @@ export function CreateTicketModal({
   onOpenChange,
   onSubmit,
   categories = [
-    { label: "Website, Ads etc", value: "website" },
+    { label: "Website", value: "website" },
+    { label: "Ads", value: "Ads" },
     { label: "Billing", value: "billing" },
     { label: "Account", value: "account" },
     { label: "Other", value: "other" },
@@ -92,9 +92,8 @@ export function CreateTicketModal({
     { label: "Medium", value: "medium" },
     { label: "High", value: "high" },
   ],
-  maxImageResolutionHint = "SVG, PNG, JPG or GIF (max. 800×400px)",
 }: CreateTicketModalProps) {
-  const [items, setItems] = useState<FileItem[]>([])
+  const [files, setFiles] = React.useState<File[]>([])
   const [submitting, setSubmitting] = useState(false)
 
   // confirmation state
@@ -118,42 +117,9 @@ export function CreateTicketModal({
     },
   })
 
-  const simulateUpload = useCallback((id: string) => {
-    setItems((prev) =>
-      prev.map((it) => (it.id === id ? { ...it, status: "uploading", progress: 10 } : it))
-    )
-    let p = 10
-    const t = setInterval(() => {
-      p += Math.ceil(Math.random() * 20)
-      if (p >= 100) {
-        clearInterval(t)
-        setItems((prev) =>
-          prev.map((it) => (it.id === id ? { ...it, progress: 100, status: "complete" } : it))
-        )
-      } else {
-        setItems((prev) => prev.map((it) => (it.id === id ? { ...it, progress: p } : it)))
-      }
-    }, 300)
-  }, [])
-
-  const addFiles = (files: FileList | null) => {
-    if (!files?.length) return
-    const next: FileItem[] = []
-    Array.from(files).forEach((file) => {
-      const id = `${file.name}-${file.size}-${file.lastModified}-${crypto.randomUUID()}`
-      next.push({ id, file, progress: 0, status: "pending" })
-      setTimeout(() => simulateUpload(id), 200)
-    })
-    setItems((prev) => [...prev, ...next])
-  }
-
-  const onDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault()
-    addFiles(e.dataTransfer.files)
-  }
-
   // 1) User presses submit → validate → show confirm (unless skipped)
   const requestSubmit = async (values: CreateTicketValues) => {
+    console.log("🚀 ~ requestSubmit ~ values:", values)
     if (skipConfirm) {
       return actuallySubmit(values)
     }
@@ -170,10 +136,10 @@ export function CreateTicketModal({
         } catch {}
         setSkipConfirm(true)
       }
-      const payload: CreateTicketValues = { ...values, files: items.map((i) => i.file) }
+      const payload: CreateTicketValues = { ...values, files: files }
       await onSubmit(payload)
       onOpenChange(false)
-      setItems([])
+      setFiles([])
       form.reset()
     } finally {
       setSubmitting(false)
@@ -182,7 +148,84 @@ export function CreateTicketModal({
     }
   }
 
-  const removeFile = (id: string) => setItems((prev) => prev.filter((i) => i.id !== id))
+  const onFileValidate = React.useCallback(
+    (file: File): string | null => {
+      // // Validate max files
+      // if (files.length >= 2) {
+      //   return "You can only upload up to 2 files"
+      // }
+
+      // // Validate file type (only images)
+      // if (!file.type.startsWith("image/")) {
+      //   return "Only image files are allowed"
+      // }
+
+      // // Validate file size (max 2MB)
+      // const MAX_SIZE = 2 * 1024 * 1024 // 2MB
+      // if (file.size > MAX_SIZE) {
+      //   return `File size must be less than ${MAX_SIZE / (1024 * 1024)}MB`
+      // }
+
+      return null
+    },
+    [files]
+  )
+
+  const onUpload = React.useCallback(
+    async (
+      files: File[],
+      {
+        onProgress,
+        onSuccess,
+        onError,
+      }: {
+        onProgress: (file: File, progress: number) => void
+        onSuccess: (file: File) => void
+        onError: (file: File, error: Error) => void
+      }
+    ) => {
+      try {
+        // Process each file individually
+        const uploadPromises = files.map(async (file) => {
+          try {
+            // Simulate file upload with progress
+            const totalChunks = 10
+            let uploadedChunks = 0
+
+            // Simulate chunk upload with delays
+            for (let i = 0; i < totalChunks; i++) {
+              // Simulate network delay (100-300ms per chunk)
+              await new Promise((resolve) => setTimeout(resolve, Math.random() * 200 + 100))
+
+              // Update progress for this specific file
+              uploadedChunks++
+              const progress = (uploadedChunks / totalChunks) * 100
+              onProgress(file, progress)
+            }
+
+            // Simulate server processing delay
+            await new Promise((resolve) => setTimeout(resolve, 500))
+            onSuccess(file)
+          } catch (error) {
+            onError(file, error instanceof Error ? error : new Error("Upload failed"))
+          }
+        })
+
+        // Wait for all uploads to complete
+        await Promise.all(uploadPromises)
+      } catch (error) {
+        // This handles any error that might occur outside the individual upload processes
+        console.error("Unexpected error during upload:", error)
+      }
+    },
+    []
+  )
+
+  const onFileReject = React.useCallback((file: File, message: string) => {
+    // toast(message, {
+    //   description: `"${file.name.length > 20 ? `${file.name.slice(0, 20)}...` : file.name}" has been rejected`,
+    // });
+  }, [])
 
   return (
     <>
@@ -191,223 +234,203 @@ export function CreateTicketModal({
         onOpenChange={(v) => {
           if (!submitting) onOpenChange(v)
         }}
-    
       >
-        <DialogContent className="sm:max-w-[590px] overflow-hidden p-0">
-          <DialogHeader className="px-6 pt-6">
-            <DialogTitle>Create Ticket</DialogTitle>
-            <DialogDescription>Tell us what’s going on so we can help quickly.</DialogDescription>
-          </DialogHeader>
+        <div className="px-6 pb-6 space-y-5">
+          <DialogContent className="sm:max-w-[590px] p-0 ">
+            <DialogHeader className="px-6 pt-6">
+              <DialogTitle>Create Ticket</DialogTitle>
+              <DialogDescription>Tell us what’s going on so we can help quickly.</DialogDescription>
+            </DialogHeader>
 
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(requestSubmit)}>
+                <ScrollArea className="h-[450px] w-full">
+                  <div className="px-6 py-6 space-y-5">
+                    {/* Title */}
+                    <FormField
+                      control={form.control}
+                      name="title"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Title of your ticket</FormLabel>
+                          <FormControl>
+                            <Input placeholder="What is your title?" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-          {/* ⬇️ Use shadcn Form wrapper (functionality unchanged) */}
-          <Form {...form} >
-            <form className="px-6 pb-6 space-y-5" onSubmit={form.handleSubmit(requestSubmit)}>
-              {/* Title */}
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Title of your ticket</FormLabel>
-                    <FormControl>
-                      <Input placeholder="What is your title?" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Category + Priority */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="category"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Category</FormLabel>
-                      <FormControl>
-                        <Select
-                          value={field.value}
-                          onValueChange={(v) => field.onChange(v)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a category" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {categories.map((c) => (
-                              <SelectItem key={c.value} value={c.value}>
-                                {c.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="priority"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Priority</FormLabel>
-                      <FormControl>
-                        <Select
-                          value={field.value}
-                          onValueChange={(v: "low" | "medium" | "high") => field.onChange(v)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Low, Medium, High" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {priorities.map((p) => (
-                              <SelectItem key={p.value} value={p.value}>
-                                {p.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {/* Description */}
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="flex items-center gap-2">
-                      <FormLabel>Please tell us about your issue</FormLabel>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Info className="h-4 w-4 text-muted-foreground" />
-                          </TooltipTrigger>
-                          <TooltipContent side="top">
-                            Be specific: what happened, where, expected vs actual, and steps to reproduce.
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-                    <FormControl>
-                      <Textarea
-                        placeholder="e.g. I joined Stripe's Customer Success team to help them scale..."
-                        className="min-h-[110px] resize-y"
-                        {...field}
+                    {/* Category + Priority */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="category"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Category</FormLabel>
+                            <FormControl>
+                              <Select value={field.value} onValueChange={(v) => field.onChange(v)}>
+                                <SelectTrigger className="w-full">
+                                  <SelectValue placeholder="Select a category" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {categories.map((c) => (
+                                    <SelectItem key={c.value} value={c.value}>
+                                      {c.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
 
-              {/* Uploader (unchanged UI/behavior) */}
-              <div className="space-y-3">
-                <Label>Attachments</Label>
-                <div
-                  onDrop={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    addFiles(e.dataTransfer.files)
-                  }}
-                  onDragOver={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                  }}
-                  className={cn(
-                    "rounded-md border border-dashed p-5 relative bg-muted/30 hover:bg-muted/50 transition"
-                  )}
-                >
-                  <input
-                    type="file"
-                    multiple
-                    onChange={(e) => addFiles(e.target.files)}
-                    className="absolute inset-0 opacity-0 cursor-pointer"
-                    aria-label="Upload files"
-                  />
-                  <div className="flex items-center justify-between pointer-events-none">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full border flex items-center justify-center">
-                        <UploadCloud className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium">
-                          Click to upload <span className="text-muted-foreground">or drag and drop</span>
-                        </p>
-                        <p className="text-xs text-muted-foreground">{maxImageResolutionHint}</p>
-                      </div>
+                      <FormField
+                        control={form.control}
+                        name="priority"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Priority</FormLabel>
+                            <FormControl>
+                              <Select
+                                value={field.value}
+                                onValueChange={(v: "low" | "medium" | "high") => field.onChange(v)}
+                              >
+                                <SelectTrigger className="w-full">
+                                  <SelectValue placeholder="Low, Medium, High" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {priorities.map((p) => (
+                                    <SelectItem key={p.value} value={p.value}>
+                                      {p.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                     </div>
-                    <Paperclip className="h-10 w-10 opacity-70" />
-                  </div>
-                </div>
 
-                {!!items.length && (
-                  <ScrollArea className="max-h-48 pr-4">
-                    <ul className="space-y-3 mt-1">
-                      {items.map((item) => (
-                        <li key={item.id} className="rounded-md border bg-background px-3 py-2">
-                          <div className="flex items-center gap-3">
-                            <FileIcon className="h-5 w-5 text-red-500 shrink-0" />
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center justify-between gap-3">
-                                <p className="text-sm font-medium truncate">{item.file.name}</p>
-                                <button
-                                  type="button"
-                                  onClick={() => removeFile(item.id)}
-                                  className="text-muted-foreground hover:text-foreground"
-                                  aria-label="Remove file"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </button>
-                              </div>
-                              <div className="flex items-center justify-between text-xs text-muted-foreground mt-1">
-                                <span>{(item.file.size / 1024).toFixed(0)} KB</span>
-                                <span
-                                  className={cn(
-                                    "font-medium",
-                                    item.status === "complete" && "text-emerald-600"
-                                  )}
-                                >
-                                  {item.status === "complete" ? "Complete" : `${item.progress}%`}
-                                </span>
-                              </div>
-                              <Progress value={item.progress} className="mt-2" />
-                            </div>
+                    {/* Description */}
+                    <FormField
+                      control={form.control}
+                      name="description"
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="flex items-center gap-2">
+                            <FormLabel>Please tell us about your issue</FormLabel>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Info className="h-4 w-4 text-muted-foreground" />
+                                </TooltipTrigger>
+                                <TooltipContent side="top">
+                                  Be specific: what happened, where, expected vs actual, and steps
+                                  to reproduce.
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
                           </div>
-                        </li>
-                      ))}
-                    </ul>
-                  </ScrollArea>
-                )}
-              </div>
+                          <FormControl>
+                            <Textarea
+                              placeholder="e.g. I joined Stripe's Customer Success team to help them scale..."
+                              className="min-h-[110px] resize-y"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-              {/* Footer */}
-              <div className="flex items-center justify-end gap-2 pt-2">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => onOpenChange(false)}
-                  disabled={submitting}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" className="w-full sm:w-auto" disabled={submitting}>
-                  {submitting ? "Submitting..." : "Submit ticket"}
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </DialogContent>
+                    {/* Uploader */}
+                    <div className="space-y-3">
+                      <Label>Attachments</Label>
+                      <FileUpload
+                        value={files}
+                        onValueChange={setFiles}
+                        onFileValidate={onFileValidate}
+                        onFileReject={onFileReject}
+                        className="w-full"
+                        multiple
+                        onUpload={onUpload}
+                      >
+                        <FileUploadDropzone>
+                          <div className="flex flex-col items-center gap-2">
+                            <div className="flex items-center justify-center rounded-sm border p-2.5">
+                              <CloudUpload />
+                            </div>
+                            <p className="font-medium text-sm text-primary">
+                              Click to Upload
+                              <span className="text-muted-foreground font-normal">
+                                {" "}
+                                or drag & drop
+                              </span>
+                            </p>
+                            <p className="text-muted-foreground text-xs ">
+                              SVG, PNG, JPG or GIF (max. 800x400px)
+                            </p>
+                          </div>
+                        </FileUploadDropzone>
+                        <FileUploadList>
+                          {files.map((file) => {
+                            return (
+                              <FileUploadItem key={file.name} value={file} className="relative">
+                                <div className="w-full">
+                                  <div className="flex gap-2">
+                                    <FileUploadItemPreview />
+                                    <div className="w-full">
+                                      <FileUploadItemMetadata />
+                                      <FileUploadItemProgress />
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <FileUploadItemDelete asChild className="absolute top-2 right-2">
+                                  <Button variant="ghost" size="icon" className="size-7">
+                                    <Trash2 className="text-muted-foreground" />
+                                  </Button>
+                                </FileUploadItemDelete>
+                              </FileUploadItem>
+                            )
+                          })}
+                        </FileUploadList>
+                      </FileUpload>
+                    </div>
+                  </div>
+                </ScrollArea>
+
+                <DialogFooter className="p-6 py-3 pb-6">
+                  {/* Footer */}
+                  <div className="flex items-center justify-end gap-2">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => onOpenChange(false)}
+                      disabled={submitting}
+                    >
+                      Cancel
+                    </Button>
+                    <Button type="submit" className="w-full sm:w-auto z-10" disabled={submitting}>
+                      {submitting ? "Submitting..." : "Submit ticket"}
+                    </Button>
+                  </div>
+                </DialogFooter>
+              </form>
+            </Form>
+          </DialogContent>
+        </div>
+        {/* </form>
+        </Form> */}
       </Dialog>
 
-      {/* CONFIRMATION MODAL (unchanged) */}
+      {/* CONFIRMATION MODAL */}
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <AlertDialogContent className="sm:max-w-[520px]">
           <AlertDialogHeader>
@@ -418,25 +441,26 @@ export function CreateTicketModal({
             </AlertDialogDescription>
           </AlertDialogHeader>
 
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id="dont-show-again"
-              checked={dontShowAgain}
-              onCheckedChange={(v) => setDontShowAgain(!!v)}
-            />
-            <Label htmlFor="dont-show-again" className="text-xs text-muted-foreground">
-              Don’t show again
-            </Label>
-          </div>
-
-          <AlertDialogFooter>
-            <AlertDialogCancel className="sm:mr-2">Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={form.handleSubmit(actuallySubmit)}
-              className="bg-primary text-primary-foreground"
-            >
-              Submit ticket
-            </AlertDialogAction>
+          <AlertDialogFooter className="flex-col xs:flex-row sm:justify-between">
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="dont-show-again"
+                checked={dontShowAgain}
+                onCheckedChange={(v) => setDontShowAgain(!!v)}
+              />
+              <Label htmlFor="dont-show-again" className="text-xs text-muted-foreground">
+                Don’t show again
+              </Label>
+            </div>
+            <div>
+              <AlertDialogCancel className="mr-2">Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={form.handleSubmit(actuallySubmit)}
+                className="bg-primary text-primary-foreground"
+              >
+                Submit ticket
+              </AlertDialogAction>
+            </div>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

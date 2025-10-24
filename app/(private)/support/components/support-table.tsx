@@ -8,6 +8,8 @@ import {
   ColumnDef,
   SortingState,
   RowSelectionState,
+  Column,
+  ColumnPinningState,
 } from "@tanstack/react-table"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
@@ -40,7 +42,8 @@ import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
 import { TicketDetailsModal } from "./view-details"
 import { Ticket } from "@/types/support"
-import { useState } from "react"
+import { CSSProperties, useState } from "react"
+import { useSidebar } from "@/components/ui/sidebar"
 
 const data: Ticket[] = [
   {
@@ -226,9 +229,23 @@ const demoTicket: Ticket = {
   updated_at: "1hr ago",
 }
 
+const getCommonPinningStyles = (column: Column<Ticket>): CSSProperties => {
+  const isPinned = column.getIsPinned()
+
+  return {
+    left: isPinned === "left" ? `${column.getStart("left")}px` : undefined,
+    right: isPinned === "right" ? `${column.getAfter("right")}px` : undefined,
+    opacity: isPinned ? 0.95 : 1,
+    position: isPinned ? "sticky" : "relative",
+    width: column.getSize(),
+    zIndex: isPinned ? 1 : 0,
+  }
+}
+
 export function SupportTable() {
-  const [open, setOpen] = useState(false) // to open the view details modal
+  const [openTicket, setOpenTicket] = useState(false) // to open the view details modal
   const [currentDetails, setCurrentDetails] = useState<Ticket | null>(null)
+  const { open, isMobile } = useSidebar()
 
   const handleSubmit = async (updated_at: Ticket) => {
     // send to API or mutate state
@@ -237,6 +254,11 @@ export function SupportTable() {
 
   const [sorting, setSorting] = useState<SortingState>([])
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
+
+  const [columnPinning, setColumnPinning] = useState<ColumnPinningState>({
+    left: ["select", "id"],
+    right: ["actions"],
+  })
 
   // ——— Column definitions (TanStack) ———
   const columns: ColumnDef<Ticket>[] = [
@@ -304,7 +326,9 @@ export function SupportTable() {
         </button>
       ),
       cell: ({ getValue }) => (
-        <span className="text-xs text-foreground/90 break-all">{getValue<string>()}</span>
+        <span className="text-xs text-foreground/90 break-words whitespace-break-spaces">
+          {getValue<string>()}
+        </span>
       ),
       enableSorting: true,
     },
@@ -373,7 +397,7 @@ export function SupportTable() {
       header: "",
       enableSorting: false,
       cell: ({ row }) => (
-        <RowMenu row={row.original} setOpen={setOpen} setCurrentDetails={setCurrentDetails} />
+        <RowMenu row={row.original} setOpen={setOpenTicket} setCurrentDetails={setCurrentDetails} />
       ),
       size: 60,
     },
@@ -382,9 +406,10 @@ export function SupportTable() {
   const table = useReactTable({
     data,
     columns,
-    state: { sorting, rowSelection },
+    state: { sorting, rowSelection, columnPinning }, // ← add,
     onSortingChange: setSorting,
     onRowSelectionChange: setRowSelection,
+    onColumnPinningChange: setColumnPinning,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     // sizes help us keep near-pixel parity with the screenshot
@@ -394,29 +419,45 @@ export function SupportTable() {
 
   return (
     <>
-      <div className="rounded-lg border bg-card">
-        <Table className="text-xs table-fixed">
+      <div className="overflow-hidden rounded-lg border bg-card w-fit">
+        <Table
+          className="text-xs table-fixed"
+          containerClassName={cn(
+            "max-w-[88vw] max-h-[70vh] overflow-y-scroll",
+            !open && isMobile ? "max-w-[98vw]" : "",
+            open && !isMobile ? "max-w-[62.6vw] lg:max-w-[88vw]" : ""
+          )}
+        >
           <TableHeader>
-            {table.getHeaderGroups().map((hg) => (
-              <TableRow key={hg.id}>
-                {hg.headers.map((header) => (
-                  <TableHead
-                    key={header.id}
-                    style={{
-                      width: header.getSize() ? header.getSize() : undefined,
-                    }}
-                    className={cn(
-                      colWidthClass(header.column.id),
-                      "text-muted-foreground font-semibold break-all"
-                    )}
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(header.column.columnDef.header, header.getContext())}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
+            {table.getHeaderGroups().map((hg) => {
+              return (
+                <TableRow key={hg.id}>
+                  {hg.headers.map((header) => {
+                    const isPinnedColumn =
+                      columnPinning?.left?.includes(header.column.id) ||
+                      columnPinning?.right?.includes(header.column.id)
+                    return (
+                      <TableHead
+                        key={header.id}
+                        style={{
+                          width: header.getSize() || undefined,
+                          ...(isPinnedColumn ? getCommonPinningStyles(header.column) : {}),
+                          zIndex: isPinnedColumn ? 2 : 1,
+                        }}
+                        className={cn(
+                          colWidthClass(header.column.id),
+                          "text-muted-foreground font-semibold break-all sticky top-0 bg-card"
+                        )}
+                      >
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(header.column.columnDef.header, header.getContext())}
+                      </TableHead>
+                    )
+                  })}
+                </TableRow>
+              )
+            })}
           </TableHeader>
 
           <TableBody>
@@ -427,7 +468,16 @@ export function SupportTable() {
                 className="hover:bg-muted/40"
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
+                  <TableCell
+                    key={cell.id}
+                    className="break-words bg-card"
+                    style={{
+                      ...(columnPinning?.left?.includes(cell.column.id) ||
+                      columnPinning?.right?.includes(cell.column.id)
+                        ? getCommonPinningStyles(cell.column)
+                        : {}),
+                    }}
+                  >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
@@ -438,8 +488,8 @@ export function SupportTable() {
       </div>
       {currentDetails && (
         <TicketDetailsModal
-          open={open}
-          onOpenChange={setOpen}
+          open={openTicket}
+          onOpenChange={setOpenTicket}
           ticket={currentDetails}
           assignees={[
             { id: "default", label: "Default User" },
@@ -507,10 +557,10 @@ function RowMenu({ row, setOpen, setCurrentDetails }: RowMenuProps) {
     setCurrentDetails(row)
   }
 
-  const handleChangeAssignee = () => {
-    // maybe open a modal, etc.
-    console.log("Change assignee for", row.id)
-  }
+  // const handleChangeAssignee = () => {
+  //   // maybe open a modal, etc.
+  //   console.log("Change assignee for", row.id)
+  // }
 
   return (
     <DropdownMenu>
@@ -521,9 +571,9 @@ function RowMenu({ row, setOpen, setCurrentDetails }: RowMenuProps) {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-[180px]">
-        <DropdownMenuItem onClick={handleChangeAssignee} className="text-xs">
+        {/* <DropdownMenuItem onClick={handleChangeAssignee} className="text-xs">
           <User className="mr-2 h-4 w-4" /> Change assignee
-        </DropdownMenuItem>
+        </DropdownMenuItem> */}
 
         <DropdownMenuItem onClick={handleViewDetails} className="text-xs">
           <Layers2 className="mr-2 h-4 w-4" /> View details
