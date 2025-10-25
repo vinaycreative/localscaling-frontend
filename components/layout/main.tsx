@@ -9,7 +9,7 @@ export default function MainLayout({
   return (
     <SidebarProvider>
       <AppSidebar />
-      <div className="flex flex-1 flex-col px-4">{children}</div>
+      <div className="flex flex-1 flex-col">{children}</div>
     </SidebarProvider>
   );
 }

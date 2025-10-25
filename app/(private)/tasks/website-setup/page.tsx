@@ -16,7 +16,6 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
-import { OnboardingHeader } from "../business-information/page";
 import LegalAssetUploader from "./components/legal-asset-uploader";
 import LegalLinkInput from "./components/legal-link-input";
 import { TagInput } from "./components/tag-input";
@@ -102,9 +101,7 @@ export default function WebsiteSetupPage() {
 
   return (
     <div className="flex flex-col gap-4 min-h-screen">
-      <SiteHeader>
-        <OnboardingHeader />
-      </SiteHeader>
+]
 
       <div className="flex flex-col">
         <h2 className="text-balance text-3xl font-bold">Onboarding Setup</h2>
