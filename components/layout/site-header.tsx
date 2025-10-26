@@ -5,9 +5,11 @@ import { SidebarTrigger } from "../ui/sidebar";
 
 export function SiteHeader({ children }: { children: ReactNode }) {
   return (
-    <header className="py-2 flex items-center gap-2">
-      <SidebarTrigger className="cursor-pointer md:hidden" />
-      {children}
-    </header>
+    <div className="py-2 px-4">
+      <header className="flex items-center gap-2 h-16">
+        <SidebarTrigger className="cursor-pointer md:hidden" />
+        {children}
+      </header>
+    </div>
   );
 }

@@ -6,7 +6,7 @@ interface MilestoneCardProps {
 
 export function MilestoneCard({ milestone }: MilestoneCardProps) {
   return (
-    <div className="bg-background rounded flex flex-col gap-2 px-3 py-4 justify-between border">
+    <div className="bg-background rounded flex flex-col gap-2 p-4 justify-between border shadow-sm hover:shadow-xl transition-all duration-300">
       <div className="flex justify-between">
         <h2 className="text-md font-medium text-muted-foreground">
           Recent milestone
@@ -14,7 +14,7 @@ export function MilestoneCard({ milestone }: MilestoneCardProps) {
         <EllipsisVertical className="h-4 w-4 cursor-pointer" />
       </div>
 
-      <p className="text-3xl font-bold text-foreground">{milestone}</p>
+      <p className="text-3xl font-medium text-foreground">{milestone}</p>
     </div>
   );
 }

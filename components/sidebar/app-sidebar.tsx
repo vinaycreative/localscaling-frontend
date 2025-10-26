@@ -59,7 +59,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent className="bg-background">
         <NavMain />
       </SidebarContent>
-      <SidebarFooter className="bg-background rounded-b-md">
+      <SidebarFooter className="bg-muted/20 rounded-b-md">
         <NavSecondary items={data.navSecondary} className="mt-auto" />
         <NavUser user={data.user} />
       </SidebarFooter>
