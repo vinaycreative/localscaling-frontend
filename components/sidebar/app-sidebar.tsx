@@ -6,7 +6,7 @@ import {
   SidebarFooter,
   SidebarHeader,
 } from "@/components/ui/sidebar";
-import { LifeBuoy, MessageCircle, Send } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import Image from "next/image";
 import * as React from "react";
 import { NavMain } from "./nav-main";
@@ -19,33 +19,18 @@ const data = {
   },
 
   navSecondary: [
-    // {
-    //   title: "Tools",
-    //   url: "#",
-    //   icon: MessageCircle,
-    // },
     {
       title: "Support",
       url: "/support",
       icon: MessageCircle,
     },
-    // {
-    //   title: "Meetings",
-    //   url: "#",
-    //   icon: MessageCircle,
-    // },
-    // {
-    //   title: "Invoices",
-    //   url: "#",
-    //   icon: MessageCircle,
-    // },
   ],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar {...props} variant="floating" className="bg-muted">
-      <SidebarHeader className="border-sidebar-border h-16 bg-background rounded-t-md">
+      <SidebarHeader className="h-16 bg-background rounded-t-md ">
         <div className="flex h-full w-full items-center justify-start px-2">
           <Image
             width={100}
@@ -59,7 +44,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent className="bg-background">
         <NavMain />
       </SidebarContent>
-      <SidebarFooter className="bg-muted/20 rounded-b-md">
+      <SidebarFooter className="bg-background rounded-b-md">
         <NavSecondary items={data.navSecondary} className="mt-auto" />
         <NavUser user={data.user} />
       </SidebarFooter>

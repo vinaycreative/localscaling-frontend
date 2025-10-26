@@ -1,6 +1,6 @@
 "use client";
 
-import { SiteHeader } from "@/components/layout/site-header";
+import { SiteHeader } from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -101,8 +101,7 @@ export default function WebsiteSetupPage() {
 
   return (
     <div className="flex flex-col gap-4 min-h-screen">
-]
-
+      ]
       <div className="flex flex-col">
         <h2 className="text-balance text-3xl font-bold">Onboarding Setup</h2>
         <p className="text-pretty text-muted-foreground">
@@ -110,7 +109,6 @@ export default function WebsiteSetupPage() {
           launch.
         </p>
       </div>
-
       <div className="grid lg:grid-cols-3 gap-8">
         <OnboardingVideo />
 

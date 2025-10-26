@@ -9,7 +9,7 @@ const OnboardingVideo = () => {
           1. General Business Information
         </h1>
         <p className="text-sm text-muted-foreground">
-          Provide essential company details
+          Provide essential company details.
         </p>
       </div>
 

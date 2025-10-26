@@ -1,4 +1,4 @@
-import { SiteHeader } from "@/components/layout/site-header";
+import { SiteHeader } from "@/components/layout/header";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { LaunchDateCard } from "./components/launch-date-card";

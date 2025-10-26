@@ -42,9 +42,9 @@ export function NavUser({
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              className="bg-muted text-foreground cursor-pointer focus-visible:ring-0"
             >
-              <div className="grid flex-1 text-left text-sm leading-tight text-muted-foreground">
+              <div className="flex flex-col flex-1 text-left text-sm leading-tight text-foreground">
                 <span className="truncate font-medium">{user.name}</span>
                 <span className="truncate text-xs">{user.email}</span>
               </div>
@@ -59,7 +59,7 @@ export function NavUser({
           >
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <div className="grid flex-1 text-left text-sm leading-tight text-muted-foreground">
+                <div className="grid flex-1 text-left text-sm leading-tight text-foreground">
                   <span className="truncate font-medium">{user.name}</span>
                   <span className="truncate text-xs">{user.email}</span>
                 </div>

@@ -1,25 +1,27 @@
-"use client"
-import { useState } from "react"
-import { SiteHeader } from "@/components/layout/site-header"
-import { SupportTable } from "./components/support-table"
-import { Button } from "@/components/ui/button"
-import DynamicHeader from "@/components/ui/dynamic-header"
-import { CreateTicketModal } from "./components/create-ticket-modal"
+"use client";
+// import { SiteHeader } from "@/components/layout/header";
+import { Button } from "@/components/ui/button";
+// import DynamicHeader from "@/components/ui/dynamic-header";
+import { useState } from "react";
+import { CreateTicketModal } from "./components/create-ticket-modal";
+import { SupportTable } from "./components/support-table";
 
 export default function SupportPage() {
-  const [createTicket, setCreateTicket] = useState<boolean>(false)
+  const [createTicket, setCreateTicket] = useState<boolean>(false);
   return (
     <main className="flex flex-col gap-4 min-h-screen">
-      <SiteHeader>
+      {/* <SiteHeader>
         <DynamicHeader
           text={
             <p className="text-sm">
-              <span className="hover:underline cursor-pointe">Tasks Pending</span>
+              <span className="hover:underline cursor-pointe">
+                Tasks Pending
+              </span>
               <span className="text-red-500 ml-1">(3)</span>
             </p>
           }
         />
-      </SiteHeader>
+      </SiteHeader> */}
       <div>
         {/* Title + CTA */}
         <div className="mb-2 flex flex-col md:flex-row items-start md:items-center justify-between gap-2">
@@ -32,7 +34,7 @@ export default function SupportPage() {
 
           <Button
             onClick={() => {
-              setCreateTicket((prev) => !prev)
+              setCreateTicket((prev) => !prev);
             }}
           >
             Create a new ticket
@@ -47,9 +49,9 @@ export default function SupportPage() {
         open={createTicket}
         onOpenChange={setCreateTicket}
         onSubmit={(values) => {
-          console.log("🚀 ~ SupportPage ~ values:", values)
+          console.log("🚀 ~ SupportPage ~ values:", values);
         }}
       />
     </main>
-  )
+  );
 }

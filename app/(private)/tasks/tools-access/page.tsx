@@ -1,6 +1,6 @@
 "use client";
 
-import { SiteHeader } from "@/components/layout/site-header";
+import { SiteHeader } from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { ChevronLeft, ChevronRight } from "lucide-react";

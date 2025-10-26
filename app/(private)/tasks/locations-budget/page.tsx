@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { SiteHeader } from "@/components/layout/site-header";
+import { SiteHeader } from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
