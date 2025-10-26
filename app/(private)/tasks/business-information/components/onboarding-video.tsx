@@ -3,7 +3,7 @@ import React from "react";
 
 const OnboardingVideo = () => {
   return (
-    <div className="flex flex-col  gap-4">
+    <div className="flex flex-col gap-4">
       <div className="space-y-0">
         <h1 className="font-semibold text-foreground">
           1. General Business Information

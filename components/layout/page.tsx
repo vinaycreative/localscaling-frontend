@@ -5,12 +5,13 @@ import Header from "./header";
 
 interface PageProps {
   navURL: string;
+  navURLCount?: string;
   children: React.ReactNode;
 }
 
-const Page = ({ children, navURL }: PageProps) => {
+const Page = ({ children, navURL, navURLCount }: PageProps) => {
   return (
-    <div className="h-dvh px-4 flex flex-col overflow-auto">
+    <div className="h-dvh px-4 flex flex-col ">
       <Header>
         <Link
           href={`/${navURL.toLowerCase()}`}
@@ -18,6 +19,11 @@ const Page = ({ children, navURL }: PageProps) => {
         >
           <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-all duration-300" />
           {navURL}
+          {navURLCount && (
+            <span className="text-sm text-destructive ml-1">
+              [{navURLCount}]
+            </span>
+          )}
         </Link>
       </Header>
       {children}

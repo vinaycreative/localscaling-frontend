@@ -79,13 +79,13 @@ function BusinessInformationPage() {
     <Page navURL="Dashboard">
       <OnboardHeading />
 
-      <div className="flex flex-col lg:flex-row gap-8 w-full h-full overflow-hidden ">
+      <div className="flex flex-col lg:flex-row gap-8 overflow-hidden mt-6 pb-2 flex-1">
         <OnboardingVideo />
         <form
           onSubmit={handleSubmit}
-          className="space-y-4 bg-background rounded border w-full h-full flex flex-col overflow-hidden"
+          className="space-y-4 bg-background rounded border w-full h-full flex flex-col overflow-hidden shadow-xl"
         >
-          <div className="space-y-6 p-8 flex-1 overflow-auto">
+          <div className="space-y-6 p-6 flex-1 overflow-auto w-full h-full">
             <div className="grid lg:grid-cols-5 gap-6">
               <div className="space-y-2 lg:col-span-3">
                 <Label htmlFor="company">
