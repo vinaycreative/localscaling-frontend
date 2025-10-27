@@ -1,4 +1,4 @@
-import MainLayout from "@/components/layout/Main"
+import MainLayout from "@/components/layout/main"
 import React, { ReactNode } from "react"
 
 export default function page({ children }: { children: ReactNode }) {

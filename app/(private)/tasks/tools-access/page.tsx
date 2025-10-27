@@ -1,19 +1,17 @@
-"use client";
+"use client"
 
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+import { ChevronLeft, ChevronRight } from "lucide-react"
+import Image from "next/image"
+import { useRouter } from "next/navigation"
 
 const OnboardingVideo = () => {
   return (
     <div className="flex flex-col gap-4 w-[360px]">
       <div className="space-y-0">
         <h2 className="font-semibold text-foreground">4. Tools Access</h2>
-        <p className="text-sm text-muted-foreground">
-          Enable analytics and performance tracking.
-        </p>
+        <p className="text-xs text-muted-foreground">Enable analytics and performance tracking.</p>
       </div>
 
       <div className="relative aspect-video bg-muted rounded overflow-hidden">
@@ -31,20 +29,16 @@ const OnboardingVideo = () => {
         </div>
       </div>
     </div>
-  );
-};
-
-interface AccessGrantButtonProps {
-  iconSrc: string | null;
-  iconAlt: string;
-  text: string;
+  )
 }
 
-const AccessGrantButton = ({
-  iconSrc,
-  iconAlt,
-  text,
-}: AccessGrantButtonProps) => {
+interface AccessGrantButtonProps {
+  iconSrc: string | null
+  iconAlt: string
+  text: string
+}
+
+const AccessGrantButton = ({ iconSrc, iconAlt, text }: AccessGrantButtonProps) => {
   return (
     <Button
       type="button"
@@ -64,14 +58,14 @@ const AccessGrantButton = ({
       )}
       <span className="text-sm">{text}</span>
     </Button>
-  );
-};
+  )
+}
 
 interface AccessToolFieldProps {
-  title: string;
-  iconSrc: string | null;
-  buttonText: string;
-  required?: boolean;
+  title: string
+  iconSrc: string | null
+  buttonText: string
+  required?: boolean
 }
 
 const AccessToolField = ({
@@ -85,23 +79,19 @@ const AccessToolField = ({
       {title}
       {required && <span className="text-primary">*</span>}
     </Label>
-    <AccessGrantButton
-      iconSrc={iconSrc}
-      iconAlt={`${title} icon`}
-      text={buttonText}
-    />
+    <AccessGrantButton iconSrc={iconSrc} iconAlt={`${title} icon`} text={buttonText} />
   </div>
-);
+)
 
 function ToolsAccessPage() {
-  const router = useRouter();
+  const router = useRouter()
   const handlePrev = () => {
-    router.push("/tasks/website-setup");
-  };
+    router.push("/tasks/website-setup")
+  }
 
   const handleNext = () => {
-    router.push("/tasks/locations-budget");
-  };
+    router.push("/tasks/locations-budget")
+  }
   return (
     <section className="w-full h-full grid grid-cols-[auto_1fr] gap-4 overflow-hidden pt-4">
       <OnboardingVideo />
@@ -151,7 +141,7 @@ function ToolsAccessPage() {
         </div>
       </div>
     </section>
-  );
+  )
 }
 
-export default ToolsAccessPage;
+export default ToolsAccessPage
