@@ -1,12 +1,12 @@
 "use client";
 
 import { CustomInput } from "@/components/reusable/custom-input";
+import OnboardingVideo from "@/components/reusable/onboarding-video";
 import { Button } from "@/components/ui/button";
 import { BusinessFormData } from "@/interfaces/onboarding/business-information";
 import { ChevronRight, CircleQuestionMark, Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import OnboardingVideo from "./components/onboarding-video";
 
 const generateYearOptions = (startYear: number, endYear: number) => {
   const years = [];
@@ -78,8 +78,11 @@ function BusinessInformationPage() {
   };
 
   return (
-    <section className="w-full h-full grid grid-cols-[auto_1fr] gap-4 overflow-hidden pt-4">
-      <OnboardingVideo />
+    <section className="w-full h-full grid lg:grid-cols-[auto_1fr] gap-4 overflow-hidden pt-4">
+      <OnboardingVideo
+        title="1. General Business Information"
+        subTitle="Provide essential company details."
+      />
       <form
         onSubmit={handleSubmit}
         className="rounded-lg border-border border bg-background w-full h-full grid grid-rows-[auto_60px] overflow-hidden"

@@ -3,17 +3,16 @@
 import BrandAssetUploader from "@/components/reusable/brand-asset-uploader";
 import ColorPickerInput from "@/components/reusable/color-picker";
 import { CustomInput } from "@/components/reusable/custom-input";
+import OnboardingVideo from "@/components/reusable/onboarding-video";
 import { VideoUpload } from "@/components/reusable/video-upload";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
   BrandingContentFormData,
   IntroductoryVideoOption,
-  OnboardingVideoProps,
   TeamMember,
 } from "@/interfaces/onboarding/branding-content";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import type React from "react";
 import { useState } from "react";
@@ -29,34 +28,6 @@ const initialFormData: BrandingContentFormData = {
   videoCreationOption: "upload",
   ceoVideo: null,
   videoTestimonial: null,
-};
-
-const OnboardingVideo = ({ step }: OnboardingVideoProps) => {
-  return (
-    <div className="flex flex-col gap-4 w-[360px]">
-      <div className="space-y-0">
-        <h1 className="font-semibold text-foreground">{`2.${step} Branding & Content`}</h1>
-        <p className="text-xs text-muted-foreground">
-          Submit brand assets for a consistent identity.
-        </p>
-      </div>
-
-      <div className="relative aspect-video bg-muted rounded overflow-hidden">
-        <Image
-          src="/video.jpg"
-          alt="Branding consultation video"
-          className="w-full h-full object-cover"
-          width={300}
-          height={300}
-        />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-16 h-16 bg-primary/80 rounded-full flex items-center justify-center">
-            <div className="w-0 h-0 border-l-[12px] border-l-primary-foreground border-y-[8px] border-y-transparent ml-1"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 };
 
 function BrandingContentPage() {
@@ -134,8 +105,11 @@ function BrandingContentPage() {
   };
 
   return (
-    <section className="w-full h-full grid grid-cols-[auto_1fr] gap-4 overflow-hidden pt-4">
-      <OnboardingVideo step={currentStep} />
+    <section className="w-full h-full grid lg:grid-cols-[auto_1fr] gap-4 overflow-hidden pt-4">
+      <OnboardingVideo
+        title={`2.${currentStep} Branding & Content`}
+        subTitle="Submit brand assets for a consistent identity."
+      />
 
       <div className="rounded-lg border-border border bg-background w-full h-full grid grid-rows-[auto_60px] overflow-hidden">
         {currentStep === 1 && (

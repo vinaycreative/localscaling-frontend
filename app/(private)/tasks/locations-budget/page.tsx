@@ -1,86 +1,63 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { TagInput } from "@/components/reusable/tags/tag-input"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import OnboardingVideo from "@/components/reusable/onboarding-video";
+import { TagInput } from "@/components/reusable/tags/tag-input";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { ChevronLeft, ChevronRight } from "lucide-react"
-import Image from "next/image"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
-
-const OnboardingVideo = () => {
-  return (
-    <div className="flex flex-col gap-4 w-[360px]">
-      <div className="space-y-0">
-        <h2 className="font-semibold text-foreground">5. Locations & Budget</h2>
-        <p className="text-xs text-muted-foreground">Set your ads budget and its location.</p>
-      </div>
-
-      <div className="relative aspect-video bg-muted rounded overflow-hidden ">
-        <Image
-          src="/video.jpg"
-          alt="Business consultation video"
-          className="w-full h-full object-cover"
-          width={300}
-          height={300}
-        />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-16 h-16 bg-primary/80 rounded-full flex items-center justify-center">
-            <div className="w-0 h-0 border-l-[12px] border-l-primary-foreground border-y-[8px] border-y-transparent ml-1"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
+} from "@/components/ui/select";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 const initialFormData = {
   budget: 1000,
   currency: "EUR",
   locations: ["Hamburg", "Mainz", "Dortmund", "Berlin"],
   services: ["Local SEO Audit", "PPC Management"],
-}
+};
 
 function LocationsBudgetPage() {
-  const [formData, setFormData] = useState(initialFormData)
-  const router = useRouter()
+  const [formData, setFormData] = useState(initialFormData);
+  const router = useRouter();
   const handlePrev = () => {
-    router.push("/tasks/tools-access")
-  }
+    router.push("/tasks/tools-access");
+  };
 
   const handleNext = () => {
-    router.push("/dashboard")
-  }
+    router.push("/dashboard");
+  };
 
   const handleCurrencyChange = (value: string) => {
-    setFormData({ ...formData, currency: value })
-  }
+    setFormData({ ...formData, currency: value });
+  };
 
   const handleBudgetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const budgetValue = Number.parseInt(e.target.value) || 0
-    setFormData({ ...formData, budget: budgetValue })
-  }
+    const budgetValue = Number.parseInt(e.target.value) || 0;
+    setFormData({ ...formData, budget: budgetValue });
+  };
 
   const handleLocationChange = (value: string[]) => {
-    setFormData({ ...formData, locations: value })
-  }
+    setFormData({ ...formData, locations: value });
+  };
   const handleServicesChange = (value: string[]) => {
-    setFormData({ ...formData, services: value })
-  }
+    setFormData({ ...formData, services: value });
+  };
 
   return (
-    <section className="w-full h-full grid grid-cols-[auto_1fr] gap-4 overflow-hidden pt-4">
-      <OnboardingVideo />
+    <section className="w-full h-full grid lg:grid-cols-[auto_1fr] gap-4 overflow-hidden pt-4">
+      <OnboardingVideo
+        title="5. Locations & Budget"
+        subTitle="Set your ads budget and its location."
+      />
 
       <div className="rounded-lg border-border border bg-background w-full h-full grid grid-rows-[auto_60px] overflow-hidden">
         <div className="p-6 h-full overflow-y-scroll flex flex-col gap-4">
@@ -89,7 +66,10 @@ function LocationsBudgetPage() {
               Set monthly ads budget <span className="text-primary">*</span>
             </Label>
             <div className="flex rounded border ">
-              <Select value={formData.currency} onValueChange={handleCurrencyChange}>
+              <Select
+                value={formData.currency}
+                onValueChange={handleCurrencyChange}
+              >
                 <SelectTrigger className="focus-visible:ring-[0px] border-0 cursor-pointer hover:bg-muted/20 transition-all duration-300 border-r rounded-r-none">
                   <SelectValue />
                 </SelectTrigger>
@@ -163,7 +143,7 @@ function LocationsBudgetPage() {
         </div>
       </div>
     </section>
-  )
+  );
 }
 
-export default LocationsBudgetPage
+export default LocationsBudgetPage;
