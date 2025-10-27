@@ -1,35 +1,30 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { BusinessFormData } from "@/interfaces/onboarding/business-information"
-import { ChevronRight, FileWarning } from "lucide-react"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
-import OnboardHeading from "../components/onboarding-heading"
-import OnboardingVideo from "./components/onboarding-video"
-import { cn } from "@/lib/utils"
+import { CustomInput } from "@/components/reusable/custom-input";
+import { Button } from "@/components/ui/button";
+import { BusinessFormData } from "@/interfaces/onboarding/business-information";
+import { ChevronRight, CircleQuestionMark, Mail } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import OnboardingVideo from "./components/onboarding-video";
 
 const generateYearOptions = (startYear: number, endYear: number) => {
-  const years = []
+  const years = [];
   for (let year = endYear; year >= startYear; year--) {
-    years.push(year.toString())
+    years.push(year.toString());
   }
-  return years
-}
-const CURRENT_YEAR = new Date().getFullYear()
-const YEAR_OPTIONS = generateYearOptions(1900, CURRENT_YEAR)
+  return years;
+};
+const CURRENT_YEAR = new Date().getFullYear();
+const YEAR_OPTIONS_VALUES = generateYearOptions(1900, CURRENT_YEAR);
+
+const YEAR_OPTIONS = YEAR_OPTIONS_VALUES.map((year) => ({
+  value: year,
+  label: year,
+}));
 
 function BusinessInformationPage() {
-  const router = useRouter()
+  const router = useRouter();
   const [formData, setFormData] = useState<BusinessFormData>({
     company: "",
     startYear: "",
@@ -48,32 +43,39 @@ function BusinessInformationPage() {
     instagram: "",
     twitter: "",
     googleBusinessProfileLink: "",
-  })
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
+    e.preventDefault();
+    setIsSubmitting(true);
 
-    console.log("Submitting local data:", formData)
+    console.log("Submitting local data:", formData);
 
     setTimeout(() => {
-      setIsSubmitting(false)
-      handleNext()
-    }, 1000)
-  }
+      setIsSubmitting(false);
+      handleNext();
+    }, 1000);
+  };
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = event.target
+    const { id, value } = event.target;
     setFormData((prevData) => ({
       ...prevData,
       [id]: value,
-    }))
-  }
+    }));
+  };
+
+  const handleSelectChange = (id: keyof BusinessFormData, value: string) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [id]: value,
+    }));
+  };
 
   const handleNext = (): void => {
-    router.push("/tasks/branding-content")
-  }
+    router.push("/tasks/branding-content");
+  };
 
   return (
     <section className="w-full h-full grid grid-cols-[auto_1fr] gap-4 overflow-hidden pt-4">
@@ -379,11 +381,12 @@ function BusinessInformationPage() {
           <CustomInput
             label="Company Start Year"
             id="startYear"
-            type="text"
             placeholder="Year"
             required={true}
             value={formData.startYear}
-            onChange={handleChange}
+            select={true}
+            selectOptions={YEAR_OPTIONS}
+            onSelectChange={(value) => handleSelectChange("startYear", value)}
           />
           <CustomInput
             label="Street Address"
@@ -393,6 +396,7 @@ function BusinessInformationPage() {
             required={true}
             value={formData.streetAddress}
             onChange={handleChange}
+            className="col-span-2"
           />
           <CustomInput
             label="Postal Code"
@@ -457,6 +461,8 @@ function BusinessInformationPage() {
             required={true}
             value={formData.email}
             onChange={handleChange}
+            PrefixIcon={Mail}
+            SuffixIcon={CircleQuestionMark}
           />
           <CustomInput
             label="Contact number"
@@ -466,6 +472,8 @@ function BusinessInformationPage() {
             required={true}
             value={formData.contactNumber}
             onChange={handleChange}
+            prefixText={"DE"}
+            SuffixIcon={CircleQuestionMark}
           />
           <CustomInput
             label="Whatsapp number"
@@ -475,6 +483,8 @@ function BusinessInformationPage() {
             required={false}
             value={formData.whatsappNumber}
             onChange={handleChange}
+            prefixText={"DE"}
+            SuffixIcon={CircleQuestionMark}
           />
           <CustomInput
             label="Current website"
@@ -485,6 +495,7 @@ function BusinessInformationPage() {
             value={formData.website}
             onChange={handleChange}
             className="col-span-2"
+            prefixText={"http://"}
             link={true}
           />
           <CustomInput
@@ -495,6 +506,8 @@ function BusinessInformationPage() {
             required={false}
             value={formData.facebook}
             onChange={handleChange}
+            className="col-span-2"
+            prefixText={"http://"}
           />
           <CustomInput
             label="Instagram link"
@@ -504,6 +517,8 @@ function BusinessInformationPage() {
             required={false}
             value={formData.instagram}
             onChange={handleChange}
+            className="col-span-2"
+            prefixText={"http://"}
           />
           <CustomInput
             label="X (Twitter) link"
@@ -513,6 +528,8 @@ function BusinessInformationPage() {
             required={false}
             value={formData.twitter}
             onChange={handleChange}
+            className="col-span-2"
+            prefixText={"http://"}
           />
           <CustomInput
             label="Google Business Profile link"
@@ -522,9 +539,11 @@ function BusinessInformationPage() {
             required={false}
             value={formData.googleBusinessProfileLink}
             onChange={handleChange}
+            className="col-span-2"
+            prefixText={"http://"}
           />
         </div>
-        <div className="px-4 border-t border-border flex items-center">
+        <div className="px-4 border-t border-border flex items-center justify-end">
           <Button
             type="submit"
             disabled={isSubmitting}
@@ -536,52 +555,7 @@ function BusinessInformationPage() {
         </div>
       </form>
     </section>
-  )
+  );
 }
 
-export const CustomInput = ({
-  label,
-  id,
-  type,
-  placeholder,
-  required,
-  className,
-  value,
-  link,
-  onChange,
-}: {
-  label: string
-  id: string
-  type: string
-  placeholder: string
-  required: boolean
-  className?: string
-  value: string
-  link?: boolean
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
-}) => {
-  return (
-    <div className={cn("space-y-2.5", className)}>
-      <Label htmlFor={id}>
-        {label} {required && <span className="text-primary">*</span>}
-      </Label>
-      <div className="flex">
-        {link && (
-          <div className="flex items-center px-3 bg-white border border-r-0 rounded-l">
-            <span className="text-sm text-muted-foreground">https://</span>
-          </div>
-        )}
-        <Input
-          id={id}
-          type={type}
-          placeholder={placeholder}
-          className="bg-background rounded focus-visible:ring-[0px]"
-          value={value}
-          onChange={onChange}
-        />
-      </div>
-    </div>
-  )
-}
-
-export default BusinessInformationPage
+export default BusinessInformationPage;

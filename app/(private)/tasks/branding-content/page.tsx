@@ -1,25 +1,23 @@
-"use client"
+"use client";
 
-import { SiteHeader } from "@/components/layout/Header"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   BrandingContentFormData,
   IntroductoryVideoOption,
   OnboardingVideoProps,
   TeamMember,
-} from "@/interfaces/onboarding/branding-content"
-import { ChevronLeft, ChevronRight } from "lucide-react"
-import Image from "next/image"
-import { useRouter } from "next/navigation"
-import type React from "react"
-import { useState } from "react"
-import { OnboardingHeader } from "../business-information/page"
-import BrandAssetUploader from "./components/brand-asset-uploader"
-import ColorPickerInput from "./components/color-picker"
-import { TeamMemberList } from "./components/member-entry-list"
-import { VideoUpload } from "./components/video-upload"
+} from "@/interfaces/onboarding/branding-content";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import type React from "react";
+import { useState } from "react";
+import BrandAssetUploader from "./components/brand-asset-uploader";
+import ColorPickerInput from "./components/color-picker";
+import { TeamMemberList } from "./components/member-entry-list";
+import { VideoUpload } from "./components/video-upload";
 
 const initialFormData: BrandingContentFormData = {
   fontLink: "",
@@ -31,7 +29,7 @@ const initialFormData: BrandingContentFormData = {
   videoCreationOption: "upload",
   ceoVideo: null,
   videoTestimonial: null,
-}
+};
 
 const OnboardingVideo = ({ step }: OnboardingVideoProps) => {
   return (
@@ -58,59 +56,64 @@ const OnboardingVideo = ({ step }: OnboardingVideoProps) => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 function BrandingContentPage() {
-  const router = useRouter()
-  const [currentStep, setCurrentStep] = useState(1)
-  const [formData, setFormData] = useState<BrandingContentFormData>(initialFormData)
-  const [introVideoOption, setIntroVideoOption] = useState<IntroductoryVideoOption>("upload")
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const totalSteps = 3
+  const router = useRouter();
+  const [currentStep, setCurrentStep] = useState(1);
+  const [formData, setFormData] =
+    useState<BrandingContentFormData>(initialFormData);
+  const [introVideoOption, setIntroVideoOption] =
+    useState<IntroductoryVideoOption>("upload");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const totalSteps = 3;
 
   const handleTeamMembersChange = (nextMembers: TeamMember[]) => {
     setFormData((prevData) => ({
       ...prevData,
       teamMembers: nextMembers,
-    }))
-  }
+    }));
+  };
 
-  const handleColorChange = (field: keyof BrandingContentFormData, hex: string) => {
+  const handleColorChange = (
+    field: keyof BrandingContentFormData,
+    hex: string
+  ) => {
     setFormData((prevData) => ({
       ...prevData,
       [field]: hex,
-    }))
-  }
+    }));
+  };
 
   const handleSubmit = () => {
-    setIsSubmitting(true)
-    console.log("Form Data Submitted:", formData)
-    setIsSubmitting(false)
-    router.push("/tasks/website-setup")
-  }
+    setIsSubmitting(true);
+    console.log("Form Data Submitted:", formData);
+    setIsSubmitting(false);
+    router.push("/tasks/website-setup");
+  };
 
   const handleNext = () => {
     if (currentStep < totalSteps) {
-      setCurrentStep((prevStep) => prevStep + 1)
+      setCurrentStep((prevStep) => prevStep + 1);
     }
-  }
+  };
 
   const handlePrevious = () => {
     if (currentStep > 1) {
-      setCurrentStep((prevStep) => prevStep - 1)
+      setCurrentStep((prevStep) => prevStep - 1);
     } else {
-      router.back()
+      router.back();
     }
-  }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = e.target
+    const { id, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
       [id]: value,
-    }))
-  }
+    }));
+  };
 
   const handleFileUpload = (
     file: File | File[] | null,
@@ -119,27 +122,24 @@ function BrandingContentPage() {
     setFormData((prevData) => ({
       ...prevData,
       [field]: file,
-    }))
+    }));
 
     if (field === "ceoVideo" && file) {
-      setIntroVideoOption("upload")
+      setIntroVideoOption("upload");
       setFormData((prevData) => ({
         ...prevData,
         videoCreationOption: "upload",
-      }))
+      }));
     }
-  }
+  };
 
   return (
     <div className="flex flex-col gap-4 min-h-screen">
-      <SiteHeader>
-        <OnboardingHeader />
-      </SiteHeader>
-
       <div className="flex flex-col">
         <h2 className="text-balance text-3xl font-bold">Onboarding Setup</h2>
         <p className="text-pretty text-muted-foreground">
-          Complete the required steps to ensure a smooth and successful project launch.
+          Complete the required steps to ensure a smooth and successful project
+          launch.
         </p>
       </div>
 
@@ -161,7 +161,9 @@ function BrandingContentPage() {
                 </Label>
                 <div className="flex">
                   <div className="flex bg-muted items-center px-3 border border-r-0 rounded-l">
-                    <span className="text-sm text-muted-foreground">https://</span>
+                    <span className="text-sm text-muted-foreground">
+                      https://
+                    </span>
                   </div>
                   <Input
                     id="fontLink"
@@ -178,13 +180,17 @@ function BrandingContentPage() {
                   <div>
                     <ColorPickerInput
                       value={formData.primaryBrandColor}
-                      onChange={(hex) => handleColorChange("primaryBrandColor", hex)}
+                      onChange={(hex) =>
+                        handleColorChange("primaryBrandColor", hex)
+                      }
                     />
                   </div>
                   <div>
                     <ColorPickerInput
                       value={formData.secondaryBrandColor}
-                      onChange={(hex) => handleColorChange("secondaryBrandColor", hex)}
+                      onChange={(hex) =>
+                        handleColorChange("secondaryBrandColor", hex)
+                      }
                     />
                   </div>
                 </div>
@@ -224,7 +230,8 @@ function BrandingContentPage() {
             <div className="space-y-4">
               <div className="mb-4">
                 <p className="text-muted-foreground italic text-xs">
-                  Please watch the entire video, before proceeding with the form.
+                  Please watch the entire video, before proceeding with the
+                  form.
                 </p>
               </div>
 
@@ -241,8 +248,8 @@ function BrandingContentPage() {
 
               <div className="space-y-4 pt-4">
                 <p className="text-sm">
-                  Do not have an introductory video? Choose how you&apos;d like us to help you
-                  create one.
+                  Do not have an introductory video? Choose how you&apos;d like
+                  us to help you create one.
                 </p>
 
                 <div className="space-y-3">
@@ -250,11 +257,11 @@ function BrandingContentPage() {
                     type="button"
                     variant={"outline"}
                     onClick={() => {
-                      setIntroVideoOption("studio")
+                      setIntroVideoOption("studio");
                       setFormData((prev) => ({
                         ...prev,
                         videoCreationOption: "studio",
-                      }))
+                      }));
                     }}
                     className={`rounded cursor-pointer transition-all duration-300 w-fit justify-start ${
                       introVideoOption === "studio" &&
@@ -265,7 +272,8 @@ function BrandingContentPage() {
                     Schedule a Studio Session
                   </Button>
                   <p className="text-xs text-muted-foreground">
-                    Book a slot at our studio to record your professional introduction.
+                    Book a slot at our studio to record your professional
+                    introduction.
                   </p>
 
                   <div className="flex items-center justify-center">
@@ -276,11 +284,11 @@ function BrandingContentPage() {
                     type="button"
                     variant={"outline"}
                     onClick={() => {
-                      setIntroVideoOption("remote")
+                      setIntroVideoOption("remote");
                       setFormData((prev) => ({
                         ...prev,
                         videoCreationOption: "remote",
-                      }))
+                      }));
                     }}
                     className={`rounded cursor-pointer transition-all duration-300 w-fit justify-start ${
                       introVideoOption === "remote" &&
@@ -291,8 +299,8 @@ function BrandingContentPage() {
                     Record Remotely
                   </Button>
                   <p className="text-xs text-muted-foreground">
-                    Schedule an online session, our team will guide you over a video call and edit
-                    it for you.
+                    Schedule an online session, our team will guide you over a
+                    video call and edit it for you.
                   </p>
                 </div>
               </div>
@@ -303,7 +311,8 @@ function BrandingContentPage() {
             <div className="space-y-4">
               <div className="mb-4">
                 <p className="text-muted-foreground italic text-xs">
-                  Please watch the entire video, before proceeding with the form.
+                  Please watch the entire video, before proceeding with the
+                  form.
                 </p>
               </div>
 
@@ -314,7 +323,9 @@ function BrandingContentPage() {
 
                 <VideoUpload
                   value={formData.videoTestimonial}
-                  onChange={(file) => handleFileUpload(file, "videoTestimonial")}
+                  onChange={(file) =>
+                    handleFileUpload(file, "videoTestimonial")
+                  }
                 />
               </div>
             </div>
@@ -352,7 +363,7 @@ function BrandingContentPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default BrandingContentPage
+export default BrandingContentPage;
