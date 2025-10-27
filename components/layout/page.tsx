@@ -1,17 +1,17 @@
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
-import React from "react";
-import Header from "./header";
+import { ArrowLeft } from "lucide-react"
+import Link from "next/link"
+import React from "react"
+import Header from "./Header"
 
 interface PageProps {
-  navURL: string;
-  navURLCount?: string;
-  children: React.ReactNode;
+  navURL: string
+  navURLCount?: string
+  children: React.ReactNode
 }
 
 const Page = ({ children, navURL, navURLCount }: PageProps) => {
   return (
-    <div className="h-dvh px-4 flex flex-col ">
+    <main className="grid grid-rows-[32px_1fr] w-full h-dvh px-3 py-2 overflow-hidden">
       <Header>
         <Link
           href={`/${navURL.toLowerCase()}`}
@@ -19,16 +19,12 @@ const Page = ({ children, navURL, navURLCount }: PageProps) => {
         >
           <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-all duration-300" />
           {navURL}
-          {navURLCount && (
-            <span className="text-sm text-destructive ml-1">
-              [{navURLCount}]
-            </span>
-          )}
+          {navURLCount && <span className="text-sm text-destructive ml-1">[{navURLCount}]</span>}
         </Link>
       </Header>
       {children}
-    </div>
-  );
-};
+    </main>
+  )
+}
 
-export default Page;
+export default Page

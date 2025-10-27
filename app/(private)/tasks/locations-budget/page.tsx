@@ -1,33 +1,31 @@
-"use client";
+"use client"
 
-import type React from "react";
+import type React from "react"
 
-import { SiteHeader } from "@/components/layout/header";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { SiteHeader } from "@/components/layout/Header"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { OnboardingHeader } from "../business-information/page";
-import { TagInput } from "../website-setup/components/tag-input";
+} from "@/components/ui/select"
+import { ChevronLeft, ChevronRight } from "lucide-react"
+import Image from "next/image"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+import { OnboardingHeader } from "../business-information/page"
+import { TagInput } from "../website-setup/components/tag-input"
 
 const OnboardingVideo = () => {
   return (
     <div className="flex flex-col gap-4">
       <div className="space-y-0">
         <h2 className="font-semibold text-foreground">5. Locations & Budget</h2>
-        <p className="text-sm text-muted-foreground">
-          Set your ads budget and its location.
-        </p>
+        <p className="text-sm text-muted-foreground">Set your ads budget and its location.</p>
       </div>
 
       <div className="relative aspect-video bg-muted rounded overflow-hidden ">
@@ -45,42 +43,42 @@ const OnboardingVideo = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
 const initialFormData = {
   budget: 1000,
   currency: "EUR",
   locations: ["Hamburg", "Mainz", "Dortmund", "Berlin"],
   services: ["Local SEO Audit", "PPC Management"],
-};
+}
 
 function LocationsBudgetPage() {
-  const [formData, setFormData] = useState(initialFormData);
-  const router = useRouter();
+  const [formData, setFormData] = useState(initialFormData)
+  const router = useRouter()
   const handlePrev = () => {
-    router.push("/tasks/tools-access");
-  };
+    router.push("/tasks/tools-access")
+  }
 
   const handleNext = () => {
-    router.push("/dashboard");
-  };
+    router.push("/dashboard")
+  }
 
   const handleCurrencyChange = (value: string) => {
-    setFormData({ ...formData, currency: value });
-  };
+    setFormData({ ...formData, currency: value })
+  }
 
   const handleBudgetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const budgetValue = Number.parseInt(e.target.value) || 0;
-    setFormData({ ...formData, budget: budgetValue });
-  };
+    const budgetValue = Number.parseInt(e.target.value) || 0
+    setFormData({ ...formData, budget: budgetValue })
+  }
 
   const handleLocationChange = (value: string[]) => {
-    setFormData({ ...formData, locations: value });
-  };
+    setFormData({ ...formData, locations: value })
+  }
   const handleServicesChange = (value: string[]) => {
-    setFormData({ ...formData, services: value });
-  };
+    setFormData({ ...formData, services: value })
+  }
 
   return (
     <div className="flex flex-col gap-4 min-h-screen">
@@ -90,8 +88,7 @@ function LocationsBudgetPage() {
       <div className="flex flex-col">
         <h2 className="text-balance text-3xl font-bold">Onboarding Setup</h2>
         <p className="text-pretty text-muted-foreground">
-          Complete the required steps to ensure a smooth and successful project
-          launch.
+          Complete the required steps to ensure a smooth and successful project launch.
         </p>
       </div>
       <div className="grid lg:grid-cols-3 gap-8 ">
@@ -104,10 +101,7 @@ function LocationsBudgetPage() {
                 Set monthly ads budget <span className="text-primary">*</span>
               </Label>
               <div className="flex rounded border ">
-                <Select
-                  value={formData.currency}
-                  onValueChange={handleCurrencyChange}
-                >
+                <Select value={formData.currency} onValueChange={handleCurrencyChange}>
                   <SelectTrigger className="focus-visible:ring-[0px] border-0 cursor-pointer hover:bg-muted/20 transition-all duration-300 border-r rounded-r-none">
                     <SelectValue />
                   </SelectTrigger>
@@ -182,7 +176,7 @@ function LocationsBudgetPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }
 
-export default LocationsBudgetPage;
+export default LocationsBudgetPage

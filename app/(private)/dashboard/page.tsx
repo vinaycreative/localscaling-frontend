@@ -1,24 +1,73 @@
-import Page from "@/components/layout/page";
-import { LaunchDateCard } from "./components/launch-date-card";
-import { MilestoneCard } from "./components/milestone-card";
-import { ProjectProgressCard } from "./components/project-progress-card";
+import Page from "@/components/layout/Page"
+import { LaunchDateCard } from "../../../components/stats/launch-date-card"
+import { MilestoneCard } from "../../../components/stats/milestone-card"
+import { ProjectProgressCard } from "../../../components/stats/project-progress-card"
 
 function DashboardPage() {
   return (
     <Page navURL="Tasks Pending" navURLCount="23">
-      <div className="px-4">
-        <h1 className="mb-8 text-3xl font-semibold text-foreground">
-          GartenPro Service
-        </h1>
+      <section className="bg-green-500 h-full overflow-hidden grid grid-rows-[40px_1fr]">
+        <h1 className="mb-8 text-3xl font-semibold text-foreground">GartenPro Service</h1>
 
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div className="grid gap-4 lg:grid-cols-3 h-full overflow-auto">
+          <ProjectProgressCard progress={28} />
+          <MilestoneCard milestone="Website setup" />
+          <LaunchDateCard date="31 December 2025" />
+          <ProjectProgressCard progress={28} />
+          <MilestoneCard milestone="Website setup" />
+          <LaunchDateCard date="31 December 2025" />
+          <ProjectProgressCard progress={28} />
+          <MilestoneCard milestone="Website setup" />
+          <LaunchDateCard date="31 December 2025" />
+          <ProjectProgressCard progress={28} />
+          <MilestoneCard milestone="Website setup" />
+          <LaunchDateCard date="31 December 2025" />
+          <ProjectProgressCard progress={28} />
+          <MilestoneCard milestone="Website setup" />
+          <LaunchDateCard date="31 December 2025" />
+          <ProjectProgressCard progress={28} />
+          <MilestoneCard milestone="Website setup" />
+          <LaunchDateCard date="31 December 2025" />
+          <ProjectProgressCard progress={28} />
+          <MilestoneCard milestone="Website setup" />
+          <LaunchDateCard date="31 December 2025" />
+          <ProjectProgressCard progress={28} />
+          <MilestoneCard milestone="Website setup" />
+          <LaunchDateCard date="31 December 2025" />
+          <ProjectProgressCard progress={28} />
+          <MilestoneCard milestone="Website setup" />
+          <LaunchDateCard date="31 December 2025" />
+          <ProjectProgressCard progress={28} />
+          <MilestoneCard milestone="Website setup" />
+          <LaunchDateCard date="31 December 2025" />
+          <ProjectProgressCard progress={28} />
+          <MilestoneCard milestone="Website setup" />
+          <LaunchDateCard date="31 December 2025" />
+          <ProjectProgressCard progress={28} />
+          <MilestoneCard milestone="Website setup" />
+          <LaunchDateCard date="31 December 2025" />
+          <ProjectProgressCard progress={28} />
+          <MilestoneCard milestone="Website setup" />
+          <LaunchDateCard date="31 December 2025" />
+          <ProjectProgressCard progress={28} />
+          <MilestoneCard milestone="Website setup" />
+          <LaunchDateCard date="31 December 2025" />
+          <ProjectProgressCard progress={28} />
+          <MilestoneCard milestone="Website setup" />
+          <LaunchDateCard date="31 December 2025" />
+          <ProjectProgressCard progress={28} />
+          <MilestoneCard milestone="Website setup" />
+          <LaunchDateCard date="31 December 2025" />
+          <ProjectProgressCard progress={28} />
+          <MilestoneCard milestone="Website setup" />
+          <LaunchDateCard date="31 December 2025" />
           <ProjectProgressCard progress={28} />
           <MilestoneCard milestone="Website setup" />
           <LaunchDateCard date="31 December 2025" />
         </div>
-      </div>
+      </section>
     </Page>
-  );
+  )
 }
 
-export default DashboardPage;
+export default DashboardPage

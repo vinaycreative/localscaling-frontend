@@ -1,13 +1,13 @@
-"use client";
+"use client"
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
-import { toDate } from "date-fns";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Separator } from "@/components/ui/separator"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Textarea } from "@/components/ui/textarea"
+import { cn } from "@/lib/utils"
+import { toDate } from "date-fns"
 import {
   ArrowLeft,
   CalendarClock,
@@ -17,13 +17,13 @@ import {
   Paperclip,
   PhoneCall,
   SquareSlash,
-} from "lucide-react";
-import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
-import * as React from "react";
-import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
+} from "lucide-react"
+import Link from "next/link"
+import { useParams, useRouter } from "next/navigation"
+import * as React from "react"
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso"
 
-import { SiteHeader } from "@/components/layout/header";
+import { SiteHeader } from "@/components/layout/Header"
 import {
   File,
   FileArchive,
@@ -34,16 +34,16 @@ import {
   FileSpreadsheet,
   FileText,
   FileVideo,
-} from "lucide-react";
-import { OnboardingHeader } from "../../tasks/business-information/page";
-import ChatLoading from "../components/chat-loading";
+} from "lucide-react"
+import { OnboardingHeader } from "../../tasks/business-information/page"
+import ChatLoading from "../components/chat-loading"
 
 /**
  * Returns an SVG icon component based on file type or extension.
  * You can use this anywhere in your UI to render icons dynamically.
  */
 function getFileIcon(filename: string) {
-  const ext = filename.split(".").pop()?.toLowerCase() || "";
+  const ext = filename.split(".").pop()?.toLowerCase() || ""
 
   switch (ext) {
     // 🖼️ Images
@@ -54,7 +54,7 @@ function getFileIcon(filename: string) {
     case "bmp":
     case "svg":
     case "webp":
-      return <FileImage className="h-5 w-5 text-blue-500" />;
+      return <FileImage className="h-5 w-5 text-blue-500" />
 
     // 🎧 Audio
     case "mp3":
@@ -62,7 +62,7 @@ function getFileIcon(filename: string) {
     case "ogg":
     case "m4a":
     case "flac":
-      return <FileAudio className="h-5 w-5 text-purple-500" />;
+      return <FileAudio className="h-5 w-5 text-purple-500" />
 
     // 🎬 Video
     case "mp4":
@@ -70,7 +70,7 @@ function getFileIcon(filename: string) {
     case "avi":
     case "mkv":
     case "webm":
-      return <FileVideo className="h-5 w-5 text-orange-500" />;
+      return <FileVideo className="h-5 w-5 text-orange-500" />
 
     // 📄 Documents
     case "pdf":
@@ -79,14 +79,14 @@ function getFileIcon(filename: string) {
     case "txt":
     case "rtf":
     case "md":
-      return <FileText className="h-5 w-5 text-red-500" />;
+      return <FileText className="h-5 w-5 text-red-500" />
 
     // 🧮 Spreadsheets
     case "xls":
     case "xlsx":
     case "csv":
     case "ods":
-      return <FileSpreadsheet className="h-5 w-5 text-green-500" />;
+      return <FileSpreadsheet className="h-5 w-5 text-green-500" />
 
     // 🧩 Archives
     case "zip":
@@ -94,7 +94,7 @@ function getFileIcon(filename: string) {
     case "7z":
     case "tar":
     case "gz":
-      return <FileArchive className="h-5 w-5 text-yellow-500" />;
+      return <FileArchive className="h-5 w-5 text-yellow-500" />
 
     // 💻 Code files
     case "js":
@@ -111,34 +111,34 @@ function getFileIcon(filename: string) {
     case "c":
     case "cpp":
     case "sh":
-      return <FileCode className="h-5 w-5 text-sky-500" />;
+      return <FileCode className="h-5 w-5 text-sky-500" />
 
     // 🧱 JSON specifically
     case "json":
-      return <FileJson className="h-5 w-5 text-teal-500" />;
+      return <FileJson className="h-5 w-5 text-teal-500" />
 
     // Default generic file
     default:
-      return <File className="h-5 w-5 text-gray-500" />;
+      return <File className="h-5 w-5 text-gray-500" />
   }
 }
 
 /* ----------------------------- your data ----------------------------- */
-type Attachment = { type: "file"; name: string; size: string; url: string };
+type Attachment = { type: "file"; name: string; size: string; url: string }
 type Message = {
-  id: string;
-  sender_id: string;
-  timestamp: string;
-  content: string;
-  attachments: Attachment[];
-  read?: boolean;
-};
-type Participant = { id: string; name: string; avatar_url: string };
+  id: string
+  sender_id: string
+  timestamp: string
+  content: string
+  attachments: Attachment[]
+  read?: boolean
+}
+type Participant = { id: string; name: string; avatar_url: string }
 type Thread = {
-  thread_id: string;
-  participants: Participant[];
-  messages: Message[];
-};
+  thread_id: string
+  participants: Participant[]
+  messages: Message[]
+}
 
 const THREAD: Thread = {
   thread_id: "GP-1042",
@@ -222,26 +222,26 @@ const THREAD: Thread = {
       attachments: [],
     },
   ],
-};
+}
 
 /* --------------------------- helpers --------------------------- */
 
-const CURRENT_USER_ID = "user_002";
-type Dateish = Date | string | number;
+const CURRENT_USER_ID = "user_002"
+type Dateish = Date | string | number
 type BaseFmt = {
   /** e.g. "en-US" */
-  locale?: string;
+  locale?: string
   /** IANA TZ, e.g. "America/Los_Angeles" */
-  timeZone?: string;
-};
+  timeZone?: string
+}
 
 function formatTime(ts: string) {
-  const d = new Date(ts);
-  return d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  const d = new Date(ts)
+  return d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
 }
 
 function formatDateTime(input: Dateish, opts: BaseFmt = {}): string {
-  const d = toDate(input);
+  const d = toDate(input)
   return d.toLocaleString(opts.locale, {
     weekday: "short",
     year: "numeric",
@@ -250,80 +250,75 @@ function formatDateTime(input: Dateish, opts: BaseFmt = {}): string {
     hour: "numeric",
     minute: "2-digit",
     timeZone: opts.timeZone,
-  });
+  })
 }
 
 function TimeLabel(ts: string) {
-  const d = new Date(ts);
+  const d = new Date(ts)
   // e.g. "Thu 11:40 AM" or "Today"
-  const today = new Date();
-  const isSameDay = d.toDateString() === today.toDateString();
-  if (isSameDay) return "Today";
+  const today = new Date()
+  const isSameDay = d.toDateString() === today.toDateString()
+  if (isSameDay) return "Today"
   return d.toLocaleDateString([], {
     weekday: "short",
     month: "short",
     day: "numeric",
     year: "numeric",
-  });
+  })
 }
 
 function needsDateDivider(prev: Message | null, curr: Message) {
-  if (!prev) return true;
-  const pd = new Date(prev.timestamp).toDateString();
-  const cd = new Date(curr.timestamp).toDateString();
-  return pd !== cd;
+  if (!prev) return true
+  const pd = new Date(prev.timestamp).toDateString()
+  const cd = new Date(curr.timestamp).toDateString()
+  return pd !== cd
 }
 
 function byId<T extends { id: string }>(arr: T[], id: string) {
-  return arr.find((x) => x.id === id);
+  return arr.find((x) => x.id === id)
 }
 
 /* ------------------------------ page ------------------------------ */
 export default function SupportChatPage() {
-  const { supportId } = useParams<{ supportId: string }>();
-  const router = useRouter();
+  const { supportId } = useParams<{ supportId: string }>()
+  const router = useRouter()
 
-  const [loading, setLoading] = React.useState<boolean>(true);
-  const [message, setMessage] = React.useState("");
-  const [isGenerating, setIsGenerating] = React.useState(false);
-  const timeout = React.useRef<number | null>(null);
+  const [loading, setLoading] = React.useState<boolean>(true)
+  const [message, setMessage] = React.useState("")
+  const [isGenerating, setIsGenerating] = React.useState(false)
+  const timeout = React.useRef<number | null>(null)
 
   const cancelTimeout = () => {
     if (timeout.current) {
-      window.clearTimeout(timeout.current);
+      window.clearTimeout(timeout.current)
     }
-  };
+  }
 
   const setNewTimeout = (callback: () => void, ms: number) => {
-    cancelTimeout();
-    const id = window.setTimeout(callback, ms);
-    timeout.current = id;
-  };
+    cancelTimeout()
+    const id = window.setTimeout(callback, ms)
+    timeout.current = id
+  }
 
   // you could fetch by `supportId`; here we just assert it matches
-  const thread = THREAD?.thread_id === supportId ? THREAD : THREAD;
-  const you = byId(thread?.participants, CURRENT_USER_ID)!;
-  const other = thread.participants.find((p) => p.id !== CURRENT_USER_ID)!;
+  const thread = THREAD?.thread_id === supportId ? THREAD : THREAD
+  const you = byId(thread?.participants, CURRENT_USER_ID)!
+  const other = thread.participants.find((p) => p.id !== CURRENT_USER_ID)!
 
-  const fileRef = React.useRef<HTMLInputElement>(null);
-  const virtuosoRef = React.useRef<VirtuosoHandle>(null);
-  const [files, setFiles] = React.useState<File[] | null>(null);
+  const fileRef = React.useRef<HTMLInputElement>(null)
+  const virtuosoRef = React.useRef<VirtuosoHandle>(null)
+  const [files, setFiles] = React.useState<File[] | null>(null)
 
   React.useEffect(() => {
     setTimeout(() => {
-      setLoading(false);
-    }, 2000);
-  }, []);
+      setLoading(false)
+    }, 2000)
+  }, [])
 
   return (
     <div className="mx-auto w-full px-4 py-2 md:py-4 bg-background">
       <SiteHeader>
-        <Button
-          variant="secondary"
-          size="sm"
-          className="gap-1 px-0"
-          onClick={() => router.back()}
-        >
+        <Button variant="secondary" size="sm" className="gap-1 px-0" onClick={() => router.back()}>
           <ArrowLeft className="h-4 w-4" />
           Back
         </Button>
@@ -338,9 +333,7 @@ export default function SupportChatPage() {
               {/* header */}
               <div className="mb-4 flex items-center gap-3">
                 <div>
-                  <h1 className="text-xl font-semibold tracking-tight">
-                    #{thread.thread_id}
-                  </h1>
+                  <h1 className="text-xl font-semibold tracking-tight">#{thread.thread_id}</h1>
                 </div>
 
                 {/* mobile sidebar trigger */}
@@ -368,13 +361,10 @@ export default function SupportChatPage() {
                   totalCount={thread?.messages?.length - 1}
                   initialTopMostItemIndex={thread?.messages?.length}
                   itemContent={(index, message) => {
-                    const prev = index > 0 ? thread.messages[index - 1] : null;
-                    const showDivider = needsDateDivider(prev, message);
-                    const sender = byId(
-                      thread.participants,
-                      message.sender_id
-                    )!;
-                    const isYou = message.sender_id === CURRENT_USER_ID;
+                    const prev = index > 0 ? thread.messages[index - 1] : null
+                    const showDivider = needsDateDivider(prev, message)
+                    const sender = byId(thread.participants, message.sender_id)!
+                    const isYou = message.sender_id === CURRENT_USER_ID
 
                     return (
                       <React.Fragment key={message.id}>
@@ -396,7 +386,7 @@ export default function SupportChatPage() {
                           attachments={message.attachments}
                         />
                       </React.Fragment>
-                    );
+                    )
                   }}
                 />
 
@@ -417,9 +407,7 @@ export default function SupportChatPage() {
                   <div className="flex items-center gap-4 rounded-b-lg bg-muted/20 px-3 py-2">
                     <div className="inline-flex items-center gap-1 text-xs text-muted-foreground">
                       <SquareSlash className="h-4 w-4" />
-                      <span className="font-semibold text-gray-600 text-xs">
-                        Shortcuts
-                      </span>
+                      <span className="font-semibold text-gray-600 text-xs">Shortcuts</span>
                     </div>
 
                     <button
@@ -428,9 +416,7 @@ export default function SupportChatPage() {
                       onClick={() => fileRef.current?.click()}
                     >
                       <Paperclip className="h-4 w-4" />
-                      <span className="font-semibold text-gray-600 text-xs">
-                        Attach
-                      </span>
+                      <span className="font-semibold text-gray-600 text-xs">Attach</span>
                     </button>
 
                     {/* hidden file input */}
@@ -439,10 +425,10 @@ export default function SupportChatPage() {
                       type="file"
                       className="hidden"
                       onChange={(e) => {
-                        const file = e.target.files?.[0];
+                        const file = e.target.files?.[0]
                         // if (f && onAttach) onAttach(f)
                         // reset so same file can be re-selected
-                        e.currentTarget.value = "";
+                        e.currentTarget.value = ""
                       }}
                     />
                   </div>
@@ -461,26 +447,24 @@ export default function SupportChatPage() {
         </div>
       )}
     </div>
-  );
+  )
 }
 
 /* --------------------------- components --------------------------- */
 
 export function MessageBubble(props: {
-  author: string;
-  avatarUrl: string;
-  isYou: boolean;
-  time: string;
-  text?: string;
-  attachments?: Attachment[];
-  read?: boolean;
+  author: string
+  avatarUrl: string
+  isYou: boolean
+  time: string
+  text?: string
+  attachments?: Attachment[]
+  read?: boolean
 }) {
-  const { author, avatarUrl, isYou, time, text, attachments, read } = props;
+  const { author, avatarUrl, isYou, time, text, attachments, read } = props
 
   return (
-    <div
-      className={cn("flex gap-3 mb-4", isYou ? "justify-end" : "items-start")}
-    >
+    <div className={cn("flex gap-3 mb-4", isYou ? "justify-end" : "items-start")}>
       {/* Avatar only for incoming */}
       {!isYou && (
         <Avatar className="h-7 w-7 mt-3">
@@ -489,20 +473,13 @@ export function MessageBubble(props: {
         </Avatar>
       )}
 
-      <div
-        className={cn(
-          "flex min-w-auto max-w-[78%] flex-col",
-          isYou && "items-end ml-auto"
-        )}
-      >
+      <div className={cn("flex min-w-auto max-w-[78%] flex-col", isYou && "items-end ml-auto")}>
         {/* Header line */}
         <div className="mb-1 flex gap-2 w-full items-center text-[11px] leading-none text-muted-foreground">
           <span className="font-medium">{isYou ? "You" : author}</span>
           <span className="ml-auto inline-flex items-center gap-1">
             {time}
-            {isYou && read && (
-              <CheckCheck className="h-3.5 w-3.5 text-primary/70" />
-            )}
+            {isYou && read && <CheckCheck className="h-3.5 w-3.5 text-primary/70" />}
           </span>
         </div>
 
@@ -514,11 +491,7 @@ export function MessageBubble(props: {
           )}
         >
           {text && (
-            <p
-              className={cn("text-sm leading-5", isYou && "text-foreground/90")}
-            >
-              {text}
-            </p>
+            <p className={cn("text-sm leading-5", isYou && "text-foreground/90")}>{text}</p>
           )}
 
           {!!attachments?.length && (
@@ -547,7 +520,7 @@ export function MessageBubble(props: {
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 function RightSidebar({ other }: { other: Participant }) {
@@ -556,16 +529,12 @@ function RightSidebar({ other }: { other: Participant }) {
       <div className="flex flex-col items-start gap-2">
         <Avatar className="h-14 w-14 relative border mb-2">
           <AvatarImage src={other.avatar_url} alt={other.name} />
-          <AvatarFallback>
-            {other.name.slice(0, 2).toUpperCase()}
-          </AvatarFallback>
+          <AvatarFallback>{other.name.slice(0, 2).toUpperCase()}</AvatarFallback>
           <span className="h-2 w-2 rounded-full bg-emerald-500 absolute bottom-0 right-0" />
         </Avatar>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <h3 className="truncate text-sm font-semibold leading-none">
-              {other.name}
-            </h3>
+            <h3 className="truncate text-sm font-semibold leading-none">{other.name}</h3>
             <span className="h-2 w-2 rounded-full bg-emerald-500" />
           </div>
           <p className="truncate text-xs text-muted-foreground">
@@ -591,18 +560,14 @@ function RightSidebar({ other }: { other: Participant }) {
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <CalendarClock className="h-4 w-4 text-muted-foreground" />
-                <span className="truncate text-sm font-semibold">
-                  12.10.2025, 14.00 Uhr
-                </span>
+                <span className="truncate text-sm font-semibold">12.10.2025, 14.00 Uhr</span>
               </div>
-              <p className="truncate text-xs text-muted-foreground">
-                Google Meet Call
-              </p>
+              <p className="truncate text-xs text-muted-foreground">Google Meet Call</p>
             </div>
             <ChevronRight className="ml-auto h-4 w-4 text-muted-foreground" />
           </div>
         </div>
       </div>
     </div>
-  );
+  )
 }

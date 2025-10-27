@@ -1,33 +1,31 @@
-"use client";
+"use client"
 
-import { SiteHeader } from "@/components/layout/header";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import { SiteHeader } from "@/components/layout/Header"
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { domainProviders } from "@/constants/website-setup";
-import { WebsiteSetupFormData } from "@/interfaces/onboarding/website-setup";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import React, { useState } from "react";
-import LegalAssetUploader from "./components/legal-asset-uploader";
-import LegalLinkInput from "./components/legal-link-input";
-import { TagInput } from "./components/tag-input";
+} from "@/components/ui/select"
+import { domainProviders } from "@/constants/website-setup"
+import { WebsiteSetupFormData } from "@/interfaces/onboarding/website-setup"
+import { ChevronLeft, ChevronRight } from "lucide-react"
+import Image from "next/image"
+import { useRouter } from "next/navigation"
+import React, { useState } from "react"
+import LegalAssetUploader from "./components/legal-asset-uploader"
+import LegalLinkInput from "./components/legal-link-input"
+import { TagInput } from "./components/tag-input"
 
 const OnboardingVideo = () => {
   return (
     <div className="flex flex-col gap-4">
       <div className="space-y-0">
         <h2 className="font-semibold text-foreground">3. Website Setup</h2>
-        <p className="text-sm text-muted-foreground">
-          Grant access for website configuration.
-        </p>
+        <p className="text-sm text-muted-foreground">Grant access for website configuration.</p>
       </div>
 
       <div className="relative aspect-video bg-muted rounded overflow-hidden">
@@ -45,8 +43,8 @@ const OnboardingVideo = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
 const initialWebsiteSetupFormData: WebsiteSetupFormData = {
   domainProvider: "",
@@ -55,49 +53,47 @@ const initialWebsiteSetupFormData: WebsiteSetupFormData = {
   legalFiles: null,
   legalLinks: [],
   seoLocations: [],
-};
+}
 
 export default function WebsiteSetupPage() {
-  const router = useRouter();
-  const [formData, setFormData] = useState<WebsiteSetupFormData>(
-    initialWebsiteSetupFormData
-  );
+  const router = useRouter()
+  const [formData, setFormData] = useState<WebsiteSetupFormData>(initialWebsiteSetupFormData)
 
   const handlePrev = () => {
-    router.push("/tasks/branding-content");
-  };
+    router.push("/tasks/branding-content")
+  }
 
   const handleNext = () => {
-    router.push("/tasks/tools-access");
-  };
+    router.push("/tasks/tools-access")
+  }
 
   const handleClientsChange = (newClients: string[]) => {
     setFormData((prev) => ({
       ...prev,
       businessClientsWorked: newClients,
-    }));
-  };
+    }))
+  }
 
   const handleSEOChange = (seoLocations: string[]) => {
     setFormData((prev) => ({
       ...prev,
       seoLocations,
-    }));
-  };
+    }))
+  }
 
   const handleLegalFilesChange = (newFiles: File[]) => {
     setFormData((prev) => ({
       ...prev,
       legalFiles: newFiles,
-    }));
-  };
+    }))
+  }
 
   const handleLegalLinksChange = (newLinks: string[]) => {
     setFormData((prev) => ({
       ...prev,
       legalLinks: newLinks,
-    }));
-  };
+    }))
+  }
 
   return (
     <div className="flex flex-col gap-4 min-h-screen">
@@ -105,8 +101,7 @@ export default function WebsiteSetupPage() {
       <div className="flex flex-col">
         <h2 className="text-balance text-3xl font-bold">Onboarding Setup</h2>
         <p className="text-pretty text-muted-foreground">
-          Complete the required steps to ensure a smooth and successful project
-          launch.
+          Complete the required steps to ensure a smooth and successful project launch.
         </p>
       </div>
       <div className="grid lg:grid-cols-3 gap-8">
@@ -125,12 +120,12 @@ export default function WebsiteSetupPage() {
                     setFormData({
                       ...formData,
                       domainProvider: newProvider,
-                    });
+                    })
                     if (formData.accessGranted) {
                       setFormData({
                         ...formData,
                         accessGranted: false,
-                      });
+                      })
                     }
                   }}
                 >
@@ -142,11 +137,7 @@ export default function WebsiteSetupPage() {
                   </SelectTrigger>
                   <SelectContent className="rounded">
                     {domainProviders.map((domain) => (
-                      <SelectItem
-                        className="rounded cursor-pointer"
-                        key={domain}
-                        value={domain}
-                      >
+                      <SelectItem className="rounded cursor-pointer" key={domain} value={domain}>
                         {domain}
                       </SelectItem>
                     ))}
@@ -179,8 +170,8 @@ export default function WebsiteSetupPage() {
                 required={true}
               />
               <p className="text-xs text-muted-foreground mt-[2px]">
-                Enter a client name and press Enter to add it as a tag. Press
-                Backspace to remove the last tag.
+                Enter a client name and press Enter to add it as a tag. Press Backspace to remove
+                the last tag.
               </p>
             </div>
 
@@ -193,10 +184,7 @@ export default function WebsiteSetupPage() {
                 maxFiles={5}
               />
 
-              <LegalLinkInput
-                value={formData.legalLinks}
-                onChange={handleLegalLinksChange}
-              />
+              <LegalLinkInput value={formData.legalLinks} onChange={handleLegalLinksChange} />
             </div>
 
             <TagInput
@@ -231,5 +219,5 @@ export default function WebsiteSetupPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }
