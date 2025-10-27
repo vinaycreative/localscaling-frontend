@@ -1,16 +1,21 @@
 import React from "react"
-import Page from "@/components/layout/Page"
+import Page from "@/components/layout/page"
 
 const layout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <Page navURL="Dashboard" navURLCount="23">
-      <section className="h-full grid grid-rows-[44px_1fr] overflow-hidden">
-        <div className="flex flex-col">
+    <Page
+      navURL="Dashboard"
+      navURLCount="23"
+      title="Onboarding Setup"
+      description="Complete the required steps to ensure a smooth and successful project launch."
+    >
+      <section className="h-full grid grid-rows-[1fr] overflow-hidden">
+        {/* <div className="flex flex-col">
           <h2 className="text-xl font-bold">Onboarding Setup</h2>
           <p className="text-muted-foreground text-xs">
             Complete the required steps to ensure a smooth and successful project launch.
           </p>
-        </div>
+        </div> */}
         {children}
       </section>
     </Page>
