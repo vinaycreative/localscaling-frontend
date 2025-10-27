@@ -1,13 +1,17 @@
-import Image from "next/image"
-import React from "react"
+import Image from "next/image";
+import React from "react";
 
 const OnboardingVideo = () => {
   return (
     <div className="flex flex-col gap-4 w-[360px]">
       <div className="flex flex-col gap-4">
         <div className="space-y-0">
-          <h1 className="font-semibold text-foreground">1. General Business Information</h1>
-          <p className="text-xs text-muted-foreground">Provide essential company details.</p>
+          <h1 className="font-semibold text-foreground">
+            1. General Business Information
+          </h1>
+          <p className="text-xs text-muted-foreground">
+            Provide essential company details.
+          </p>
         </div>
 
         <div className="relative aspect-video bg-muted rounded w-full mx-auto shadow-xl overflow-hidden">
@@ -27,8 +31,12 @@ const OnboardingVideo = () => {
       </div>
       <div className="flex flex-col gap-4 opacity-20">
         <div className="space-y-0">
-          <h1 className="font-semibold text-foreground">2. Branding & Content</h1>
-          <p className="text-xs text-muted-foreground">Provide essential company details.</p>
+          <h1 className="font-semibold text-foreground">
+            2. Branding & Content
+          </h1>
+          <p className="text-xs text-muted-foreground">
+            Provide essential company details.
+          </p>
         </div>
 
         {/* <div className="relative aspect-video bg-muted rounded w-full mx-auto shadow-xl overflow-hidden">
@@ -49,7 +57,9 @@ const OnboardingVideo = () => {
       <div className="flex flex-col gap-4 opacity-20">
         <div className="space-y-0">
           <h1 className="font-semibold text-foreground">3. Tools Access</h1>
-          <p className="text-xs text-muted-foreground">Provide essential company details.</p>
+          <p className="text-xs text-muted-foreground">
+            Provide essential company details.
+          </p>
         </div>
 
         {/* <div className="relative aspect-video bg-muted rounded w-full mx-auto shadow-xl overflow-hidden">
@@ -70,7 +80,9 @@ const OnboardingVideo = () => {
       <div className="flex flex-col gap-4 opacity-20">
         <div className="space-y-0">
           <h1 className="font-semibold text-foreground">4. Website Setup</h1>
-          <p className="text-xs text-muted-foreground">Provide essential company details.</p>
+          <p className="text-xs text-muted-foreground">
+            Provide essential company details.
+          </p>
         </div>
 
         {/* <div className="relative aspect-video bg-muted rounded w-full mx-auto shadow-xl overflow-hidden">
@@ -90,8 +102,12 @@ const OnboardingVideo = () => {
       </div>
       <div className="flex flex-col gap-4 opacity-20">
         <div className="space-y-0">
-          <h1 className="font-semibold text-foreground">5. Locations & Budget</h1>
-          <p className="text-xs text-muted-foreground">Provide essential company details.</p>
+          <h1 className="font-semibold text-foreground">
+            5. Locations & Budget
+          </h1>
+          <p className="text-xs text-muted-foreground">
+            Provide essential company details.
+          </p>
         </div>
 
         {/* <div className="relative aspect-video bg-muted rounded w-full mx-auto shadow-xl overflow-hidden">
@@ -110,7 +126,7 @@ const OnboardingVideo = () => {
         </div> */}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default OnboardingVideo
+export default OnboardingVideo;

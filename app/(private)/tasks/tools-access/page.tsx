@@ -1,19 +1,19 @@
-"use client"
+"use client";
 
-import { SiteHeader } from "@/components/layout/Header"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { ChevronLeft, ChevronRight } from "lucide-react"
-import Image from "next/image"
-import { useRouter } from "next/navigation"
-import { OnboardingHeader } from "../business-information/page"
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const OnboardingVideo = () => {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 w-[360px]">
       <div className="space-y-0">
         <h2 className="font-semibold text-foreground">4. Tools Access</h2>
-        <p className="text-sm text-muted-foreground">Enable analytics and performance tracking.</p>
+        <p className="text-sm text-muted-foreground">
+          Enable analytics and performance tracking.
+        </p>
       </div>
 
       <div className="relative aspect-video bg-muted rounded overflow-hidden">
@@ -31,16 +31,20 @@ const OnboardingVideo = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 interface AccessGrantButtonProps {
-  iconSrc: string | null
-  iconAlt: string
-  text: string
+  iconSrc: string | null;
+  iconAlt: string;
+  text: string;
 }
 
-const AccessGrantButton = ({ iconSrc, iconAlt, text }: AccessGrantButtonProps) => {
+const AccessGrantButton = ({
+  iconSrc,
+  iconAlt,
+  text,
+}: AccessGrantButtonProps) => {
   return (
     <Button
       type="button"
@@ -60,14 +64,14 @@ const AccessGrantButton = ({ iconSrc, iconAlt, text }: AccessGrantButtonProps) =
       )}
       <span className="text-sm">{text}</span>
     </Button>
-  )
-}
+  );
+};
 
 interface AccessToolFieldProps {
-  title: string
-  iconSrc: string | null
-  buttonText: string
-  required?: boolean
+  title: string;
+  iconSrc: string | null;
+  buttonText: string;
+  required?: boolean;
 }
 
 const AccessToolField = ({
@@ -81,80 +85,73 @@ const AccessToolField = ({
       {title}
       {required && <span className="text-primary">*</span>}
     </Label>
-    <AccessGrantButton iconSrc={iconSrc} iconAlt={`${title} icon`} text={buttonText} />
+    <AccessGrantButton
+      iconSrc={iconSrc}
+      iconAlt={`${title} icon`}
+      text={buttonText}
+    />
   </div>
-)
+);
 
 function ToolsAccessPage() {
-  const router = useRouter()
+  const router = useRouter();
   const handlePrev = () => {
-    router.push("/tasks/website-setup")
-  }
+    router.push("/tasks/website-setup");
+  };
 
   const handleNext = () => {
-    router.push("/tasks/locations-budget")
-  }
+    router.push("/tasks/locations-budget");
+  };
   return (
-    <div className="flex flex-col gap-4 min-h-screen">
-      <SiteHeader>
-        <OnboardingHeader />
-      </SiteHeader>
-      <div className="flex flex-col">
-        <h2 className="text-balance text-3xl font-bold">Onboarding Setup</h2>
-        <p className="text-pretty text-muted-foreground">
-          Complete the required steps to ensure a smooth and successful project launch.
-        </p>
-      </div>
-      <div className="grid lg:grid-cols-3 gap-8 ">
-        <OnboardingVideo />
+    <section className="w-full h-full grid grid-cols-[auto_1fr] gap-4 overflow-hidden pt-4">
+      <OnboardingVideo />
 
-        <div className="lg:col-span-2 bg-card rounded border p-4 sm:p-6 space-y-6">
-          <div className="space-y-6">
-            <AccessToolField
-              title="Google Ads"
-              iconSrc="/google-ads.png"
-              buttonText="Grant google ads access"
-            />
-            <AccessToolField
-              title="Google Tag Manager (GTM)"
-              iconSrc="/google-tag.svg"
-              buttonText="Grant GTM access"
-            />
-            <AccessToolField
-              title="Google Analytics 4 (GA4)"
-              iconSrc="/google-analytics.png"
-              buttonText="Grant GA4 access"
-            />
-            <AccessToolField
-              title="Google Search Console"
-              iconSrc={null}
-              buttonText="Grant google search console access"
-            />
-          </div>
-          <div className="flex pb-1 pt-4 gap-2 justify-end border-t">
-            <Button
-              type="button"
-              variant="outline"
-              className="rounded bg-transparent cursor-pointer group"
-              onClick={handlePrev}
-            >
-              <ChevronLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-all duration-300" />
-              Previous
-            </Button>
+      <div className="rounded-lg border-border border bg-background w-full h-full grid grid-rows-[auto_60px] overflow-hidden">
+        <div className="p-6 h-full overflow-y-scroll flex flex-col gap-4">
+          <AccessToolField
+            title="Google Ads"
+            iconSrc="/google-ads.png"
+            buttonText="Grant google ads access"
+          />
+          <AccessToolField
+            title="Google Tag Manager (GTM)"
+            iconSrc="/google-tag.svg"
+            buttonText="Grant GTM access"
+          />
+          <AccessToolField
+            title="Google Analytics 4 (GA4)"
+            iconSrc="/google-analytics.png"
+            buttonText="Grant GA4 access"
+          />
+          <AccessToolField
+            title="Google Search Console"
+            iconSrc={null}
+            buttonText="Grant google search console access"
+          />
+        </div>
+        <div className="flex p-2 pt-4 gap-2 justify-end border-t">
+          <Button
+            type="button"
+            variant="outline"
+            className="rounded bg-transparent cursor-pointer group"
+            onClick={handlePrev}
+          >
+            <ChevronLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-all duration-300" />
+            Previous
+          </Button>
 
-            <Button
-              type="button"
-              className="rounded bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer group"
-              onClick={handleNext}
-            >
-              Next
-              <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-all duration-300" />
-            </Button>
-          </div>
+          <Button
+            type="button"
+            className="rounded bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer group"
+            onClick={handleNext}
+          >
+            Next
+            <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-all duration-300" />
+          </Button>
         </div>
       </div>
-    </div>
-  )
+    </section>
+  );
 }
 
-export default ToolsAccessPage
+export default ToolsAccessPage;

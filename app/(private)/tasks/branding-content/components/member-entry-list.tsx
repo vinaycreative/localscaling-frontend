@@ -1,6 +1,6 @@
 "use client";
+import { CustomInput } from "@/components/reusable/custom-input";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { PlusIcon, Trash } from "lucide-react";
@@ -85,32 +85,28 @@ export function TeamMemberList({
           >
             <div className="flex-1 grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor={`name-${idx}`} className="text-sm">
-                  Name
-                </Label>
-                <Input
+                <CustomInput
+                  label="Name"
                   id={`name-${idx}`}
-                  name={`teamMembers[${idx}].name`}
+                  type="text"
                   placeholder="e.g., Jane Doe"
+                  required={required}
                   value={member.name}
                   onChange={(e) => handleChange(idx, "name", e.target.value)}
-                  className="rounded focus-visible:ring-0 transition-all duration-300 bg-background"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor={`position-${idx}`} className="text-sm">
-                  Position
-                </Label>
-                <Input
+                <CustomInput
+                  label="Position"
                   id={`position-${idx}`}
-                  name={`teamMembers[${idx}].position`}
+                  type="text"
                   placeholder="e.g., CEO"
+                  required={required}
                   value={member.position}
                   onChange={(e) =>
                     handleChange(idx, "position", e.target.value)
                   }
-                  className="rounded focus-visible:ring-0 transition-all duration-300 bg-background"
                 />
               </div>
             </div>

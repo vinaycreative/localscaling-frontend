@@ -2,6 +2,7 @@
 
 import { useToastContext } from "@/components/providers/toast";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { CloudUpload, X } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
@@ -10,6 +11,8 @@ interface VideoUploadProps {
   maxSize?: number;
   value: File | null;
   onChange: (file: File | null) => void;
+  label: string;
+  required: boolean;
 }
 
 const createFileState = (file: File | null) => {
@@ -24,6 +27,8 @@ export function VideoUpload({
   maxSize = 100,
   value,
   onChange,
+  label,
+  required,
 }: VideoUploadProps) {
   const [videoState, setVideoState] = useState<{
     file: File;
@@ -99,7 +104,10 @@ export function VideoUpload({
   const isVideoPresent = !!videoState;
 
   return (
-    <div className="w-full space-y-4">
+    <div className="w-full space-y-2.5">
+      <Label>
+        {label} {required && <span className="text-primary">*</span>}
+      </Label>
       {!isVideoPresent ? (
         <div
           className={`border rounded border-dashed hover:bg-muted/20 transition-all duration-300 cursor-pointer ${
@@ -177,7 +185,7 @@ export function VideoUpload({
               <Button
                 type="button"
                 variant="outline"
-                className="w-full hover:bg-muted/20 transition-all duration-300 font-normal rounded"
+                className="w-full hover:bg-muted/20 transition-all duration-300 font-normal rounded cursor-pointer"
                 onClick={handleClear}
               >
                 <X className="w-4 h-4 mr-2" />

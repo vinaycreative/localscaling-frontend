@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { FileUploader } from "./file-uploader";
+import { FileUploader } from "../../app/(private)/tasks/branding-content/components/file-uploader";
 
 type FileRejection = { file: File; reason: string };
 

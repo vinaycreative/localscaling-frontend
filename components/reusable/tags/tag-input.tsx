@@ -2,13 +2,14 @@
 
 import type React from "react";
 
+import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { useCallback, useRef, useState } from "react";
 import { InputField } from "./input-field";
 import { Tag } from "./tag";
 
 export interface TagInputProps {
-  label?: string;
+  label: string;
   placeholder?: string;
   value: string[];
   onChange: (value: string[]) => void;
@@ -63,13 +64,10 @@ export function TagInput({
   };
 
   return (
-    <div className="w-full">
-      {label && (
-        <label className="block text-sm font-medium text-foreground mb-2">
-          {label}
-          {required && <span className="text-primary ml-1">*</span>}
-        </label>
-      )}
+    <div className="space-y-2.5">
+      <Label>
+        {label} {required && <span className="text-primary">*</span>}
+      </Label>
 
       <div
         ref={containerRef}

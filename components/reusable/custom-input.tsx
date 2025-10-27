@@ -23,7 +23,6 @@ export const CustomInput = ({
   required,
   className,
   value,
-  link,
   onChange,
   select = false,
   selectOptions = [],
@@ -39,7 +38,6 @@ export const CustomInput = ({
   required: boolean;
   className?: string;
   value: string;
-  link?: boolean;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   select?: boolean;
   selectOptions?: SelectOption[];
@@ -73,7 +71,7 @@ export const CustomInput = ({
       ) : (
         <div
           className={cn(
-            "flex w-full gap-1 overflow-hidden border border-input rounded bg-background transition-all duration-200",
+            "flex w-full gap-2 overflow-hidden border border-input rounded bg-background transition-all duration-200",
             "hover:border-primary/50",
             "focus-within:border-primary"
           )}
