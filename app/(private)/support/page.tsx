@@ -1,15 +1,16 @@
-"use client";
+"use client"
 // import { SiteHeader } from "@/components/layout/header";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"
 // import DynamicHeader from "@/components/ui/dynamic-header";
-import { useState } from "react";
-import { CreateTicketModal } from "./components/create-ticket-modal";
-import { SupportTable } from "./components/support-table";
+import { useState } from "react"
+import { CreateTicketModal } from "./components/create-ticket-modal"
+import { SupportTable } from "./components/support-table"
+import Page from "@/components/layouts/Page"
 
 export default function SupportPage() {
-  const [createTicket, setCreateTicket] = useState<boolean>(false);
+  const [createTicket, setCreateTicket] = useState<boolean>(false)
   return (
-    <main className="flex flex-col gap-4 min-h-screen">
+    <Page navURL="Support" title="Support" description="Create and track your support requests.">
       {/* <SiteHeader>
         <DynamicHeader
           text={
@@ -22,19 +23,12 @@ export default function SupportPage() {
           }
         />
       </SiteHeader> */}
-      <div>
+      <div className="py-4">
         {/* Title + CTA */}
-        <div className="mb-2 flex flex-col md:flex-row items-start md:items-center justify-between gap-2">
-          <div className="flex flex-col gap-2">
-            <h2 className="text-balance text-3xl font-bold">Support</h2>
-            <p className="text-pretty text-muted-foreground">
-              Create and track your support requests.
-            </p>
-          </div>
-
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2">
           <Button
             onClick={() => {
-              setCreateTicket((prev) => !prev);
+              setCreateTicket((prev) => !prev)
             }}
           >
             Create a new ticket
@@ -49,9 +43,9 @@ export default function SupportPage() {
         open={createTicket}
         onOpenChange={setCreateTicket}
         onSubmit={(values) => {
-          console.log("🚀 ~ SupportPage ~ values:", values);
+          console.log("🚀 ~ SupportPage ~ values:", values)
         }}
       />
-    </main>
-  );
+    </Page>
+  )
 }

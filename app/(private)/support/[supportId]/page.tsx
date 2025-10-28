@@ -23,7 +23,7 @@ import { useParams, useRouter } from "next/navigation"
 import * as React from "react"
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso"
 
-import { SiteHeader } from "@/components/layout/Header"
+import Page from "@/components/layouts/Page"
 import {
   File,
   FileArchive,
@@ -35,7 +35,6 @@ import {
   FileText,
   FileVideo,
 } from "lucide-react"
-import { OnboardingHeader } from "../../tasks/business-information/page"
 import ChatLoading from "../components/chat-loading"
 
 /**
@@ -316,17 +315,11 @@ export default function SupportChatPage() {
   }, [])
 
   return (
-    <div className="mx-auto w-full px-4 py-2 md:py-4 bg-background">
-      <SiteHeader>
-        <Button variant="secondary" size="sm" className="gap-1 px-0" onClick={() => router.back()}>
-          <ArrowLeft className="h-4 w-4" />
-          Back
-        </Button>
-      </SiteHeader>
+    <Page navURL="Chat" title="Chat" description="Chat with your support agent.">
       {loading ? (
         <ChatLoading />
       ) : (
-        <div>
+        <div className="py-4">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-[1fr_320px]">
             {/* Left */}
             <div>
@@ -446,7 +439,7 @@ export default function SupportChatPage() {
           </div>
         </div>
       )}
-    </div>
+    </Page>
   )
 }
 

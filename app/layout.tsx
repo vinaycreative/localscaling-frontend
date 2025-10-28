@@ -50,7 +50,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} antialiased bg-muted`}>
+      <body className={`${inter.variable} antialiased bg-muted`} suppressHydrationWarning>
         <ToastProvider>{children}</ToastProvider>
       </body>
     </html>
