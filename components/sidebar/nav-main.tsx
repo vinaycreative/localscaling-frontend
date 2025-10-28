@@ -13,7 +13,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { ChevronRight, FolderClosedIcon, Home } from "lucide-react";
+import { ChevronRight, FolderClosedIcon, Home, Server } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Badge } from "../ui/badge";
@@ -41,11 +41,12 @@ export function NavMain() {
           </Link>
         </SidebarMenuButton>
       </SidebarMenuItem>
+
       <SidebarGroup className="py-0">
         <Collapsible defaultOpen className="group/collapsible">
           <SidebarGroupLabel
             asChild
-            className="group/label mb-2 cursor-pointer rounded text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground w-full text-sm"
+            className="group/label cursor-pointer rounded text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground w-full text-sm"
           >
             <CollapsibleTrigger className="">
               <FolderClosedIcon className="mr-2" />
@@ -77,6 +78,14 @@ export function NavMain() {
           </CollapsibleContent>
         </Collapsible>
       </SidebarGroup>
+      <SidebarMenuItem className="px-2">
+        <SidebarMenuButton asChild className="cursor-pointer rounded">
+          <Link href="/projects">
+            <Server />
+            <span>Projects</span>
+          </Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
     </SidebarMenu>
   );
 }

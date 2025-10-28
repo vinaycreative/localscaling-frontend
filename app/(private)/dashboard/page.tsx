@@ -1,13 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
@@ -17,7 +11,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowDown, ArrowUp, ArrowUpDown, MoreVertical } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronsUpDown,
+  ChevronUp,
+  MoreVertical,
+} from "lucide-react";
 import { useState } from "react";
 
 function Dashboard() {
@@ -93,20 +92,17 @@ function Dashboard() {
 
   const SortIcon = ({ column }: { column: string }) => {
     if (sortColumn !== column)
-      return <ArrowUpDown className="w-4 h-4 opacity-40" />;
+      return <ChevronsUpDown className="w-4 h-4 opacity-40" />;
     return sortDirection === "asc" ? (
-      <ArrowUp className="w-4 h-4" />
+      <ChevronUp className="w-4 h-4" />
     ) : (
-      <ArrowDown className="w-4 h-4" />
+      <ChevronDown className="w-4 h-4" />
     );
   };
 
   const allProjectIds = projectsData.map((p) => p.id);
   const isAllSelected =
     selectedProjects.length === projectsData.length && projectsData.length > 0;
-  const isIndeterminate =
-    selectedProjects.length > 0 &&
-    selectedProjects.length < projectsData.length;
 
   const toggleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -119,8 +115,8 @@ function Dashboard() {
   return (
     <main className="w-full h-dvh px-3 pt-4 pb-2 overflow-hidden flex flex-col gap-4">
       <div>
-        <h1 className="text-3xl font-semibold text-foreground">Dashboard</h1>
-        <p className="text-muted-foreground text-xs">
+        <h1 className="text-4xl font-bold text-foreground mb-2">Dashboard</h1>
+        <p className="text-muted-foreground">
           Overview of recent active projects, their progress, key metrics, and
           overall performance status.
         </p>
@@ -166,95 +162,97 @@ function Dashboard() {
         </div>
       </div>
 
-      <Table className="border rounded-xl">
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-12 px-4">
-              <Checkbox
-                checked={isAllSelected}
-                onCheckedChange={toggleSelectAll}
-                className="cursor-pointer"
-              />
-            </TableHead>
-            <TableHead>
-              <button
-                onClick={() => handleSort("name")}
-                className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all duration-300 cursor-pointer"
-              >
-                Client/Project name
-                <SortIcon column="name" />
-              </button>
-            </TableHead>
-            <TableHead>
-              <button
-                onClick={() => handleSort("stage")}
-                className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all duration-300 cursor-pointer"
-              >
-                Stage
-                <SortIcon column="stage" />
-              </button>
-            </TableHead>
-            <TableHead>
-              <button
-                onClick={() => handleSort("owner")}
-                className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all duration-300 cursor-pointer"
-              >
-                Owner
-                <SortIcon column="owner" />
-              </button>
-            </TableHead>
-            <TableHead>
-              <button
-                onClick={() => handleSort("lastUpdate")}
-                className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all duration-300 cursor-pointer"
-              >
-                Last update
-                <SortIcon column="lastUpdate" />
-              </button>
-            </TableHead>
-            <TableHead>
-              <button
-                onClick={() => handleSort("status")}
-                className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all duration-300 cursor-pointer"
-              >
-                Status
-                <SortIcon column="status" />
-              </button>
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {sortedProjects.map((project) => (
-            <TableRow key={project.id}>
-              <TableCell className="py-4  px-4">
+      <div className="overflow-x-auto rounded-md overflow-hidden border">
+        <Table className="bg-background">
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-12 px-4">
                 <Checkbox
-                  checked={selectedProjects.includes(project.id)}
-                  onCheckedChange={() => toggleProject(project.id)}
+                  checked={isAllSelected}
+                  onCheckedChange={toggleSelectAll}
                   className="cursor-pointer"
                 />
-              </TableCell>
-              <TableCell className="font-medium">{project.name}</TableCell>
-              <TableCell className="text-muted-foreground">
-                {project.stage}
-              </TableCell>
-              <TableCell className="text-muted-foreground">
-                {project.owner}
-              </TableCell>
-              <TableCell className="text-muted-foreground">
-                {project.lastUpdate}
-              </TableCell>
-              <TableCell className="text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <div
-                    className={`w-2 h-2 rounded-full ${project.statusColor}`}
-                  ></div>
-                  <span>{project.status}</span>
-                </div>
-              </TableCell>
+              </TableHead>
+              <TableHead>
+                <button
+                  onClick={() => handleSort("name")}
+                  className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all duration-300 cursor-pointer"
+                >
+                  Client/Project name
+                  <SortIcon column="name" />
+                </button>
+              </TableHead>
+              <TableHead>
+                <button
+                  onClick={() => handleSort("stage")}
+                  className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all duration-300 cursor-pointer"
+                >
+                  Stage
+                  <SortIcon column="stage" />
+                </button>
+              </TableHead>
+              <TableHead>
+                <button
+                  onClick={() => handleSort("owner")}
+                  className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all duration-300 cursor-pointer"
+                >
+                  Owner
+                  <SortIcon column="owner" />
+                </button>
+              </TableHead>
+              <TableHead>
+                <button
+                  onClick={() => handleSort("lastUpdate")}
+                  className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all duration-300 cursor-pointer"
+                >
+                  Last update
+                  <SortIcon column="lastUpdate" />
+                </button>
+              </TableHead>
+              <TableHead>
+                <button
+                  onClick={() => handleSort("status")}
+                  className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all duration-300 cursor-pointer"
+                >
+                  Status
+                  <SortIcon column="status" />
+                </button>
+              </TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {sortedProjects.map((project) => (
+              <TableRow key={project.id}>
+                <TableCell className="py-4  px-4">
+                  <Checkbox
+                    checked={selectedProjects.includes(project.id)}
+                    onCheckedChange={() => toggleProject(project.id)}
+                    className="cursor-pointer"
+                  />
+                </TableCell>
+                <TableCell className="font-medium">{project.name}</TableCell>
+                <TableCell className="text-muted-foreground">
+                  {project.stage}
+                </TableCell>
+                <TableCell className="text-muted-foreground">
+                  {project.owner}
+                </TableCell>
+                <TableCell className="text-muted-foreground">
+                  {project.lastUpdate}
+                </TableCell>
+                <TableCell className="text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <div
+                      className={`w-2 h-2 rounded-full ${project.statusColor}`}
+                    ></div>
+                    <span>{project.status}</span>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </main>
   );
 }
