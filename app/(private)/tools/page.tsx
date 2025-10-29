@@ -2,16 +2,18 @@
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
+import Image from "next/image";
+import { useState } from "react";
 
 function ToolsPage() {
-  const integrations = [
+  const [integrations, setIntegrations] = useState([
     {
       category: "Website & CMS",
       items: [
         {
           id: 1,
           name: "Webflow",
-          icon: "W",
+          icon: "/webflow.png",
           enabled: true,
         },
       ],
@@ -22,19 +24,19 @@ function ToolsPage() {
         {
           id: 2,
           name: "Google Analytics 4",
-          icon: "📊",
+          icon: "/google-analytics.png",
           enabled: true,
         },
         {
           id: 3,
           name: "Google Tag Manager",
-          icon: "◆",
+          icon: "/google-tag.png",
           enabled: true,
         },
         {
           id: 4,
           name: "Google Search Console",
-          icon: "S",
+          icon: "/google-search.png",
           enabled: true,
         },
       ],
@@ -45,16 +47,55 @@ function ToolsPage() {
         {
           id: 5,
           name: "Google Ads",
-          icon: "🎯",
+          icon: "/google-ads.png",
           enabled: true,
         },
       ],
     },
-  ];
+    {
+      category: "CRM & Communication",
+      items: [
+        {
+          id: 6,
+          name: "Pipedrive",
+          icon: "/pipedrive.png",
+          enabled: true,
+        },
+      ],
+    },
+    {
+      category: "Scheduling",
+      items: [
+        {
+          id: 7,
+          name: "Cal.com",
+          icon: "/cal.png",
+          enabled: true,
+        },
+      ],
+    },
+    {
+      category: "File Management",
+      items: [
+        {
+          id: 8,
+          name: "Google Drive",
+          icon: "/google-drive.png",
+          enabled: true,
+        },
+      ],
+    },
+  ]);
+
+  const handleToggle = (categoryIndex: number, itemIndex: number) => {
+    const newIntegrations = [...integrations];
+    newIntegrations[categoryIndex].items[itemIndex].enabled =
+      !newIntegrations[categoryIndex].items[itemIndex].enabled;
+    setIntegrations(newIntegrations);
+  };
 
   return (
     <main className="w-full px-3 pt-4 pb-2 flex flex-col gap-4">
-      {/* Header */}
       <div>
         <h1 className="text-4xl font-bold text-foreground mb-2">Tools</h1>
         <p className="text-muted-foreground">
@@ -63,35 +104,47 @@ function ToolsPage() {
         </p>
       </div>
 
-      {/* Integration Categories */}
       <div className="flex flex-col gap-6">
-        {integrations.map((section) => (
+        {integrations.map((section, categoryIndex) => (
           <div key={section.category} className="flex flex-col gap-3">
-            <h2 className="text-lg font-semibold text-foreground">
+            <h2 className="text-lg font-medium text-foreground">
               {section.category}
             </h2>
 
-            {/* Grid of Integration Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {section.items.map((integration) => (
+              {section.items.map((integration, itemIndex) => (
                 <Card
                   key={integration.id}
-                  className="bg-card border border-border hover:border-muted-foreground/50 transition-colors"
+                  className="bg-card border transition-all duration-300 rounded-md py-0"
                 >
-                  <CardHeader className="flex flex-row items-center justify-between pb-3">
+                  <CardHeader className="flex flex-row items-start justify-between pt-5 pb-2">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary">
-                        {integration.icon}
+                      <div className="w-12 h-12 rounded flex items-center justify-center bg-muted">
+                        <Image
+                          src={integration.icon || "/placeholder.svg"}
+                          alt={integration.name}
+                          width={40}
+                          height={40}
+                          className="object-contain"
+                        />
                       </div>
                       <span className="font-medium text-foreground">
                         {integration.name}
                       </span>
                     </div>
-                    <Switch checked={integration.enabled} />
+                    <div className="px-2 py-1">
+                      <Switch
+                        checked={integration.enabled}
+                        onCheckedChange={() =>
+                          handleToggle(categoryIndex, itemIndex)
+                        }
+                        className="cursor-pointer"
+                      />
+                    </div>
                   </CardHeader>
 
-                  <CardContent className="pt-0">
-                    <button className="text-sm font-medium text-primary hover:text-primary/80 transition-colors">
+                  <CardContent className="py-3 border-t flex items-center justify-end">
+                    <button className="text-sm cursor-pointer font-medium text-primary hover:text-primary/80 transition-colors">
                       View integration
                     </button>
                   </CardContent>

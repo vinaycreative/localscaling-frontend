@@ -42,7 +42,11 @@ export function NavMain() {
   return (
     <SidebarMenu>
       <SidebarMenuItem className="px-2">
-        <SidebarMenuButton asChild className="cursor-pointer rounded">
+        <SidebarMenuButton
+          asChild
+          className="cursor-pointer rounded"
+          isActive={pathName === "/dashboard"}
+        >
           <Link href="/dashboard">
             <Home />
             <span>Dashboard</span>
@@ -54,7 +58,7 @@ export function NavMain() {
         <Collapsible defaultOpen className="group/collapsible">
           <SidebarGroupLabel
             asChild
-            className="group/label cursor-pointer rounded text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground w-full text-sm"
+            className={`group/label cursor-pointer rounded text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground w-full text-sm ${pathName.startsWith("/tasks") && "bg-sidebar-accent text-sidebar-accent-foreground"}`}
           >
             <CollapsibleTrigger className="">
               <FolderClosedIcon className="mr-2" />
@@ -87,7 +91,11 @@ export function NavMain() {
         </Collapsible>
       </SidebarGroup>
       <SidebarMenuItem className="px-2">
-        <SidebarMenuButton asChild className="cursor-pointer rounded">
+        <SidebarMenuButton
+          asChild
+          className="cursor-pointer rounded"
+          isActive={pathName === "/projects"}
+        >
           <Link href="/projects">
             <Server />
             <span>Projects</span>
@@ -95,7 +103,11 @@ export function NavMain() {
         </SidebarMenuButton>
       </SidebarMenuItem>
       <SidebarMenuItem className="px-2">
-        <SidebarMenuButton asChild className="cursor-pointer rounded">
+        <SidebarMenuButton
+          asChild
+          className="cursor-pointer rounded"
+          isActive={pathName === "/clients"}
+        >
           <Link href="/clients">
             <Users />
             <span>Clients</span>
@@ -103,7 +115,11 @@ export function NavMain() {
         </SidebarMenuButton>
       </SidebarMenuItem>
       <SidebarMenuItem className="px-2">
-        <SidebarMenuButton asChild className="cursor-pointer rounded">
+        <SidebarMenuButton
+          asChild
+          className="cursor-pointer rounded"
+          isActive={pathName === "/tools"}
+        >
           <Link href="/tools">
             <ToggleRight />
             <span>Tools</span>
@@ -111,7 +127,11 @@ export function NavMain() {
         </SidebarMenuButton>
       </SidebarMenuItem>
       <SidebarMenuItem className="px-2">
-        <SidebarMenuButton asChild className="cursor-pointer rounded">
+        <SidebarMenuButton
+          asChild
+          className="cursor-pointer rounded"
+          isActive={pathName === "/finance"}
+        >
           <Link href="/finance">
             <ChartPie />
             <span>Finance</span>
