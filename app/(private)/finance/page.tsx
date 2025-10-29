@@ -16,53 +16,60 @@ import {
   ChevronsUpDown,
   ChevronUp,
   MoreVertical,
+  TrendingDown,
+  TrendingUp,
 } from "lucide-react";
 import { useState } from "react";
 
-function Dashboard() {
-  const [selectedProjects, setSelectedProjects] = useState<number[]>([]);
+function FinancePage() {
+  const [selectedClients, setSelectedClients] = useState<number[]>([]);
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   const metrics = [
-    { label: "Active projects", value: "82" },
-    { label: "Pending client actions", value: "13" },
-    { label: "Pending tasks", value: "3" },
+    {
+      label: "Total revenue (This month)",
+      value: "82",
+      trend: "+12.5%",
+      positive: true,
+    },
+    { label: "Total ad spend", value: "13", trend: "-3.2%", positive: false },
+    { label: "Active clients", value: "3", trend: "+2", positive: true },
   ];
 
-  const projectsData = [
+  const financialData = [
     {
       id: 1,
-      name: "GreenCity Bins",
-      stage: "Branding",
-      owner: "John doe",
-      lastUpdate: "Sep 1, 2025",
-      status: "On time",
+      name: "Enterprising24 GmbH",
+      revenue: "€2,800",
+      adSpend: "€950",
+      profitMargin: "66%",
+      status: "Active",
       statusColor: "bg-green-500",
     },
     {
       id: 2,
-      name: "Enterprising24 GmbH",
-      stage: "Google ads",
-      owner: "John doe",
-      lastUpdate: "Sep 1, 2025",
-      status: "Delayed",
+      name: "ElektroPius Berlin",
+      revenue: "€2,800",
+      adSpend: "€470",
+      profitMargin: "78%",
+      status: "Inactive",
       statusColor: "bg-red-500",
     },
     {
       id: 3,
-      name: "ElektroPius Berlin",
-      stage: "Website setup",
-      owner: "John doe",
-      lastUpdate: "Sep 1, 2025",
-      status: "Pending",
+      name: "GartenPro Service",
+      revenue: "€2,400",
+      adSpend: "€1,100",
+      profitMargin: "54%",
+      status: "Renewal",
       statusColor: "bg-yellow-500",
     },
   ];
 
-  const toggleProject = (id: number) => {
-    setSelectedProjects((prev) =>
-      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
+  const toggleClient = (id: number) => {
+    setSelectedClients((prev) =>
+      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
     );
   };
 
@@ -75,7 +82,7 @@ function Dashboard() {
     }
   };
 
-  const sortedProjects = [...projectsData].sort((a, b) => {
+  const sortedData = [...financialData].sort((a, b) => {
     if (!sortColumn) return 0;
 
     const aValue = a[sortColumn as keyof typeof a];
@@ -100,27 +107,28 @@ function Dashboard() {
     );
   };
 
-  const allProjectIds = projectsData.map((p) => p.id);
+  const allClientIds = financialData.map((c) => c.id);
   const isAllSelected =
-    selectedProjects.length === projectsData.length && projectsData.length > 0;
+    selectedClients.length === financialData.length && financialData.length > 0;
 
   const toggleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedProjects(allProjectIds);
+      setSelectedClients(allClientIds);
     } else {
-      setSelectedProjects([]);
+      setSelectedClients([]);
     }
   };
 
   return (
     <main className="w-full px-3 pt-4 pb-2 flex flex-col gap-4">
       <div>
-        <h1 className="text-4xl font-bold text-foreground mb-2">Dashboard</h1>
+        <h1 className="text-4xl font-bold text-foreground mb-2">Finance</h1>
         <p className="text-muted-foreground">
-          Overview of recent active projects, their progress, key metrics, and
-          overall performance status.
+          Overview of key financial metrics, revenue performance, and client
+          billing status.
         </p>
       </div>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         {metrics.map((metric, index) => (
           <Card key={index} className="bg-card border rounded-md gap-2">
@@ -133,33 +141,36 @@ function Dashboard() {
               </button>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-foreground">
-                {metric.value}
+              <div className="flex items-end justify-between">
+                <div className="text-3xl font-bold text-foreground">
+                  {metric.value}
+                </div>
+                <div
+                  className={`flex items-center gap-1 text-sm ${metric.positive ? "text-green-600" : "text-red-600"}`}
+                >
+                  {metric.positive ? (
+                    <TrendingUp className="w-4 h-4" />
+                  ) : (
+                    <TrendingDown className="w-4 h-4" />
+                  )}
+                  <span>{metric.trend}</span>
+                </div>
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
+
       <div className="flex justify-between items-start">
-        <div>
-          <h2 className="text-xl font-semibold text-foreground">
-            Recent project details
-          </h2>
-          <p className="text-muted-foreground text-xs">
-            Overview of project progress, client assets, and setup status.
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant={"outline"}
-            className="text-muted-foreground hover:text-foreground cursor-pointer"
-          >
-            View all
-          </Button>
-          <button className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
-            <MoreVertical className="w-5 h-5" />
-          </button>
-        </div>
+        <h2 className="text-xl font-semibold text-foreground">
+          Financial Overview
+        </h2>
+        <Button
+          variant={"outline"}
+          className="text-muted-foreground hover:text-foreground cursor-pointer"
+        >
+          Export CSV
+        </Button>
       </div>
 
       <div className="overflow-x-auto rounded-md overflow-hidden border">
@@ -184,29 +195,29 @@ function Dashboard() {
               </TableHead>
               <TableHead>
                 <button
-                  onClick={() => handleSort("stage")}
+                  onClick={() => handleSort("revenue")}
                   className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all duration-300 cursor-pointer"
                 >
-                  Stage
-                  <SortIcon column="stage" />
+                  Revenue (This month)
+                  <SortIcon column="revenue" />
                 </button>
               </TableHead>
               <TableHead>
                 <button
-                  onClick={() => handleSort("owner")}
+                  onClick={() => handleSort("adSpend")}
                   className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all duration-300 cursor-pointer"
                 >
-                  Owner
-                  <SortIcon column="owner" />
+                  Ad spend
+                  <SortIcon column="adSpend" />
                 </button>
               </TableHead>
               <TableHead>
                 <button
-                  onClick={() => handleSort("lastUpdate")}
+                  onClick={() => handleSort("profitMargin")}
                   className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all duration-300 cursor-pointer"
                 >
-                  Last update
-                  <SortIcon column="lastUpdate" />
+                  Profit margin
+                  <SortIcon column="profitMargin" />
                 </button>
               </TableHead>
               <TableHead>
@@ -221,31 +232,31 @@ function Dashboard() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sortedProjects.map((project) => (
-              <TableRow key={project.id}>
-                <TableCell className="py-4  px-4">
+            {sortedData.map((client) => (
+              <TableRow key={client.id}>
+                <TableCell className="py-4 px-4">
                   <Checkbox
-                    checked={selectedProjects.includes(project.id)}
-                    onCheckedChange={() => toggleProject(project.id)}
+                    checked={selectedClients.includes(client.id)}
+                    onCheckedChange={() => toggleClient(client.id)}
                     className="cursor-pointer"
                   />
                 </TableCell>
-                <TableCell className="font-medium">{project.name}</TableCell>
-                <TableCell className="text-muted-foreground">
-                  {project.stage}
+                <TableCell className="font-medium">{client.name}</TableCell>
+                <TableCell className="text-muted-foreground font-semibold">
+                  {client.revenue}
                 </TableCell>
                 <TableCell className="text-muted-foreground">
-                  {project.owner}
+                  {client.adSpend}
                 </TableCell>
                 <TableCell className="text-muted-foreground">
-                  {project.lastUpdate}
+                  {client.profitMargin}
                 </TableCell>
                 <TableCell className="text-muted-foreground">
                   <div className="flex items-center gap-2">
                     <div
-                      className={`w-2 h-2 rounded-full ${project.statusColor}`}
+                      className={`w-2 h-2 rounded-full ${client.statusColor}`}
                     ></div>
-                    <span>{project.status}</span>
+                    <span>{client.status}</span>
                   </div>
                 </TableCell>
               </TableRow>
@@ -257,4 +268,4 @@ function Dashboard() {
   );
 }
 
-export default Dashboard;
+export default FinancePage;

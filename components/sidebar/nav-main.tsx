@@ -13,7 +13,15 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { ChevronRight, FolderClosedIcon, Home, Server } from "lucide-react";
+import {
+  ChartPie,
+  ChevronRight,
+  FolderClosedIcon,
+  Home,
+  Server,
+  ToggleRight,
+  Users,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Badge } from "../ui/badge";
@@ -83,6 +91,30 @@ export function NavMain() {
           <Link href="/projects">
             <Server />
             <span>Projects</span>
+          </Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+      <SidebarMenuItem className="px-2">
+        <SidebarMenuButton asChild className="cursor-pointer rounded">
+          <Link href="/clients">
+            <Users />
+            <span>Clients</span>
+          </Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+      <SidebarMenuItem className="px-2">
+        <SidebarMenuButton asChild className="cursor-pointer rounded">
+          <Link href="/tools">
+            <ToggleRight />
+            <span>Tools</span>
+          </Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+      <SidebarMenuItem className="px-2">
+        <SidebarMenuButton asChild className="cursor-pointer rounded">
+          <Link href="/finance">
+            <ChartPie />
+            <span>Finance</span>
           </Link>
         </SidebarMenuButton>
       </SidebarMenuItem>

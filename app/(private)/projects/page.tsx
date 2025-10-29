@@ -144,7 +144,7 @@ function ProjectsPage() {
   };
 
   return (
-    <main className="w-full h-dvh px-3 pt-4 pb-2 overflow-hidden flex flex-col gap-4">
+    <main className="w-full px-3 pt-4 pb-2 flex flex-col gap-4">
       <div>
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-foreground mb-2">Projects</h1>
