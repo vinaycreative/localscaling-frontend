@@ -1,5 +1,6 @@
 "use client";
 
+import Page from "@/components/layout/Page";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import Image from "next/image";
@@ -95,16 +96,13 @@ function ToolsPage() {
   };
 
   return (
-    <main className="w-full px-3 pt-4 pb-2 flex flex-col gap-4">
-      <div>
-        <h1 className="text-4xl font-bold text-foreground mb-2">Tools</h1>
-        <p className="text-muted-foreground">
-          Overview of all connected platforms, their integration status, and
-          recent activity across client projects.
-        </p>
-      </div>
-
-      <div className="flex flex-col gap-6">
+    <Page
+      navURL="Dashboard"
+      title="Tools"
+      description="Overview of all connected platforms, their integration status, and
+          recent activity across client projects."
+    >
+      <div className="flex flex-col gap-6 py-4 flex-1 overflow-y-auto">
         {integrations.map((section, categoryIndex) => (
           <div key={section.category} className="flex flex-col gap-3">
             <h2 className="text-lg font-medium text-foreground">
@@ -115,9 +113,9 @@ function ToolsPage() {
               {section.items.map((integration, itemIndex) => (
                 <Card
                   key={integration.id}
-                  className="bg-card border transition-all duration-300 rounded-md py-0"
+                  className="bg-card border transition-all duration-300 rounded-md p-0"
                 >
-                  <CardHeader className="flex flex-row items-start justify-between pt-5 pb-2">
+                  <CardHeader className="flex flex-row items-start justify-between p-4">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded flex items-center justify-center bg-muted">
                         <Image
@@ -143,7 +141,7 @@ function ToolsPage() {
                     </div>
                   </CardHeader>
 
-                  <CardContent className="py-3 border-t flex items-center justify-end">
+                  <CardContent className="px-4 py-2 border-t flex items-center justify-end">
                     <button className="text-sm cursor-pointer font-medium text-primary hover:text-primary/80 transition-colors">
                       View integration
                     </button>
@@ -154,7 +152,7 @@ function ToolsPage() {
           </div>
         ))}
       </div>
-    </main>
+    </Page>
   );
 }
 
