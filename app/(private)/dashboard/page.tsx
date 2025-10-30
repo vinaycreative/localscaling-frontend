@@ -243,7 +243,7 @@ function Dashboard() {
           </div>
         </div>
 
-        <Table className="bg-background flex-1 overflow-auto rounded-2xl">
+        <Table className="bg-background rounded-xl overflow-y-auto">
           <TableHeader>
             <TableRow>
               <TableHead className="w-12 px-4">

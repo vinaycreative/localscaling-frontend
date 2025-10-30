@@ -205,7 +205,7 @@ function ProjectsPage() {
       description="Overview of project progress, client assets, and setup status."
     >
       <div className="flex flex-col overflow-hidden py-4">
-        <Table className="bg-background flex-1 overflow-auto rounded-2xl">
+        <Table className="bg-background rounded-xl overflow-y-auto">
           <TableHeader>
             <TableRow className="border-b border-border hover:bg-transparent">
               <TableHead className="w-12 px-6 py-4">
