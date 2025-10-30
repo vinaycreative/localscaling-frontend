@@ -1,5 +1,6 @@
 "use client";
 
+import Page from "@/components/layouts/Page";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -65,6 +66,60 @@ function FinancePage() {
       status: "Renewal",
       statusColor: "bg-yellow-500",
     },
+    {
+      id: 11,
+      name: "Enterprising24 GmbH",
+      revenue: "€2,800",
+      adSpend: "€950",
+      profitMargin: "66%",
+      status: "Active",
+      statusColor: "bg-green-500",
+    },
+    {
+      id: 21,
+      name: "ElektroPius Berlin",
+      revenue: "€2,800",
+      adSpend: "€470",
+      profitMargin: "78%",
+      status: "Inactive",
+      statusColor: "bg-red-500",
+    },
+    {
+      id: 31,
+      name: "GartenPro Service",
+      revenue: "€2,400",
+      adSpend: "€1,100",
+      profitMargin: "54%",
+      status: "Renewal",
+      statusColor: "bg-yellow-500",
+    },
+    {
+      id: 4,
+      name: "Enterprising24 GmbH",
+      revenue: "€2,800",
+      adSpend: "€950",
+      profitMargin: "66%",
+      status: "Active",
+      statusColor: "bg-green-500",
+    },
+    {
+      id: 5,
+      name: "ElektroPius Berlin",
+      revenue: "€2,800",
+      adSpend: "€470",
+      profitMargin: "78%",
+      status: "Inactive",
+      statusColor: "bg-red-500",
+    },
+    {
+      id: 6,
+      name: "GartenPro Service",
+      revenue: "€2,400",
+      adSpend: "€1,100",
+      profitMargin: "54%",
+      status: "Renewal",
+      statusColor: "bg-yellow-500",
+    },
   ];
 
   const toggleClient = (id: number) => {
@@ -120,27 +175,24 @@ function FinancePage() {
   };
 
   return (
-    <main className="w-full px-3 pt-4 pb-2 flex flex-col gap-4">
-      <div>
-        <h1 className="text-4xl font-bold text-foreground mb-2">Finance</h1>
-        <p className="text-muted-foreground">
-          Overview of key financial metrics, revenue performance, and client
-          billing status.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-        {metrics.map((metric, index) => (
-          <Card key={index} className="bg-card border rounded-md gap-2">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                {metric.label}
-              </CardTitle>
-              <button className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
-                <MoreVertical className="w-5 h-5" />
-              </button>
-            </CardHeader>
-            <CardContent>
+    <Page
+      navURL="Dashboard"
+      title="Finance"
+      description="Overview of key financial metrics, revenue performance, and client
+          billing status."
+    >
+      <div className="flex flex-col gap-4 py-4 flex-1 overflow-y-hidden">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          {metrics.map((metric, index) => (
+            <Card key={index} className="bg-card border rounded-md gap-2 p-4">
+              <div className="flex flex-row items-center justify-between ">
+                <h2 className="text-sm font-medium text-muted-foreground">
+                  {metric.label}
+                </h2>
+                <button className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
+                  <MoreVertical className="w-5 h-5" />
+                </button>
+              </div>
               <div className="flex items-end justify-between">
                 <div className="text-3xl font-bold text-foreground">
                   {metric.value}
@@ -156,25 +208,23 @@ function FinancePage() {
                   <span>{metric.trend}</span>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+            </Card>
+          ))}
+        </div>
 
-      <div className="flex justify-between items-start">
-        <h2 className="text-xl font-semibold text-foreground">
-          Financial Overview
-        </h2>
-        <Button
-          variant={"outline"}
-          className="text-muted-foreground hover:text-foreground cursor-pointer"
-        >
-          Export CSV
-        </Button>
-      </div>
+        <div className="flex justify-between items-start">
+          <h2 className="text-xl font-semibold text-foreground">
+            Financial Overview
+          </h2>
+          <Button
+            variant={"outline"}
+            className="text-muted-foreground hover:text-foreground cursor-pointer"
+          >
+            Export CSV
+          </Button>
+        </div>
 
-      <div className="overflow-x-auto rounded-md overflow-hidden border">
-        <Table className="bg-background">
+        <Table className="bg-background flex-1 overflow-auto rounded-2xl">
           <TableHeader>
             <TableRow>
               <TableHead className="w-12 px-4">
@@ -264,7 +314,7 @@ function FinancePage() {
           </TableBody>
         </Table>
       </div>
-    </main>
+    </Page>
   );
 }
 

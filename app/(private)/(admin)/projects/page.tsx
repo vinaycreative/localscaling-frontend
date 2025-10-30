@@ -1,5 +1,6 @@
 "use client";
 
+import Page from "@/components/layouts/Page";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
@@ -87,6 +88,60 @@ function ProjectsPage() {
       status: "Pending",
       statusColor: "bg-amber-500",
     },
+    {
+      id: 11,
+      name: "ElektroPius Berlin",
+      stage: "Branding",
+      assignee: "John doe",
+      dueDate: "Sep 1, 2025",
+      status: "On time",
+      statusColor: "bg-green-500",
+    },
+    {
+      id: 21,
+      name: "GartenPro Service",
+      stage: "Google ads",
+      assignee: "John doe",
+      dueDate: "Sep 1, 2025",
+      status: "Delayed",
+      statusColor: "bg-red-500",
+    },
+    {
+      id: 13,
+      name: "Solarhaus Solutions",
+      stage: "Website setup",
+      assignee: "John doe",
+      dueDate: "Sep 1, 2025",
+      status: "Pending",
+      statusColor: "bg-amber-500",
+    },
+    {
+      id: 14,
+      name: "Kitchendesign Nord",
+      stage: "Branding",
+      assignee: "John doe",
+      dueDate: "Sep 1, 2025",
+      status: "On time",
+      statusColor: "bg-green-500",
+    },
+    {
+      id: 15,
+      name: "FensterFix24",
+      stage: "Google ads",
+      assignee: "John doe",
+      dueDate: "Sep 1, 2025",
+      status: "Delayed",
+      statusColor: "bg-red-500",
+    },
+    {
+      id: 26,
+      name: "OceanCity Bins",
+      stage: "Website setup",
+      assignee: "John doe",
+      dueDate: "Sep 1, 2025",
+      status: "Pending",
+      statusColor: "bg-amber-500",
+    },
   ];
 
   const toggleProject = (id: number) => {
@@ -144,121 +199,116 @@ function ProjectsPage() {
   };
 
   return (
-    <main className="w-full px-3 pt-4 pb-2 flex flex-col gap-4">
-      <div>
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-foreground mb-2">Projects</h1>
-          <p className="text-muted-foreground">
-            Overview of project progress, client assets, and setup status.
-          </p>
-        </div>
-
-        <div className="overflow-x-auto rounded-md overflow-hidden border">
-          <Table className="bg-background">
-            <TableHeader>
-              <TableRow className="border-b border-border hover:bg-transparent">
-                <TableHead className="w-12 px-6 py-4">
+    <Page
+      navURL="Dashboard"
+      title="Projects"
+      description="Overview of project progress, client assets, and setup status."
+    >
+      <div className="flex flex-col overflow-hidden py-4">
+        <Table className="bg-background flex-1 overflow-auto rounded-2xl">
+          <TableHeader>
+            <TableRow className="border-b border-border hover:bg-transparent">
+              <TableHead className="w-12 px-6 py-4">
+                <Checkbox
+                  checked={isAllSelected}
+                  onCheckedChange={toggleSelectAll}
+                  className="cursor-pointer"
+                />
+              </TableHead>
+              <TableHead className="px-6 py-4">
+                <button
+                  onClick={() => handleSort("name")}
+                  className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer font-medium"
+                >
+                  Client/Project name
+                  <SortIcon column="name" />
+                </button>
+              </TableHead>
+              <TableHead className="px-6 py-4">
+                <button
+                  onClick={() => handleSort("stage")}
+                  className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer font-medium"
+                >
+                  Stage
+                  <SortIcon column="stage" />
+                </button>
+              </TableHead>
+              <TableHead className="px-6 py-4">
+                <button
+                  onClick={() => handleSort("assignee")}
+                  className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer font-medium"
+                >
+                  Assignee
+                  <SortIcon column="assignee" />
+                </button>
+              </TableHead>
+              <TableHead className="px-6 py-4">
+                <button
+                  onClick={() => handleSort("dueDate")}
+                  className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer font-medium"
+                >
+                  Due date
+                  <SortIcon column="dueDate" />
+                </button>
+              </TableHead>
+              <TableHead className="px-6 py-4">
+                <button
+                  onClick={() => handleSort("status")}
+                  className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer font-medium"
+                >
+                  Status
+                  <SortIcon column="status" />
+                </button>
+              </TableHead>
+              <TableHead className="w-12 px-6 py-4"></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {getSortedData().map((project) => (
+              <TableRow
+                key={project.id}
+                className="border-b border-border hover:bg-muted/50 transition-colors"
+              >
+                <TableCell className="px-6 py-4">
                   <Checkbox
-                    checked={isAllSelected}
-                    onCheckedChange={toggleSelectAll}
+                    checked={selectedProjects.includes(project.id)}
+                    onCheckedChange={() => toggleProject(project.id)}
                     className="cursor-pointer"
                   />
-                </TableHead>
-                <TableHead className="px-6 py-4">
-                  <button
-                    onClick={() => handleSort("name")}
-                    className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer font-medium"
-                  >
-                    Client/Project name
-                    <SortIcon column="name" />
+                </TableCell>
+                <TableCell className="px-6 py-4 font-medium text-foreground">
+                  {project.name}
+                </TableCell>
+                <TableCell className="px-6 py-4 text-muted-foreground">
+                  {project.stage}
+                </TableCell>
+                <TableCell className="px-6 py-4 text-muted-foreground">
+                  {project.assignee}
+                </TableCell>
+                <TableCell className="px-6 py-4 text-muted-foreground">
+                  {project.dueDate}
+                </TableCell>
+                <TableCell className="px-6 py-4">
+                  <div className="flex items-center gap-2">
+                    <div
+                      className={`w-2 h-2 rounded-full ${project.statusColor}`}
+                    ></div>
+                    <span className="text-muted-foreground">
+                      {project.status}
+                    </span>
+                  </div>
+                </TableCell>
+                <TableCell className="px-6 py-4">
+                  <button className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
+                    <MoreVertical className="w-5 h-5" />
                   </button>
-                </TableHead>
-                <TableHead className="px-6 py-4">
-                  <button
-                    onClick={() => handleSort("stage")}
-                    className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer font-medium"
-                  >
-                    Stage
-                    <SortIcon column="stage" />
-                  </button>
-                </TableHead>
-                <TableHead className="px-6 py-4">
-                  <button
-                    onClick={() => handleSort("assignee")}
-                    className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer font-medium"
-                  >
-                    Assignee
-                    <SortIcon column="assignee" />
-                  </button>
-                </TableHead>
-                <TableHead className="px-6 py-4">
-                  <button
-                    onClick={() => handleSort("dueDate")}
-                    className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer font-medium"
-                  >
-                    Due date
-                    <SortIcon column="dueDate" />
-                  </button>
-                </TableHead>
-                <TableHead className="px-6 py-4">
-                  <button
-                    onClick={() => handleSort("status")}
-                    className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer font-medium"
-                  >
-                    Status
-                    <SortIcon column="status" />
-                  </button>
-                </TableHead>
-                <TableHead className="w-12 px-6 py-4"></TableHead>
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {getSortedData().map((project) => (
-                <TableRow
-                  key={project.id}
-                  className="border-b border-border hover:bg-muted/50 transition-colors"
-                >
-                  <TableCell className="px-6 py-4">
-                    <Checkbox
-                      checked={selectedProjects.includes(project.id)}
-                      onCheckedChange={() => toggleProject(project.id)}
-                      className="cursor-pointer"
-                    />
-                  </TableCell>
-                  <TableCell className="px-6 py-4 font-medium text-foreground">
-                    {project.name}
-                  </TableCell>
-                  <TableCell className="px-6 py-4 text-muted-foreground">
-                    {project.stage}
-                  </TableCell>
-                  <TableCell className="px-6 py-4 text-muted-foreground">
-                    {project.assignee}
-                  </TableCell>
-                  <TableCell className="px-6 py-4 text-muted-foreground">
-                    {project.dueDate}
-                  </TableCell>
-                  <TableCell className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <div
-                        className={`w-2 h-2 rounded-full ${project.statusColor}`}
-                      ></div>
-                      <span className="text-muted-foreground">
-                        {project.status}
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="px-6 py-4">
-                    <button className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
-                      <MoreVertical className="w-5 h-5" />
-                    </button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+            ))}
+          </TableBody>
+        </Table>
       </div>
-    </main>
+    </Page>
   );
 }
 
