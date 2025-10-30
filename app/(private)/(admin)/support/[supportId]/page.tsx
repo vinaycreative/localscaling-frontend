@@ -35,7 +35,7 @@ import {
   FileText,
   FileVideo,
 } from "lucide-react"
-import { OnboardingHeader } from "../../tasks/business-information/page"
+import { OnboardingHeader } from "../../../(admin)/tasks/business-information/page"
 import ChatLoading from "../components/chat-loading"
 
 /**

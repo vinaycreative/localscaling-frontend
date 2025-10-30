@@ -1,23 +1,17 @@
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
-import React from "react";
-import Header from "./Header";
+import { ArrowLeft } from "lucide-react"
+import Link from "next/link"
+import React from "react"
+import Header from "./header"
 
 interface PageProps {
-  navURL: string;
-  navURLCount?: string;
-  children: React.ReactNode;
-  title: string;
-  description: string;
+  navURL: string
+  navURLCount?: string
+  children: React.ReactNode
+  title: string
+  description: string
 }
 
-const Page = ({
-  children,
-  navURL,
-  navURLCount,
-  title,
-  description,
-}: PageProps) => {
+const Page = ({ children, navURL, navURLCount, title, description }: PageProps) => {
   return (
     <main className="grid grid-rows-[60px_1fr] w-full h-dvh px-3 pt-4 pb-2 overflow-hidden">
       <Header>
@@ -34,7 +28,7 @@ const Page = ({
       </Header>
       {children}
     </main>
-  );
-};
+  )
+}
 
-export default Page;
+export default Page

@@ -1,5 +1,5 @@
-import Page from "@/components/layout/Page";
-import React from "react";
+import Page from "@/components/layouts/page"
+import React from "react"
 
 const layout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -19,7 +19,7 @@ const layout = ({ children }: { children: React.ReactNode }) => {
         {children}
       </section>
     </Page>
-  );
-};
+  )
+}
 
-export default layout;
+export default layout
