@@ -1,4 +1,4 @@
-import MainLayout from "@/components/layouts/Main";
+import MainLayout from "@/components/base/Main";
 
 interface ProtectedLayoutProps {
   children: React.ReactNode;

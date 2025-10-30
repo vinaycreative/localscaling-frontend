@@ -1,4 +1,4 @@
-import Page from "@/components/layouts/Page";
+import Page from "@/components/base/Page";
 import React from "react";
 
 const layout = ({ children }: { children: React.ReactNode }) => {

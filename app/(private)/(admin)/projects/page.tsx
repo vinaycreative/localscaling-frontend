@@ -1,6 +1,6 @@
 "use client";
 
-import Page from "@/components/layouts/Page";
+import Page from "@/components/base/Page";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,

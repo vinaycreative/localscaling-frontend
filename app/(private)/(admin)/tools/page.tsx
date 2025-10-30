@@ -1,6 +1,6 @@
 "use client";
 
-import Page from "@/components/layouts/Page";
+import Page from "@/components/base/Page";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import Image from "next/image";

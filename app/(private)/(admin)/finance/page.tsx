@@ -1,6 +1,6 @@
 "use client";
 
-import Page from "@/components/layouts/Page";
+import Page from "@/components/base/Page";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";

@@ -2,12 +2,11 @@
 
 import type React from "react";
 
-import Page from "@/components/layouts/Page";
+import Page from "@/components/base/Page";
 import { CustomInput } from "@/components/reusable/custom-input";
 import { Button } from "@/components/ui/button";
 import type { AddClientFormData } from "@/interfaces/client/add-client";
 import {
-  ArrowLeft,
   ChevronRight,
   FileQuestion as CircleQuestionMark,
   Mail,
