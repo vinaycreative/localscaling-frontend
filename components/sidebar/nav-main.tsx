@@ -13,7 +13,15 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { ChevronRight, FolderClosedIcon, Home } from "lucide-react";
+import {
+  ChartPie,
+  ChevronRight,
+  FolderClosedIcon,
+  Home,
+  Server,
+  ToggleRight,
+  Users,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Badge } from "../ui/badge";
@@ -34,18 +42,23 @@ export function NavMain() {
   return (
     <SidebarMenu>
       <SidebarMenuItem className="px-2">
-        <SidebarMenuButton asChild className="cursor-pointer rounded">
+        <SidebarMenuButton
+          asChild
+          className="cursor-pointer rounded"
+          isActive={pathName === "/dashboard"}
+        >
           <Link href="/dashboard">
             <Home />
             <span>Dashboard</span>
           </Link>
         </SidebarMenuButton>
       </SidebarMenuItem>
+
       <SidebarGroup className="py-0">
         <Collapsible defaultOpen className="group/collapsible">
           <SidebarGroupLabel
             asChild
-            className="group/label mb-2 cursor-pointer rounded text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground w-full text-sm"
+            className={`group/label cursor-pointer rounded text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground w-full text-sm ${pathName.startsWith("/tasks") && "bg-sidebar-accent text-sidebar-accent-foreground"}`}
           >
             <CollapsibleTrigger className="">
               <FolderClosedIcon className="mr-2" />
@@ -77,6 +90,54 @@ export function NavMain() {
           </CollapsibleContent>
         </Collapsible>
       </SidebarGroup>
+      <SidebarMenuItem className="px-2">
+        <SidebarMenuButton
+          asChild
+          className="cursor-pointer rounded"
+          isActive={pathName === "/projects"}
+        >
+          <Link href="/projects">
+            <Server />
+            <span>Projects</span>
+          </Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+      <SidebarMenuItem className="px-2">
+        <SidebarMenuButton
+          asChild
+          className="cursor-pointer rounded"
+          isActive={pathName === "/clients"}
+        >
+          <Link href="/clients">
+            <Users />
+            <span>Clients</span>
+          </Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+      <SidebarMenuItem className="px-2">
+        <SidebarMenuButton
+          asChild
+          className="cursor-pointer rounded"
+          isActive={pathName === "/tools"}
+        >
+          <Link href="/tools">
+            <ToggleRight />
+            <span>Tools</span>
+          </Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+      <SidebarMenuItem className="px-2">
+        <SidebarMenuButton
+          asChild
+          className="cursor-pointer rounded"
+          isActive={pathName === "/finance"}
+        >
+          <Link href="/finance">
+            <ChartPie />
+            <span>Finance</span>
+          </Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
     </SidebarMenu>
   );
 }

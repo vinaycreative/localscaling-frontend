@@ -23,7 +23,7 @@ import { useParams, useRouter } from "next/navigation"
 import * as React from "react"
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso"
 
-import Page from "@/components/layouts/Page"
+import Page from "@/components/base/Page"
 import {
   File,
   FileArchive,

@@ -1,20 +1,17 @@
-"use client";
+"use client"
 
-import { useCallback, useState } from "react";
-import { FileUploader } from "../../app/(private)/tasks/branding-content/components/file-uploader";
+import { useCallback, useState } from "react"
+import { FileUploader } from "../../app/(private)/(client)/tasks/branding-content/components/file-uploader"
 
-type FileRejection = { file: File; reason: string };
+type FileRejection = { file: File; reason: string }
 
 interface BrandAssetUploaderProps {
-  label: string;
-  field: "logoFile" | "teamPhotos";
-  multiple: boolean;
-  value: File | File[] | null;
-  onChange: (
-    file: File | File[] | null,
-    field: "logoFile" | "teamPhotos"
-  ) => void;
-  maxFiles?: number;
+  label: string
+  field: "logoFile" | "teamPhotos"
+  multiple: boolean
+  value: File | File[] | null
+  onChange: (file: File | File[] | null, field: "logoFile" | "teamPhotos") => void
+  maxFiles?: number
 }
 
 function BrandAssetUploader({
@@ -25,24 +22,20 @@ function BrandAssetUploader({
   onChange,
   maxFiles = multiple ? 10 : 1,
 }: BrandAssetUploaderProps) {
-  const [rejections, setRejections] = useState<FileRejection[]>([]);
+  const [rejections, setRejections] = useState<FileRejection[]>([])
 
-  const files: File[] = Array.isArray(value)
-    ? value
-    : value instanceof File
-      ? [value]
-      : [];
+  const files: File[] = Array.isArray(value) ? value : value instanceof File ? [value] : []
 
   const handleFileChange = useCallback(
     (newFiles: File[]) => {
       if (!multiple) {
-        onChange(newFiles.length > 0 ? newFiles[0] : null, field);
+        onChange(newFiles.length > 0 ? newFiles[0] : null, field)
       } else {
-        onChange(newFiles, field);
+        onChange(newFiles, field)
       }
     },
     [multiple, onChange, field]
-  );
+  )
 
   return (
     <div className="flex flex-col gap-2">
@@ -63,10 +56,7 @@ function BrandAssetUploader({
           </p>
           <ul className="mt-2 list-disc pl-5 space-y-1">
             {rejections.map((r, idx) => (
-              <li
-                key={`${r.file.name}-${idx}`}
-                className="text-sm text-destructive/80"
-              >
+              <li key={`${r.file.name}-${idx}`} className="text-sm text-destructive/80">
                 <span>{r.file.name}</span>
                 {" — "}
                 <span className="font-medium">{r.reason}</span>
@@ -76,7 +66,7 @@ function BrandAssetUploader({
         </div>
       )}
     </div>
-  );
+  )
 }
 
-export default BrandAssetUploader;
+export default BrandAssetUploader

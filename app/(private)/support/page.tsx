@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { CreateTicketModal } from "./components/create-ticket-modal"
 import { SupportTable } from "./components/support-table"
-import Page from "@/components/layouts/Page"
+import Page from "@/components/base/Page"
 
 export default function SupportPage() {
   const [createTicket, setCreateTicket] = useState<boolean>(false)

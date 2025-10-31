@@ -9,9 +9,10 @@ interface PageProps {
   children: React.ReactNode
   title: string
   description: string
+  rightButton?: React.ReactNode
 }
 
-const Page = ({ children, navURL, navURLCount, title, description }: PageProps) => {
+const Page = ({ children, navURL, navURLCount, title, description, rightButton }: PageProps) => {
   return (
     <main className="grid grid-rows-[60px_1fr] w-full h-dvh px-3 pt-4 pb-2 overflow-hidden">
       <Header>
@@ -21,10 +22,11 @@ const Page = ({ children, navURL, navURLCount, title, description }: PageProps) 
         >
           <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-all duration-300" />
         </Link>
-        <div className="flex flex-col">
+        <div className="flex flex-col flex-1">
           <h2 className="text-xl font-bold">{title}</h2>
           <p className="text-muted-foreground text-xs">{description}</p>
         </div>
+        {rightButton}
       </Header>
       {children}
     </main>

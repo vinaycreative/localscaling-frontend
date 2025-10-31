@@ -239,7 +239,9 @@ export function CreateTicketModal({
           <DialogContent className="sm:max-w-[590px] p-0 ">
             <DialogHeader className="px-6 pt-6">
               <DialogTitle>Create Ticket</DialogTitle>
-              <DialogDescription>Tell us what’s going on so we can help quickly.</DialogDescription>
+              <DialogDescription>
+                Tell us what’s going on so we can help quickly.
+              </DialogDescription>
             </DialogHeader>
 
             <Form {...form}>

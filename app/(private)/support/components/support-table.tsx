@@ -40,7 +40,7 @@ import {
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
-import { TicketDetailsModal } from "./view-details"
+import { TicketDetailsModal } from "../components/view-details"
 import { Ticket } from "@/types/support"
 import { CSSProperties, useState } from "react"
 import { useSidebar } from "@/components/ui/sidebar"
@@ -397,7 +397,11 @@ export function SupportTable() {
       header: "",
       enableSorting: false,
       cell: ({ row }) => (
-        <RowMenu row={row.original} setOpen={setOpenTicket} setCurrentDetails={setCurrentDetails} />
+        <RowMenu
+          row={row.original}
+          setOpen={setOpenTicket}
+          setCurrentDetails={setCurrentDetails}
+        />
       ),
       size: 60,
     },
