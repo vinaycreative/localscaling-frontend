@@ -66,7 +66,7 @@ const NAV_ITEMS: readonly NavItem[] = [
 export function NavMain({ initialRole }: { initialRole?: RoleValue }) {
   const pathName = usePathname()
   const { user } = useAuth()
-  const role = initialRole ?? user?.role
+  const role = user?.role ?? initialRole
   if (!role) return null
   return (
     <SidebarMenu>
