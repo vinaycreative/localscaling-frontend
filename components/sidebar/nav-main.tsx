@@ -53,7 +53,7 @@ const NAV_ITEMS: readonly NavItem[] = [
   },
   {
     label: "Tickets",
-    href: "/support",
+    href: "/tickets",
     icon: Ticket,
     roles: [Role.SUPPORT_HEAD_ADMIN, Role.SUPPORT_ADMIN],
   },
