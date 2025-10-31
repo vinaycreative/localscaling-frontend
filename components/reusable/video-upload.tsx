@@ -1,27 +1,27 @@
-"use client";
+"use client"
 
-import { useToastContext } from "@/components/providers/toast";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { CloudUpload, X } from "lucide-react";
-import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import { useToastContext } from "@/context/providers/toast"
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+import { CloudUpload, X } from "lucide-react"
+import type React from "react"
+import { useEffect, useRef, useState } from "react"
 
 interface VideoUploadProps {
-  maxSize?: number;
-  value: File | null;
-  onChange: (file: File | null) => void;
-  label: string;
-  required: boolean;
+  maxSize?: number
+  value: File | null
+  onChange: (file: File | null) => void
+  label: string
+  required: boolean
 }
 
 const createFileState = (file: File | null) => {
-  if (!file) return null;
+  if (!file) return null
   return {
     file,
     preview: URL.createObjectURL(file),
-  };
-};
+  }
+}
 
 export function VideoUpload({
   maxSize = 100,
@@ -31,77 +31,70 @@ export function VideoUpload({
   required,
 }: VideoUploadProps) {
   const [videoState, setVideoState] = useState<{
-    file: File;
-    preview: string;
-  } | null>(createFileState(value));
+    file: File
+    preview: string
+  } | null>(createFileState(value))
 
-  const { setToastMessage } = useToastContext();
-  const [isDragging, setIsDragging] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { setToastMessage } = useToastContext()
+  const [isDragging, setIsDragging] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (value !== videoState?.file) {
       if (videoState?.preview) {
-        URL.revokeObjectURL(videoState.preview);
+        URL.revokeObjectURL(videoState.preview)
       }
-      setVideoState(createFileState(value));
+      setVideoState(createFileState(value))
     }
     return () => {
       if (videoState?.preview) {
-        URL.revokeObjectURL(videoState.preview);
+        URL.revokeObjectURL(videoState.preview)
       }
-    };
-  }, [value, videoState?.file, videoState?.preview]);
+    }
+  }, [value, videoState?.file, videoState?.preview])
 
-  const supportedFormats = ["MP4", "MOV", "WebM", "AVI"];
+  const supportedFormats = ["MP4", "MOV", "WebM", "AVI"]
 
   const validateFile = (file: File): boolean => {
-    const validTypes = [
-      "video/mp4",
-      "video/quicktime",
-      "video/webm",
-      "video/x-msvideo",
-    ];
+    const validTypes = ["video/mp4", "video/quicktime", "video/webm", "video/x-msvideo"]
     if (!validTypes.includes(file.type)) {
-      setToastMessage(
-        `Invalid file type. Supported formats: ${supportedFormats.join(", ")}`
-      );
-      return false;
+      setToastMessage(`Invalid file type. Supported formats: ${supportedFormats.join(", ")}`)
+      return false
     }
 
-    const fileSizeMB = file.size / (1024 * 1024);
+    const fileSizeMB = file.size / (1024 * 1024)
     if (fileSizeMB > maxSize) {
-      setToastMessage(`File size exceeds ${maxSize}MB limit`);
-      return false;
+      setToastMessage(`File size exceeds ${maxSize}MB limit`)
+      return false
     }
 
-    return true;
-  };
+    return true
+  }
 
   const handleFileSelect = (file: File) => {
-    if (!validateFile(file)) return;
-    onChange(file);
-  };
+    if (!validateFile(file)) return
+    onChange(file)
+  }
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(false);
+    e.preventDefault()
+    setIsDragging(false)
 
-    const files = e.dataTransfer.files;
+    const files = e.dataTransfer.files
     if (files.length > 0) {
-      handleFileSelect(files[0]);
+      handleFileSelect(files[0])
     }
-  };
+  }
 
   const handleClear = () => {
-    onChange(null);
+    onChange(null)
 
     if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+      fileInputRef.current.value = ""
     }
-  };
+  }
 
-  const isVideoPresent = !!videoState;
+  const isVideoPresent = !!videoState
 
   return (
     <div className="w-full space-y-2.5">
@@ -114,8 +107,8 @@ export function VideoUpload({
             isDragging && "bg-muted/20"
           }`}
           onDragOver={(e) => {
-            e.preventDefault();
-            setIsDragging(true);
+            e.preventDefault()
+            setIsDragging(true)
           }}
           onDragLeave={() => setIsDragging(false)}
           onDrop={handleDrop}
@@ -129,8 +122,7 @@ export function VideoUpload({
             </div>
 
             <p className="font-medium text-foreground">
-              <span className="text-primary">Click to upload</span> or drag and
-              drop
+              <span className="text-primary">Click to upload</span> or drag and drop
             </p>
 
             <div className="flex gap-2 justify-center">
@@ -139,8 +131,8 @@ export function VideoUpload({
                 variant="outline"
                 className="font-normal hover:bg-muted/20 transition-all duration-300 cursor-pointer rounded"
                 onClick={(e) => {
-                  e.stopPropagation();
-                  fileInputRef.current?.click();
+                  e.stopPropagation()
+                  fileInputRef.current?.click()
                 }}
               >
                 Choose File
@@ -151,9 +143,7 @@ export function VideoUpload({
               ref={fileInputRef}
               type="file"
               accept="video/*"
-              onChange={(e) =>
-                e.target.files?.[0] && handleFileSelect(e.target.files[0])
-              }
+              onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0])}
               className="hidden"
             />
           </div>
@@ -196,5 +186,5 @@ export function VideoUpload({
         </div>
       )}
     </div>
-  );
+  )
 }

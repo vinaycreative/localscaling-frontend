@@ -25,6 +25,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Badge } from "../ui/badge";
+import { useAuth } from "@/hooks/use-auth";
 
 const items = [
   {
@@ -39,22 +40,26 @@ const items = [
 ];
 export function NavMain() {
   const pathName = usePathname();
+  const { canAccess } = useAuth();
   return (
     <SidebarMenu>
-      <SidebarMenuItem className="px-2">
-        <SidebarMenuButton
-          asChild
-          className="cursor-pointer rounded"
-          isActive={pathName === "/dashboard"}
-        >
-          <Link href="/dashboard">
-            <Home />
-            <span>Dashboard</span>
-          </Link>
-        </SidebarMenuButton>
-      </SidebarMenuItem>
+      {canAccess("/dashboard") && (
+        <SidebarMenuItem className="px-2">
+          <SidebarMenuButton
+            asChild
+            className="cursor-pointer rounded"
+            isActive={pathName === "/dashboard"}
+          >
+            <Link href="/dashboard">
+              <Home />
+              <span>Dashboard</span>
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      )}
 
       <SidebarGroup className="py-0">
+        {canAccess("/tasks") && (
         <Collapsible defaultOpen className="group/collapsible">
           <SidebarGroupLabel
             asChild
@@ -89,55 +94,64 @@ export function NavMain() {
             </SidebarGroupContent>
           </CollapsibleContent>
         </Collapsible>
+        )}
       </SidebarGroup>
-      <SidebarMenuItem className="px-2">
-        <SidebarMenuButton
-          asChild
-          className="cursor-pointer rounded"
-          isActive={pathName === "/projects"}
-        >
-          <Link href="/projects">
-            <Server />
-            <span>Projects</span>
-          </Link>
-        </SidebarMenuButton>
-      </SidebarMenuItem>
-      <SidebarMenuItem className="px-2">
-        <SidebarMenuButton
-          asChild
-          className="cursor-pointer rounded"
-          isActive={pathName === "/clients"}
-        >
-          <Link href="/clients">
-            <Users />
-            <span>Clients</span>
-          </Link>
-        </SidebarMenuButton>
-      </SidebarMenuItem>
-      <SidebarMenuItem className="px-2">
-        <SidebarMenuButton
-          asChild
-          className="cursor-pointer rounded"
-          isActive={pathName === "/tools"}
-        >
-          <Link href="/tools">
-            <ToggleRight />
-            <span>Tools</span>
-          </Link>
-        </SidebarMenuButton>
-      </SidebarMenuItem>
-      <SidebarMenuItem className="px-2">
-        <SidebarMenuButton
-          asChild
-          className="cursor-pointer rounded"
-          isActive={pathName === "/finance"}
-        >
-          <Link href="/finance">
-            <ChartPie />
-            <span>Finance</span>
-          </Link>
-        </SidebarMenuButton>
-      </SidebarMenuItem>
+      {canAccess("/projects") && (
+        <SidebarMenuItem className="px-2">
+          <SidebarMenuButton
+            asChild
+            className="cursor-pointer rounded"
+            isActive={pathName === "/projects"}
+          >
+            <Link href="/projects">
+              <Server />
+              <span>Projects</span>
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      )}
+      {canAccess("/clients") && (
+        <SidebarMenuItem className="px-2">
+          <SidebarMenuButton
+            asChild
+            className="cursor-pointer rounded"
+            isActive={pathName === "/clients"}
+          >
+            <Link href="/clients">
+              <Users />
+              <span>Clients</span>
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      )}
+      {canAccess("/tools") && (
+        <SidebarMenuItem className="px-2">
+          <SidebarMenuButton
+            asChild
+            className="cursor-pointer rounded"
+            isActive={pathName === "/tools"}
+          >
+            <Link href="/tools">
+              <ToggleRight />
+              <span>Tools</span>
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      )}
+      {canAccess("/finance") && (
+        <SidebarMenuItem className="px-2">
+          <SidebarMenuButton
+            asChild
+            className="cursor-pointer rounded"
+            isActive={pathName === "/finance"}
+          >
+            <Link href="/finance">
+              <ChartPie />
+              <span>Finance</span>
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      )}
     </SidebarMenu>
   );
 }

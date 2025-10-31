@@ -1,9 +1,9 @@
-import { ToastProvider } from "@/components/providers/toast"
+import { QueryProvider } from "@/context/TanstackProvider"
 import { siteConfig } from "@/config/site"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
-
+import { Toaster } from "@/components/ui/sonner"
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
@@ -51,7 +51,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} antialiased bg-muted`} suppressHydrationWarning>
-        <ToastProvider>{children}</ToastProvider>
+        <QueryProvider>{children}</QueryProvider>
+        <Toaster richColors />
       </body>
     </html>
   )
