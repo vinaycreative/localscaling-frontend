@@ -1,11 +1,11 @@
 "use client"
 
-import { useToastContext } from "@/context/providers/toast"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { CloudUpload, X } from "lucide-react"
 import type React from "react"
 import { useEffect, useRef, useState } from "react"
+import { toast } from "sonner"
 
 interface VideoUploadProps {
   maxSize?: number
@@ -35,7 +35,6 @@ export function VideoUpload({
     preview: string
   } | null>(createFileState(value))
 
-  const { setToastMessage } = useToastContext()
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -58,13 +57,13 @@ export function VideoUpload({
   const validateFile = (file: File): boolean => {
     const validTypes = ["video/mp4", "video/quicktime", "video/webm", "video/x-msvideo"]
     if (!validTypes.includes(file.type)) {
-      setToastMessage(`Invalid file type. Supported formats: ${supportedFormats.join(", ")}`)
+      toast.error(`Invalid file type. Supported formats: ${supportedFormats.join(", ")}`)
       return false
     }
 
     const fileSizeMB = file.size / (1024 * 1024)
     if (fileSizeMB > maxSize) {
-      setToastMessage(`File size exceeds ${maxSize}MB limit`)
+      toast.error(`File size exceeds ${maxSize}MB limit`)
       return false
     }
 
