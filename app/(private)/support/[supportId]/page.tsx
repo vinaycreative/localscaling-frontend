@@ -13,10 +13,13 @@ import {
   CalendarClock,
   CheckCheck,
   ChevronRight,
+  Mail,
   PanelRight,
   Paperclip,
+  Phone,
   PhoneCall,
   SquareSlash,
+  Video,
 } from "lucide-react"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
@@ -319,7 +322,7 @@ export default function SupportChatPage() {
       {loading ? (
         <ChatLoading />
       ) : (
-        <div className="py-4">
+        <div className="p-4 bg-white rounded-md mt-2 border">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-[1fr_320px]">
             {/* Left */}
             <div>
@@ -430,11 +433,9 @@ export default function SupportChatPage() {
             </div>
 
             {/* Right sidebar */}
-            <div>
-              {/* right sidebar (desktop only) */}
-              <div className="hidden md:block bg-background">
-                <RightSidebar other={other} />
-              </div>
+            {/* right sidebar (desktop only) */}
+            <div className="hidden md:block bg-background h-full">
+              <RightSidebar other={other} />
             </div>
           </div>
         </div>
@@ -483,9 +484,7 @@ export function MessageBubble(props: {
             isYou ? "rounded-tr-none" : "bg-muted/60 rounded-tl-none"
           )}
         >
-          {text && (
-            <p className={cn("text-sm leading-5", isYou && "text-foreground/90")}>{text}</p>
-          )}
+          {text && <p className={cn("text-sm leading-5", isYou && "text-foreground/90")}>{text}</p>}
 
           {!!attachments?.length && (
             <div className="mt-2 space-y-1">
@@ -518,13 +517,26 @@ export function MessageBubble(props: {
 
 function RightSidebar({ other }: { other: Participant }) {
   return (
-    <div className="h-full p-4">
+    <div className="h-full p-4 border-l">
       <div className="flex flex-col items-start gap-2">
-        <Avatar className="h-14 w-14 relative border mb-2">
-          <AvatarImage src={other.avatar_url} alt={other.name} />
-          <AvatarFallback>{other.name.slice(0, 2).toUpperCase()}</AvatarFallback>
-          <span className="h-2 w-2 rounded-full bg-emerald-500 absolute bottom-0 right-0" />
-        </Avatar>
+        <div className="flex items-center justify-between gap-2 w-full">
+          <Avatar className="h-14 w-14 relative border mb-2">
+            <AvatarImage src={other.avatar_url} alt={other.name} />
+            <AvatarFallback>{other.name.slice(0, 2).toUpperCase()}</AvatarFallback>
+            <span className="h-2 w-2 rounded-full bg-emerald-500 absolute bottom-0 right-0" />
+          </Avatar>
+          <div className="flex items-center justify-center gap-2">
+            <Button variant={"outline"} size={"sm"}>
+              <Mail className="text-muted-foreground" />
+            </Button>
+            <Button variant={"outline"} size={"sm"}>
+              <Phone className="text-muted-foreground" />
+            </Button>
+            <Button variant={"outline"} size={"sm"}>
+              <Video className="text-muted-foreground" />
+            </Button>
+          </div>
+        </div>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <h3 className="truncate text-sm font-semibold leading-none">{other.name}</h3>
