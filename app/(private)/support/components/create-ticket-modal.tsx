@@ -1,7 +1,7 @@
 // components/tickets/CreateTicketModal.tsx
 import * as React from "react"
 import { useState, useEffect } from "react"
-import { useForm } from "react-hook-form"
+import { FieldValues, useForm, UseFormReturn } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
@@ -55,20 +55,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
+import { CreateTicketValues } from "@/types/support"
 
-const TicketSchema = z.object({
-  title: z.string().min(2, "Please enter a title"),
-  category: z.string().min(1, "Select a category"),
-  priority: z.enum(["low", "medium", "high"]),
-  description: z.string().min(10, "Please add a little more detail"),
-  files: z.custom<File[] | undefined>().optional(),
-})
-export type CreateTicketValues = z.infer<typeof TicketSchema>
-
-export type CreateTicketModalProps = {
+export interface CreateTicketModalProps<TValues extends FieldValues = CreateTicketValues> {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onSubmit: (values: CreateTicketValues) => Promise<void> | void
+  form: UseFormReturn<TValues>
+  onSubmit: (values: TValues) => Promise<void> | void
   categories?: { label: string; value: string }[]
   priorities?: { label: string; value: "low" | "medium" | "high" }[]
   maxImageResolutionHint?: string
@@ -78,6 +71,7 @@ const LS_KEY_SKIP_CONFIRM = "create-ticket.skipConfirm"
 
 export function CreateTicketModal({
   open,
+  form,
   onOpenChange,
   onSubmit,
   categories = [
@@ -93,7 +87,8 @@ export function CreateTicketModal({
     { label: "High", value: "high" },
   ],
 }: CreateTicketModalProps) {
-  const [files, setFiles] = React.useState<File[]>([])
+  const { watch, setValue } = form
+  const [files, setFiles] = React.useState<File[]>(form?.getValues("files") || [])
   const [submitting, setSubmitting] = useState(false)
 
   // confirmation state
@@ -106,16 +101,6 @@ export function CreateTicketModal({
       setSkipConfirm(localStorage.getItem(LS_KEY_SKIP_CONFIRM) === "1")
     } catch {}
   }, [])
-
-  const form = useForm<CreateTicketValues>({
-    resolver: zodResolver(TicketSchema),
-    defaultValues: {
-      title: "",
-      description: "",
-      category: categories[0]?.value ?? "",
-      priority: "low",
-    },
-  })
 
   // 1) User presses submit → validate → show confirm (unless skipped)
   const requestSubmit = async (values: CreateTicketValues) => {
@@ -140,6 +125,7 @@ export function CreateTicketModal({
       await onSubmit(payload)
       onOpenChange(false)
       setFiles([])
+      setValue("files", [])
       form.reset()
     } finally {
       setSubmitting(false)
@@ -206,6 +192,8 @@ export function CreateTicketModal({
             // Simulate server processing delay
             await new Promise((resolve) => setTimeout(resolve, 500))
             onSuccess(file)
+            const prevFiles = watch("files") || []
+            setValue("files", [...prevFiles, file])
           } catch (error) {
             onError(file, error instanceof Error ? error : new Error("Upload failed"))
           }
@@ -239,9 +227,7 @@ export function CreateTicketModal({
           <DialogContent className="sm:max-w-[590px] p-0 ">
             <DialogHeader className="px-6 pt-6">
               <DialogTitle>Create Ticket</DialogTitle>
-              <DialogDescription>
-                Tell us what’s going on so we can help quickly.
-              </DialogDescription>
+              <DialogDescription>Tell us what’s going on so we can help quickly.</DialogDescription>
             </DialogHeader>
 
             <Form {...form}>
@@ -277,9 +263,9 @@ export function CreateTicketModal({
                                   <SelectValue placeholder="Select a category" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  {categories.map((c) => (
-                                    <SelectItem key={c.value} value={c.value}>
-                                      {c.label}
+                                  {categories.map((c: { label: string; value: string }) => (
+                                    <SelectItem key={c?.value} value={c?.value}>
+                                      {c?.label}
                                     </SelectItem>
                                   ))}
                                 </SelectContent>
@@ -305,7 +291,7 @@ export function CreateTicketModal({
                                   <SelectValue placeholder="Low, Medium, High" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  {priorities.map((p) => (
+                                  {priorities.map((p: { label: string; value: string }) => (
                                     <SelectItem key={p.value} value={p.value}>
                                       {p.label}
                                     </SelectItem>

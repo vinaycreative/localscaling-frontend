@@ -1,3 +1,6 @@
+import { createTicketSchema } from "@/schema/support"
+import z from "zod"
+
 export type Ticket = {
   id: string
   title: string
@@ -18,3 +21,5 @@ export type TicketAttachment = {
   mime?: string
   url?: string
 }
+
+export type CreateTicketValues = z.infer<typeof createTicketSchema>
