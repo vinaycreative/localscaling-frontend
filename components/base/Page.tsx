@@ -18,12 +18,12 @@ const Page = ({ children, navURL, navURLCount, title, description, rightButton }
       <Header>
         <Link
           href={`/${navURL.toLowerCase()}`}
-          className="flex gap-2 text-primary text-sm items-center justify-center cursor-pointer group bg-white size-10 rounded-md border border-border p-2"
+          className="flex gap-2 text-primary text-sm items-center justify-center cursor-pointer group bg-gray-50 hover:bg-white size-9 rounded-md border border-border p-2 transition-all duration-300"
         >
           <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-all duration-300" />
         </Link>
         <div className="flex flex-col flex-1">
-          <h2 className="text-xl font-bold">{title}</h2>
+          <h2 className="text-base font-bold">{title}</h2>
           <p className="text-muted-foreground text-xs">{description}</p>
         </div>
         {rightButton}

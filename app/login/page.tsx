@@ -42,17 +42,39 @@ export default function LoginPage() {
     <div className="min-h-screen grid place-items-center p-6">
       <div className="w-full max-w-sm rounded-lg border bg-background p-6 shadow-sm">
         <h1 className="text-xl font-semibold mb-2">Sign in</h1>
-        <p className="text-sm text-muted-foreground mb-6">Use the quick role buttons below or enter credentials.</p>
+        <p className="text-sm text-muted-foreground mb-6">
+          Use the quick role buttons below or enter credentials.
+        </p>
 
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm" htmlFor="email">Email</label>
-            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required />
+            <label className="text-sm" htmlFor="email">
+              Email
+            </label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              required
+            />
           </div>
           <div className="space-y-2">
-            <label className="text-sm" htmlFor="password">Password</label>
-            <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="password" required />
-            <p className="text-xs text-muted-foreground">Test password is <span className="font-medium">password</span></p>
+            <label className="text-sm" htmlFor="password">
+              Password
+            </label>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="password"
+              required
+            />
+            <p className="text-xs text-muted-foreground">
+              Test password is <span className="font-medium">password</span>
+            </p>
           </div>
           <Button type="submit" className="w-full" disabled={login.isPending}>
             {login.isPending ? "Signing in..." : "Sign in"}
@@ -76,11 +98,11 @@ export default function LoginPage() {
               </Button>
             ))}
           </div>
-          <p className="text-xs text-muted-foreground mt-2">Password will be auto-filled as <span className="font-medium">password</span>.</p>
+          <p className="text-xs text-muted-foreground mt-2">
+            Password will be auto-filled as <span className="font-medium">password</span>.
+          </p>
         </div>
       </div>
     </div>
   )
 }
-
-
