@@ -40,10 +40,11 @@ import {
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
-import { TicketDetailsModal } from "../components/view-details"
-import { Ticket } from "@/types/support"
+import { TicketDetailsModal } from "./view-details"
+// import { Ticket } from "../types"
 import { CSSProperties, useState } from "react"
 import { useSidebar } from "@/components/ui/sidebar"
+import { Ticket } from "@/types/support"
 
 const data: Ticket[] = [
   {
@@ -242,6 +243,156 @@ const getCommonPinningStyles = (column: Column<Ticket>): CSSProperties => {
   }
 }
 
+// ─── Column Definitions ──────────────────────────────
+
+export const getColumns = ({
+  setOpenTicket,
+  setCurrentDetails,
+}: {
+  setOpenTicket: React.Dispatch<React.SetStateAction<boolean>>
+  setCurrentDetails: React.Dispatch<React.SetStateAction<Ticket | null>>
+}): ColumnDef<Ticket>[] => [
+  {
+    id: "select",
+    header: ({ table }) => (
+      <div className="flex items-center justify-center">
+        <Checkbox
+          aria-label="Select all"
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
+        />
+      </div>
+    ),
+    cell: ({ row }) => (
+      <div className="flex items-center justify-center">
+        <Checkbox
+          aria-label={`Select ${row.original.id}`}
+          checked={row.getIsSelected()}
+          onCheckedChange={(v) => row.toggleSelected(!!v)}
+        />
+      </div>
+    ),
+    enableSorting: false,
+    enableHiding: false,
+    size: 40,
+  },
+  {
+    accessorKey: "id",
+    header: ({ column }) => (
+      <button
+        className="inline-flex items-center gap-1"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Ticket ID <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />
+      </button>
+    ),
+    cell: ({ row }) => {
+      const t = row.original
+      return (
+        <div className="flex items-center gap-2">
+          {(t?.attachments || [])?.length > 0 && (
+            <Paperclip className="h-4 w-4 text-muted-foreground shrink-0" />
+          )}
+          <Link href="#" className="truncate hover:underline max-w-[100px] md:max-w-[150px]">
+            {t.id}
+          </Link>
+        </div>
+      )
+    },
+    enableSorting: true,
+    size: 130,
+  },
+  {
+    accessorKey: "subject",
+    header: ({ column }) => (
+      <button
+        className="inline-flex items-center gap-1"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Subject <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />
+      </button>
+    ),
+    cell: ({ getValue }) => (
+      <span className="text-xs text-foreground/90 break-words whitespace-break-spaces">
+        {getValue<string>()}
+      </span>
+    ),
+    enableSorting: true,
+  },
+  {
+    accessorKey: "category",
+    header: ({ column }) => (
+      <button
+        className="inline-flex items-center gap-1"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Category <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />
+      </button>
+    ),
+    cell: ({ getValue }) => (
+      <span className="text-xs text-muted-foreground">{getValue<string>()}</span>
+    ),
+    enableSorting: true,
+    size: 140,
+  },
+  {
+    accessorKey: "priority",
+    header: ({ column }) => (
+      <button
+        className="inline-flex items-center gap-1"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Priority <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />
+      </button>
+    ),
+    cell: ({ getValue }) => <span className="text-xs capitalize">{getValue<string>()}</span>,
+    enableSorting: true,
+    size: 110,
+  },
+  {
+    accessorKey: "status",
+    header: ({ column }) => (
+      <button
+        className="inline-flex items-center gap-1"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Status <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />
+      </button>
+    ),
+    cell: ({ getValue }) => <StatusBadge status={getValue<"open" | "resolved">()} />,
+    enableSorting: true,
+    size: 120,
+  },
+  {
+    accessorKey: "updated_at",
+    header: ({ column }) => (
+      <button
+        className="inline-flex items-center gap-1"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Updated <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />
+      </button>
+    ),
+    cell: ({ getValue }) => (
+      <span className="text-xs text-muted-foreground">{getValue<string>()}</span>
+    ),
+    enableSorting: true,
+    size: 110,
+  },
+  {
+    id: "actions",
+    header: "",
+    enableSorting: false,
+    cell: ({ row }) => (
+      <RowMenu row={row.original} setOpen={setOpenTicket} setCurrentDetails={setCurrentDetails} />
+    ),
+    size: 60,
+  },
+]
+
 export function SupportTable() {
   const [openTicket, setOpenTicket] = useState(false) // to open the view details modal
   const [currentDetails, setCurrentDetails] = useState<Ticket | null>(null)
@@ -260,156 +411,9 @@ export function SupportTable() {
     right: ["actions"],
   })
 
-  // ——— Column definitions (TanStack) ———
-  const columns: ColumnDef<Ticket>[] = [
-    {
-      id: "select",
-      header: ({ table }) => (
-        <div className="flex items-center justify-center">
-          <Checkbox
-            aria-label="Select all"
-            checked={
-              table.getIsAllPageRowsSelected() ||
-              (table.getIsSomePageRowsSelected() && "indeterminate")
-            }
-            onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
-          />
-        </div>
-      ),
-      cell: ({ row }) => (
-        <div className="flex items-center justify-center">
-          <Checkbox
-            aria-label={`Select ${row.original.id}`}
-            checked={row.getIsSelected()}
-            onCheckedChange={(v) => row.toggleSelected(!!v)}
-          />
-        </div>
-      ),
-      enableSorting: false,
-      enableHiding: false,
-      size: 40,
-    },
-    {
-      accessorKey: "id",
-      header: ({ column }) => (
-        <button
-          className="inline-flex items-center gap-1"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Ticket ID <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />
-        </button>
-      ),
-      cell: ({ row }) => {
-        const t = row.original
-        return (
-          <div className="flex items-center gap-2">
-            {(t?.attachments || [])?.length > 0 && (
-              <Paperclip className="h-4 w-4 text-muted-foreground" />
-            )}
-            <Link href="#" className="hover:underline">
-              {t.id}
-            </Link>
-          </div>
-        )
-      },
-      enableSorting: true,
-      size: 130,
-    },
-    {
-      accessorKey: "subject",
-      header: ({ column }) => (
-        <button
-          className="inline-flex items-center gap-1"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Subject <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />
-        </button>
-      ),
-      cell: ({ getValue }) => (
-        <span className="text-xs text-foreground/90 break-words whitespace-break-spaces">
-          {getValue<string>()}
-        </span>
-      ),
-      enableSorting: true,
-    },
-    {
-      accessorKey: "category",
-      header: ({ column }) => (
-        <button
-          className="inline-flex items-center gap-1"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Category <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />
-        </button>
-      ),
-      cell: ({ getValue }) => (
-        <span className="text-xs text-muted-foreground">{getValue<string>()}</span>
-      ),
-      enableSorting: true,
-      size: 140,
-    },
-    {
-      accessorKey: "priority",
-      header: ({ column }) => (
-        <button
-          className="inline-flex items-center gap-1"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Priority <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />
-        </button>
-      ),
-      cell: ({ getValue }) => <span className="text-xs capitalize">{getValue<string>()}</span>,
-      enableSorting: true,
-      size: 110,
-    },
-    {
-      accessorKey: "status",
-      header: ({ column }) => (
-        <button
-          className="inline-flex items-center gap-1"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Status <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />
-        </button>
-      ),
-      cell: ({ getValue }) => <StatusBadge status={getValue<"open" | "resolved">()} />,
-      enableSorting: true,
-      size: 120,
-    },
-    {
-      accessorKey: "updated_at",
-      header: ({ column }) => (
-        <button
-          className="inline-flex items-center gap-1"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Updated <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />
-        </button>
-      ),
-      cell: ({ getValue }) => (
-        <span className="text-xs text-muted-foreground">{getValue<string>()}</span>
-      ),
-      enableSorting: true,
-      size: 110,
-    },
-    {
-      id: "actions",
-      header: "",
-      enableSorting: false,
-      cell: ({ row }) => (
-        <RowMenu
-          row={row.original}
-          setOpen={setOpenTicket}
-          setCurrentDetails={setCurrentDetails}
-        />
-      ),
-      size: 60,
-    },
-  ]
-
   const table = useReactTable({
     data,
-    columns,
+    columns: getColumns({ setOpenTicket, setCurrentDetails }),
     state: { sorting, rowSelection, columnPinning }, // ← add,
     onSortingChange: setSorting,
     onRowSelectionChange: setRowSelection,
@@ -423,14 +427,15 @@ export function SupportTable() {
 
   return (
     <>
-      <div className="overflow-hidden rounded-lg border bg-card w-fit">
+      <div className="overflow-hidden rounded-lg border bg-card w-full">
         <Table
-          className="text-xs table-fixed"
-          containerClassName={cn(
-            "max-w-[88vw] max-h-[70vh] overflow-y-scroll",
-            !open && isMobile ? "max-w-[98vw]" : "",
-            open && !isMobile ? "max-w-[62.6vw] lg:max-w-[88vw]" : ""
-          )}
+          className="text-xs table-fixed w-full"
+          containerClassName="min-h-[50vh] max-h-[70vh]"
+          // containerClassName={cn(
+          //   "max-w-[94vw] max-h-[70vh] overflow-y-scroll",
+          //   !open && isMobile ? "max-w-[98vw]" : "",
+          //   open && !isMobile ? "max-w-[62.6vw] lg:max-w-[88vw]" : ""
+          // )}
         >
           <TableHeader>
             {table.getHeaderGroups().map((hg) => {

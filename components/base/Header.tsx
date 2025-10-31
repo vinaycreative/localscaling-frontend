@@ -1,12 +1,16 @@
 "use client"
 
 import { ReactNode } from "react"
-import { SidebarTrigger } from "../ui/sidebar"
+import { cn } from "@/lib/utils"
 
-function Header({ children }: { children: ReactNode }) {
+function Header({ children, className }: { children: ReactNode; className: string }) {
   return (
-    <header className="flex items-center gap-2 h-full border-b border-border pb-4">
-      <SidebarTrigger className="cursor-pointer md:hidden" />
+    <header
+      className={cn(
+        "flex items-center gap-2 h-full border-b border-border p-0 md:p-2 py-4 sticky top-0 z-10 bg-secondary",
+        className
+      )}
+    >
       {children}
     </header>
   )

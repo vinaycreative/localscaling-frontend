@@ -10,7 +10,21 @@ import Page from "@/components/base/Page"
 export default function SupportPage() {
   const [createTicket, setCreateTicket] = useState<boolean>(false)
   return (
-    <Page navURL="Support" title="Support" description="Create and track your support requests.">
+    <Page
+      rightButton={
+        <Button
+          onClick={() => {
+            setCreateTicket((prev) => !prev)
+          }}
+          className="text-xs md:text-sm"
+        >
+          Create a new ticket
+        </Button>
+      }
+      navURL="Support"
+      title="Support"
+      description="Create and track your support requests."
+    >
       {/* <SiteHeader>
         <DynamicHeader
           text={
@@ -23,18 +37,10 @@ export default function SupportPage() {
           }
         />
       </SiteHeader> */}
-      <div className="py-4">
-        {/* Title + CTA */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2">
-          <Button
-            onClick={() => {
-              setCreateTicket((prev) => !prev)
-            }}
-          >
-            Create a new ticket
-          </Button>
+      <div className="py-4 pt-0">
+        <div className="py-4">
+          <SupportTable />
         </div>
-
         <div className="py-4">
           <SupportTable />
         </div>
