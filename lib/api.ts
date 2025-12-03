@@ -1,20 +1,55 @@
 import { ApiUser, MeResponseSchema } from "@/lib/auth/schema";
 import axios from "axios";
-import { logError } from "../utils";
+import { logError } from "./utils";
 
 const api = axios.create({
   baseURL: "http://localhost:5000/api/v1",
   withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
+
+export interface BusinessInfoPayload {
+  company_name: string;
+  company_start_year: number;
+  street_address: string;
+  postal_code: string;
+  city: string;
+  state: string;
+  country: string;
+  vat_id?: string;
+  contact_name: string;
+  contact_email: string;
+  contact_number: string;
+  whatsapp_number?: string;
+  current_website?: string;
+  socials?: {
+    facebook_link?: string;
+    instagram_link?: string;
+    twitter_link?: string;
+    google_business_link?: string;
+    linkedin_link?: string;
+    youtube_link?: string;
+  };
+}
 
 export async function fetchMe(): Promise<ApiUser | null> {
   try {
     const res = await api.get("/auth/me");
+
+    if (res.status === 204 || !res.data || Object.keys(res.data).length === 0) {
+      return null;
+    }
+
     const parsed = MeResponseSchema.parse(res.data);
     return parsed.user;
   } catch (error) {
-    logError(error);
-    throw new Error("Failed to fetch session");
+    if (axios.isAxiosError(error)) {
+      logError(error);
+      return null;
+    }
+    return null;
   }
 }
 
@@ -69,5 +104,26 @@ export async function signup(
   } catch (error) {
     logError(error);
     throw new Error("Signup failed. Please try again.");
+  }
+}
+
+export async function getBusinessInfo() {
+  try {
+    const res = await api.get("/onboarding/business-info");
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching business info", error);
+    return null;
+  }
+}
+
+export async function saveBusinessInfo(data: BusinessInfoPayload) {
+  try {
+    console.log("data is ", data);
+    const res = await api.post("/onboarding/business-info", data);
+    return res.data;
+  } catch (error) {
+    logError(error);
+    throw new Error("Failed to save business information");
   }
 }

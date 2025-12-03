@@ -4,9 +4,15 @@ import { CustomInput } from "@/components/reusable/custom-input";
 import OnboardingVideo from "@/components/reusable/onboarding-video";
 import { Button } from "@/components/ui/button";
 import { BusinessFormData } from "@/interfaces/onboarding/business-information";
-import { ChevronRight, CircleQuestionMark, Mail } from "lucide-react";
+import {
+  BusinessInfoPayload,
+  getBusinessInfo,
+  saveBusinessInfo,
+} from "@/lib/api";
+import { ChevronRight, CircleQuestionMark, Loader2, Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const generateYearOptions = (startYear: number, endYear: number) => {
   const years = [];
@@ -25,6 +31,9 @@ const YEAR_OPTIONS = YEAR_OPTIONS_VALUES.map((year) => ({
 
 function BusinessInformationPage() {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const [formData, setFormData] = useState<BusinessFormData>({
     company: "",
     startYear: "",
@@ -44,18 +53,82 @@ function BusinessInformationPage() {
     twitter: "",
     googleBusinessProfileLink: "",
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const response = await getBusinessInfo();
+
+        if (response && response.data) {
+          const dbData = response.data;
+
+          setFormData({
+            company: dbData.company_name || "",
+            startYear: dbData.company_start_year?.toString() || "",
+            streetAddress: dbData.street_address || "",
+            postalCode: dbData.postal_code || "",
+            city: dbData.city || "",
+            state: dbData.state || "",
+            country: dbData.country || "",
+            vatId: dbData.vat_id || "",
+            contactName: dbData.contact_name || "",
+            email: dbData.contact_email || "",
+            contactNumber: dbData.contact_number || "",
+            whatsappNumber: dbData.whatsapp_number || "",
+            website: dbData.current_website || "",
+            facebook: dbData.facebook_link || "",
+            instagram: dbData.instagram_link || "",
+            twitter: dbData.twitter_link || "",
+            googleBusinessProfileLink: dbData.google_business_link || "",
+          });
+        }
+      } catch (error) {
+        console.error("Error loading data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    console.log("Submitting local data:", formData);
+    try {
+      const payload: BusinessInfoPayload = {
+        company_name: formData.company,
+        company_start_year: parseInt(formData.startYear) || CURRENT_YEAR,
+        street_address: formData.streetAddress,
+        postal_code: formData.postalCode,
+        city: formData.city,
+        state: formData.state,
+        country: formData.country,
+        vat_id: formData.vatId,
+        contact_name: formData.contactName,
+        contact_email: formData.email,
+        contact_number: formData.contactNumber,
+        whatsapp_number: formData.whatsappNumber,
+        current_website: formData.website,
+        socials: {
+          facebook_link: formData.facebook,
+          instagram_link: formData.instagram,
+          twitter_link: formData.twitter,
+          google_business_link: formData.googleBusinessProfileLink,
+        },
+      };
 
-    setTimeout(() => {
+      await saveBusinessInfo(payload);
+
+      toast.success("Business information saved!");
+      router.push("/tasks/branding-content");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to save. Please try again.");
+    } finally {
       setIsSubmitting(false);
-      handleNext();
-    }, 1000);
+    }
   };
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,9 +146,13 @@ function BusinessInformationPage() {
     }));
   };
 
-  const handleNext = (): void => {
-    router.push("/tasks/branding-content");
-  };
+  if (isLoading) {
+    return (
+      <div className="w-full h-full flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <section className="w-full h-full grid lg:grid-cols-[auto_1fr] gap-4 overflow-hidden pt-4">
@@ -261,7 +338,7 @@ function BusinessInformationPage() {
             prefixText={"http://"}
           />
         </div>
-        <div className="px-4 border-t  flex items-center justify-end">
+        <div className="px-4 border-t flex items-center justify-end">
           <Button
             type="submit"
             disabled={isSubmitting}
