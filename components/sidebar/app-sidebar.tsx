@@ -5,14 +5,14 @@ import {
   SidebarFooter,
   SidebarHeader,
 } from "@/components/ui/sidebar";
+import { Role, type RoleValue } from "@/constants/auth";
+import { parseJwtPayload } from "@/lib/auth/parse";
 import { MessageCircle } from "lucide-react";
+import { cookies } from "next/headers";
 import Image from "next/image";
 import * as React from "react";
 import { NavMain } from "./nav-main";
 import { NavSecondary } from "./nav-secondary";
-import { cookies } from "next/headers";
-import { parseJwtPayload } from "@/lib/auth/parse";
-import { Role, type RoleValue } from "@/constants/auth";
 
 const data = {
   user: {
@@ -29,11 +29,17 @@ const data = {
   ],
 };
 
-export default async function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export default async function AppSidebar({
+  ...props
+}: React.ComponentProps<typeof Sidebar>) {
   const jar = await cookies();
   const token = jar.get("access_token")?.value;
   const decoded = token ? parseJwtPayload(token) : null;
-  const role = (decoded?.role as RoleValue | undefined) ?? undefined;
+  const rawRole = decoded?.role;
+  const role =
+    rawRole === "authenticated" || !rawRole
+      ? Role.CLIENT
+      : (rawRole as RoleValue);
   const name = decoded?.name ?? "User";
   const email = decoded?.email ?? "";
   return (
