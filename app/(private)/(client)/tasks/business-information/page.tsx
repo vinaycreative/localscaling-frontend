@@ -4,11 +4,7 @@ import { CustomInput } from "@/components/reusable/custom-input";
 import OnboardingVideo from "@/components/reusable/onboarding-video";
 import { Button } from "@/components/ui/button";
 import { BusinessFormData } from "@/interfaces/onboarding/business-information";
-import {
-  BusinessInfoPayload,
-  getBusinessInfo,
-  saveBusinessInfo,
-} from "@/lib/api";
+import { getBusinessInfo, saveBusinessInfo } from "@/lib/api";
 import { ChevronRight, CircleQuestionMark, Loader2, Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -63,23 +59,23 @@ function BusinessInformationPage() {
           const dbData = response.data;
 
           setFormData({
-            company: dbData.company_name || "",
-            startYear: dbData.company_start_year?.toString() || "",
-            streetAddress: dbData.street_address || "",
-            postalCode: dbData.postal_code || "",
+            company: dbData.company || "",
+            startYear: dbData.startYear || "",
+            streetAddress: dbData.streetAddress || "",
+            postalCode: dbData.postalCode || "",
             city: dbData.city || "",
             state: dbData.state || "",
             country: dbData.country || "",
-            vatId: dbData.vat_id || "",
-            contactName: dbData.contact_name || "",
-            email: dbData.contact_email || "",
-            contactNumber: dbData.contact_number || "",
-            whatsappNumber: dbData.whatsapp_number || "",
-            website: dbData.current_website || "",
-            facebook: dbData.facebook_link || "",
-            instagram: dbData.instagram_link || "",
-            twitter: dbData.twitter_link || "",
-            googleBusinessProfileLink: dbData.google_business_link || "",
+            vatId: dbData.vatId || "",
+            contactName: dbData.contactName || "",
+            email: dbData.email || "",
+            contactNumber: dbData.contactNumber || "",
+            whatsappNumber: dbData.whatsappNumber || "",
+            website: dbData.website || "",
+            facebook: dbData.facebook || "",
+            instagram: dbData.instagram || "",
+            twitter: dbData.twitter || "",
+            googleBusinessProfileLink: dbData.googleBusinessProfileLink || "",
           });
         }
       } catch (error) {
@@ -97,29 +93,9 @@ function BusinessInformationPage() {
     setIsSubmitting(true);
 
     try {
-      const payload: BusinessInfoPayload = {
-        company_name: formData.company,
-        company_start_year: parseInt(formData.startYear) || CURRENT_YEAR,
-        street_address: formData.streetAddress,
-        postal_code: formData.postalCode,
-        city: formData.city,
-        state: formData.state,
-        country: formData.country,
-        vat_id: formData.vatId,
-        contact_name: formData.contactName,
-        contact_email: formData.email,
-        contact_number: formData.contactNumber,
-        whatsapp_number: formData.whatsappNumber,
-        current_website: formData.website,
-        socials: {
-          facebook_link: formData.facebook,
-          instagram_link: formData.instagram,
-          twitter_link: formData.twitter,
-          google_business_link: formData.googleBusinessProfileLink,
-        },
-      };
+      console.log("Business Info Payload:", formData);
 
-      await saveBusinessInfo(payload);
+      await saveBusinessInfo(formData);
 
       toast.success("Business information saved!");
       router.push("/tasks/branding-content");

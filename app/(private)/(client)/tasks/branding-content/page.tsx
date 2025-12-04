@@ -12,10 +12,12 @@ import {
   IntroductoryVideoOption,
   TeamMember,
 } from "@/interfaces/onboarding/branding-content";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { getBrandingInfo, saveBrandingInfo } from "@/lib/api";
+import { uploadFileToStorage } from "@/lib/storage";
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import type React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { TeamMemberList } from "./components/member-entry-list";
 
 const initialFormData: BrandingContentFormData = {
@@ -30,15 +32,113 @@ const initialFormData: BrandingContentFormData = {
   videoTestimonial: null,
 };
 
+const urlToFile = async (
+  url: string,
+  filename: string,
+  mimeType: string
+): Promise<File> => {
+  if (!url) return new File([], filename);
+  try {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    return new File([blob], filename, { type: mimeType });
+  } catch (e) {
+    console.error("Error converting URL to File:", e);
+    return new File([], filename);
+  }
+};
+
 function BrandingContentPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] =
     useState<BrandingContentFormData>(initialFormData);
   const [introVideoOption, setIntroVideoOption] =
     useState<IntroductoryVideoOption>("upload");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [savedUrls, setSavedUrls] = useState<{
+    logo?: string;
+    teamPhotos?: string[];
+    ceoVideo?: string;
+    videoTestimonial?: string;
+  }>({});
+
   const totalSteps = 3;
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const response = await getBrandingInfo();
+
+        if (response && response.data) {
+          const dbData = response.data;
+
+          let logoFile = null;
+          if (dbData.logoUrl) {
+            logoFile = await urlToFile(dbData.logoUrl, "logo.png", "image/png");
+          }
+
+          let teamPhotos: File[] = [];
+          if (dbData.teamPhotoUrls && Array.isArray(dbData.teamPhotoUrls)) {
+            teamPhotos = await Promise.all(
+              dbData.teamPhotoUrls.map((url: string, index: number) =>
+                urlToFile(url, `team-${index}.jpg`, "image/jpeg")
+              )
+            );
+          }
+
+          let ceoVideo = null;
+          if (dbData.ceoVideoUrl) {
+            ceoVideo = await urlToFile(
+              dbData.ceoVideoUrl,
+              "ceo-intro.mp4",
+              "video/mp4"
+            );
+          }
+
+          let videoTestimonial = null;
+          if (dbData.videoTestimonialUrl) {
+            videoTestimonial = await urlToFile(
+              dbData.videoTestimonialUrl,
+              "testimonial.mp4",
+              "video/mp4"
+            );
+          }
+
+          setSavedUrls({
+            logo: dbData.logoUrl,
+            teamPhotos: dbData.teamPhotoUrls,
+            ceoVideo: dbData.ceoVideoUrl,
+            videoTestimonial: dbData.videoTestimonialUrl,
+          });
+
+          setFormData({
+            fontLink: dbData.fontLink || "",
+            primaryBrandColor: dbData.primaryBrandColor || "#007BFF",
+            secondaryBrandColor: dbData.secondaryBrandColor || "#6C757D",
+            logoFile: logoFile,
+            teamPhotos: teamPhotos.length > 0 ? teamPhotos : null,
+            teamMembers: dbData.teamMembers || [{ name: "", position: "" }],
+            videoCreationOption: dbData.videoCreationOption || "upload",
+            ceoVideo: ceoVideo,
+            videoTestimonial: videoTestimonial,
+          });
+
+          if (dbData.videoCreationOption) {
+            setIntroVideoOption(dbData.videoCreationOption);
+          }
+        }
+      } catch (error) {
+        console.error("Error loading data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
 
   const handleTeamMembersChange = (nextMembers: TeamMember[]) => {
     setFormData((prevData) => ({
@@ -55,27 +155,6 @@ function BrandingContentPage() {
       ...prevData,
       [field]: hex,
     }));
-  };
-
-  const handleSubmit = () => {
-    setIsSubmitting(true);
-    console.log("Form Data Submitted:", formData);
-    setIsSubmitting(false);
-    router.push("/tasks/website-setup");
-  };
-
-  const handleNext = () => {
-    if (currentStep < totalSteps) {
-      setCurrentStep((prevStep) => prevStep + 1);
-    }
-  };
-
-  const handlePrevious = () => {
-    if (currentStep > 1) {
-      setCurrentStep((prevStep) => prevStep - 1);
-    } else {
-      router.push("/tasks/business-information");
-    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -103,6 +182,98 @@ function BrandingContentPage() {
       }));
     }
   };
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    try {
+      // LOGO -> branding-assets/logos
+      let logoUrl = savedUrls.logo || "";
+      if (formData.logoFile && formData.logoFile.size > 0) {
+        // Optimization: Skip upload if it's the same file content (simple check would be name/size/type match against saved)
+        // For now, we upload to ensure consistency.
+        logoUrl = await uploadFileToStorage(
+          formData.logoFile,
+          "branding-assets",
+          "logos"
+        );
+      }
+
+      // TEAM PHOTOS -> branding-assets/team
+      let teamPhotoUrls: string[] = savedUrls.teamPhotos || [];
+      if (formData.teamPhotos && formData.teamPhotos.length > 0) {
+        const uploadPromises = formData.teamPhotos.map((f) =>
+          uploadFileToStorage(f, "branding-assets", "team")
+        );
+        teamPhotoUrls = await Promise.all(uploadPromises);
+      }
+
+      // CEO VIDEO -> videos/ceo-intro
+      let ceoVideoUrl = savedUrls.ceoVideo || "";
+      if (formData.ceoVideo) {
+        ceoVideoUrl = await uploadFileToStorage(
+          formData.ceoVideo,
+          "videos",
+          "ceo-intro"
+        );
+      }
+
+      // TESTIMONIALS -> videos/testimonials
+      let videoTestimonialUrl = savedUrls.videoTestimonial || "";
+      if (formData.videoTestimonial) {
+        videoTestimonialUrl = await uploadFileToStorage(
+          formData.videoTestimonial,
+          "videos",
+          "testimonials"
+        );
+      }
+
+      const payload = {
+        fontLink: formData.fontLink,
+        primaryBrandColor: formData.primaryBrandColor,
+        secondaryBrandColor: formData.secondaryBrandColor,
+        logoUrl: logoUrl,
+        teamPhotoUrls: teamPhotoUrls,
+        teamMembers: formData.teamMembers,
+        videoCreationOption: formData.videoCreationOption,
+        ceoVideoUrl: ceoVideoUrl,
+        videoTestimonialUrl: videoTestimonialUrl,
+      };
+
+      console.log("Submitting CamelCase Payload:", payload);
+
+      await saveBrandingInfo(payload);
+
+      toast.success("Branding information saved!");
+      router.push("/tasks/website-setup");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to save. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentStep < totalSteps) {
+      setCurrentStep((prevStep) => prevStep + 1);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentStep > 1) {
+      setCurrentStep((prevStep) => prevStep - 1);
+    } else {
+      router.push("/tasks/business-information");
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="w-full h-full flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <section className="w-full h-full grid lg:grid-cols-[auto_1fr] gap-4 overflow-hidden pt-4">
@@ -271,6 +442,7 @@ function BrandingContentPage() {
             variant="outline"
             className="rounded bg-transparent cursor-pointer group"
             onClick={handlePrevious}
+            disabled={isSubmitting}
           >
             <ChevronLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-all duration-300" />
             Previous
@@ -290,8 +462,12 @@ function BrandingContentPage() {
               className="rounded bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer group"
               disabled={isSubmitting}
             >
-              Submit
-              <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-all duration-300" />
+              {isSubmitting ? "Submitting..." : "Submit"}
+              {isSubmitting ? (
+                <Loader2 className="w-4 h-4 ml-2 animate-spin" />
+              ) : (
+                <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-all duration-300" />
+              )}
             </Button>
           )}
         </div>

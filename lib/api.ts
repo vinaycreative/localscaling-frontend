@@ -1,3 +1,8 @@
+import {
+  IntroductoryVideoOption,
+  TeamMember,
+} from "@/interfaces/onboarding/branding-content";
+import { BusinessFormData } from "@/interfaces/onboarding/business-information";
 import { ApiUser, MeResponseSchema } from "@/lib/auth/schema";
 import axios from "axios";
 import { logError } from "./utils";
@@ -9,30 +14,6 @@ const api = axios.create({
     "Content-Type": "application/json",
   },
 });
-
-export interface BusinessInfoPayload {
-  company_name: string;
-  company_start_year: number;
-  street_address: string;
-  postal_code: string;
-  city: string;
-  state: string;
-  country: string;
-  vat_id?: string;
-  contact_name: string;
-  contact_email: string;
-  contact_number: string;
-  whatsapp_number?: string;
-  current_website?: string;
-  socials?: {
-    facebook_link?: string;
-    instagram_link?: string;
-    twitter_link?: string;
-    google_business_link?: string;
-    linkedin_link?: string;
-    youtube_link?: string;
-  };
-}
 
 export async function fetchMe(): Promise<ApiUser | null> {
   try {
@@ -117,7 +98,7 @@ export async function getBusinessInfo() {
   }
 }
 
-export async function saveBusinessInfo(data: BusinessInfoPayload) {
+export async function saveBusinessInfo(data: BusinessFormData) {
   try {
     console.log("data is ", data);
     const res = await api.post("/onboarding/business-info", data);
@@ -125,5 +106,38 @@ export async function saveBusinessInfo(data: BusinessInfoPayload) {
   } catch (error) {
     logError(error);
     throw new Error("Failed to save business information");
+  }
+}
+
+export interface BrandingInfoPayload {
+  fontLink: string;
+  primaryBrandColor: string;
+  secondaryBrandColor: string;
+  logoUrl: string;
+  teamPhotoUrls: string[];
+  teamMembers: TeamMember[];
+  videoCreationOption: IntroductoryVideoOption;
+  ceoVideoUrl: string;
+  videoTestimonialUrl: string;
+}
+
+export async function getBrandingInfo() {
+  try {
+    const res = await api.get("/onboarding/branding");
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching branding info", error);
+    return null;
+  }
+}
+
+export async function saveBrandingInfo(data: BrandingInfoPayload) {
+  try {
+    console.log("Saving Branding Data:", data);
+    const res = await api.post("/onboarding/branding", data);
+    return res.data;
+  } catch (error) {
+    logError(error);
+    throw new Error("Failed to save branding information");
   }
 }

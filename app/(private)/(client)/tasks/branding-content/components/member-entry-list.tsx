@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { PlusIcon, Trash } from "lucide-react";
 
-interface TeamMember {
+export interface TeamMember {
   name: string;
   position: string;
 }
