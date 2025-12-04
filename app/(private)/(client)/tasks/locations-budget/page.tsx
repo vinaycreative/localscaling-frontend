@@ -14,43 +14,88 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { LocationsBudgetForm } from "@/interfaces/onboarding/locations-budget";
+import { getAdsBudget, saveAdsBudget } from "@/lib/api";
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
-const initialFormData = {
-  budget: 1000,
-  currency: "EUR",
-  locations: ["Hamburg", "Mainz", "Dortmund", "Berlin"],
-  services: ["Local SEO Audit", "PPC Management"],
-};
-
-function LocationsBudgetPage() {
-  const [formData, setFormData] = useState(initialFormData);
+export default function LocationsBudgetPage() {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [formData, setFormData] = useState<LocationsBudgetForm>({
+    budget: "",
+    currency: "EUR",
+    locations: [],
+    services: [],
+  });
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const data = await getAdsBudget();
+        if (data) {
+          setFormData({
+            budget: data.budget || "",
+            currency: data.currency || "EUR",
+            locations: data.locations || [],
+            services: data.services || [],
+          });
+        }
+      } catch (error) {
+        console.error("Failed to load budget data:", error);
+        toast.error("Failed to load existing data.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
   const handlePrev = () => {
     router.push("/tasks/tools-access");
   };
 
-  const handleNext = () => {
-    router.push("/dashboard");
+  const handleNext = async () => {
+    setIsSubmitting(true);
+    try {
+      await saveAdsBudget(formData);
+      toast.success("Budget and locations saved successfully!");
+      router.push("/dashboard");
+    } catch (error) {
+      console.error("Error saving budget info:", error);
+      toast.error("Failed to save changes. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleCurrencyChange = (value: string) => {
-    setFormData({ ...formData, currency: value });
+    setFormData((prev) => ({ ...prev, currency: value }));
   };
 
   const handleBudgetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const budgetValue = Number.parseInt(e.target.value) || 0;
-    setFormData({ ...formData, budget: budgetValue });
+    setFormData((prev) => ({ ...prev, budget: e.target.value }));
   };
 
   const handleLocationChange = (value: string[]) => {
-    setFormData({ ...formData, locations: value });
+    setFormData((prev) => ({ ...prev, locations: value }));
   };
   const handleServicesChange = (value: string[]) => {
-    setFormData({ ...formData, services: value });
+    setFormData((prev) => ({ ...prev, services: value }));
   };
+
+  if (isLoading) {
+    return (
+      <div className="w-full h-full flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <section className="w-full h-full grid lg:grid-cols-[auto_1fr] gap-4 overflow-hidden pt-4">
@@ -70,7 +115,7 @@ function LocationsBudgetPage() {
                 value={formData.currency}
                 onValueChange={handleCurrencyChange}
               >
-                <SelectTrigger className="focus-visible:ring-[0px] border-0 cursor-pointer hover:bg-muted/20 transition-all duration-300 border-r rounded-r-none">
+                <SelectTrigger className="focus-visible:ring-[0px] border-0 cursor-pointer hover:bg-muted/20 transition-all duration-300 border-r rounded-r-none w-[100px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="rounded">
@@ -99,7 +144,7 @@ function LocationsBudgetPage() {
                 type="number"
                 value={formData.budget}
                 onChange={handleBudgetChange}
-                className="rounded-l-none border-0"
+                className="rounded-l-none border-0 focus-visible:ring-0"
                 placeholder="1000"
                 min="0"
                 required
@@ -127,6 +172,7 @@ function LocationsBudgetPage() {
             variant="outline"
             className="rounded bg-transparent cursor-pointer group"
             onClick={handlePrev}
+            disabled={isSubmitting}
           >
             <ChevronLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-all duration-300" />
             Previous
@@ -136,14 +182,22 @@ function LocationsBudgetPage() {
             type="button"
             className="rounded bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer group"
             onClick={handleNext}
+            disabled={isSubmitting}
           >
-            Submit
-            <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-all duration-300" />
+            {isSubmitting ? (
+              <>
+                Saving...
+                <Loader2 className="w-4 h-4 ml-2 animate-spin" />
+              </>
+            ) : (
+              <>
+                Submit
+                <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-all duration-300" />
+              </>
+            )}
           </Button>
         </div>
       </div>
     </section>
   );
 }
-
-export default LocationsBudgetPage;
