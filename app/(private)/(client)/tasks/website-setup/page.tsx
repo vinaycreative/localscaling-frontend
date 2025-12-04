@@ -15,9 +15,16 @@ import {
 } from "@/components/ui/select";
 import { domainProviders } from "@/constants/website-setup";
 import { WebsiteSetupFormData } from "@/interfaces/onboarding/website-setup";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  getWebsiteSetup,
+  saveWebsiteSetup,
+  WebsiteSetupPayload,
+} from "@/lib/api";
+import { uploadFileToStorage } from "@/lib/storage";
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const initialWebsiteSetupFormData: WebsiteSetupFormData = {
   domainProvider: "",
@@ -30,16 +37,88 @@ const initialWebsiteSetupFormData: WebsiteSetupFormData = {
 
 export default function WebsiteSetupPage() {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [existingLegalFileUrls, setExistingLegalFileUrls] = useState<string[]>(
+    []
+  );
+
   const [formData, setFormData] = useState<WebsiteSetupFormData>(
     initialWebsiteSetupFormData
   );
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const response = await getWebsiteSetup();
+        const data = response;
+
+        if (data) {
+          setFormData((prev) => ({
+            ...prev,
+            domainProvider: data.domainProvider || "",
+            accessGranted: data.accessGranted || false,
+            businessClientsWorked: data.businessClientsWorked || [],
+            legalLinks: data.legalLinks || [],
+            seoLocations: data.seoLocations || [],
+            legalFiles: null,
+          }));
+
+          if (data.legalFiles && Array.isArray(data.legalFiles)) {
+            setExistingLegalFileUrls(data.legalFiles);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to load website setup data:", error);
+        toast.error("Failed to load existing data.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
 
   const handlePrev = () => {
     router.push("/tasks/branding-content");
   };
 
-  const handleNext = () => {
-    router.push("/tasks/tools-access");
+  const handleNext = async () => {
+    setIsSubmitting(true);
+    try {
+      // 1. Upload new files if any
+      let newFileUrls: string[] = [];
+      if (formData.legalFiles && formData.legalFiles.length > 0) {
+        const uploadPromises = formData.legalFiles.map((file) =>
+          uploadFileToStorage(file, "documents")
+        );
+        newFileUrls = await Promise.all(uploadPromises);
+      }
+
+      // 2. Combine existing URLs with new URLs
+      const allLegalFiles = [...existingLegalFileUrls, ...newFileUrls];
+
+      // 3. Construct Payload
+      const payload: WebsiteSetupPayload = {
+        domainProvider: formData.domainProvider,
+        accessGranted: formData.accessGranted,
+        businessClientsWorked: formData.businessClientsWorked,
+        legalLinks: formData.legalLinks,
+        seoLocations: formData.seoLocations,
+        legalFiles: allLegalFiles,
+      };
+
+      // 4. Save to API
+      await saveWebsiteSetup(payload);
+
+      toast.success("Website setup saved successfully!");
+      router.push("/tasks/tools-access");
+    } catch (error) {
+      console.error("Error saving website setup:", error);
+      toast.error("Failed to save changes. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleClientsChange = (newClients: string[]) => {
@@ -69,6 +148,14 @@ export default function WebsiteSetupPage() {
       legalLinks: newLinks,
     }));
   };
+
+  if (isLoading) {
+    return (
+      <div className="w-full h-full flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <section className="w-full h-full grid lg:grid-cols-[auto_1fr] gap-4 overflow-hidden pt-4">
@@ -155,6 +242,12 @@ export default function WebsiteSetupPage() {
             onChange={handleLegalFilesChange}
             maxFiles={5}
           />
+          {existingLegalFileUrls.length > 0 && (
+            <p className="text-xs text-muted-foreground">
+              {existingLegalFileUrls.length} file(s) already uploaded. New files
+              will be appended.
+            </p>
+          )}
 
           <LegalLinkInput
             value={formData.legalLinks}
@@ -175,6 +268,7 @@ export default function WebsiteSetupPage() {
             variant="outline"
             className="rounded bg-transparent cursor-pointer group"
             onClick={handlePrev}
+            disabled={isSubmitting}
           >
             <ChevronLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-all duration-300" />
             Previous
@@ -184,9 +278,19 @@ export default function WebsiteSetupPage() {
             type="button"
             className="rounded bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer group"
             onClick={handleNext}
+            disabled={isSubmitting}
           >
-            Next
-            <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-all duration-300" />
+            {isSubmitting ? (
+              <>
+                Saving...
+                <Loader2 className="w-4 h-4 ml-2 animate-spin" />
+              </>
+            ) : (
+              <>
+                Next
+                <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-all duration-300" />
+              </>
+            )}
           </Button>
         </div>
       </div>
