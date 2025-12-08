@@ -1,12 +1,12 @@
-"use client";
+"use client"
 
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { useForm } from "react-hook-form"
+import { z } from "zod"
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { toast } from "@/components/ui/use-toast";
-import { Label } from "@/components/ui/label"; // Assuming Label is a custom component
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { toast } from "sonner"
+import { Label } from "@/components/ui/label" // Assuming Label is a custom component
 
 const FormSchema = z.object({
   brandName: z.string(),
@@ -18,10 +18,14 @@ const FormSchema = z.object({
   primaryColor: z.string(),
   secondaryColor: z.string(),
   font: z.string(),
-});
+})
 
 export function BrandingContentForm() {
-  const { register, handleSubmit, formState: { errors } } = useForm<z.infer<typeof FormSchema>>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<z.infer<typeof FormSchema>>({
     defaultValues: {
       brandName: "",
       slogan: "",
@@ -33,24 +37,14 @@ export function BrandingContentForm() {
       secondaryColor: "",
       font: "",
     },
-  });
+  })
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
-      console.log(data);
-      toast({
-        title: "You submitted the following values:",
-        description: (
-          <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-            <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-          </pre>
-        ),
-      });
+      console.log(data)
+      toast.success(`You submitted the following values: ${JSON.stringify(data, null, 2)}`)
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Something went wrong",
-      });
+      toast.error("Error Something went wrong")
     }
   }
 
@@ -95,13 +89,17 @@ export function BrandingContentForm() {
       <div className="space-y-2">
         <Label htmlFor="primaryColor">Primary Color</Label>
         <Input id="primaryColor" type="color" {...register("primaryColor")} />
-        {errors.primaryColor && <p className="text-red-500 text-sm">{errors.primaryColor.message}</p>}
+        {errors.primaryColor && (
+          <p className="text-red-500 text-sm">{errors.primaryColor.message}</p>
+        )}
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="secondaryColor">Secondary Color</Label>
         <Input id="secondaryColor" type="color" {...register("secondaryColor")} />
-        {errors.secondaryColor && <p className="text-red-500 text-sm">{errors.secondaryColor.message}</p>}
+        {errors.secondaryColor && (
+          <p className="text-red-500 text-sm">{errors.secondaryColor.message}</p>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -112,5 +110,5 @@ export function BrandingContentForm() {
 
       <Button type="submit">Submit</Button>
     </form>
-  );
+  )
 }
