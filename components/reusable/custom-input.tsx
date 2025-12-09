@@ -1,19 +1,14 @@
-import { cn } from "@/lib/utils";
-import { LucideIcon } from "lucide-react";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
+import { cn } from "@/lib/utils"
+import { LucideIcon } from "lucide-react"
+import { Input } from "../ui/input"
+import { Label } from "../ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
+import { FormLabel, useFormField } from "../ui/form"
 
 type SelectOption = {
-  value: string;
-  label: string;
-};
+  value: string
+  label: string
+}
 
 export const CustomInput = ({
   label,
@@ -31,26 +26,28 @@ export const CustomInput = ({
   SuffixIcon,
   prefixText,
 }: {
-  label: string;
-  id: string;
-  type?: string;
-  placeholder: string;
-  required: boolean;
-  className?: string;
-  value: string;
-  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  select?: boolean;
-  selectOptions?: SelectOption[];
-  onSelectChange?: (value: string) => void;
-  PrefixIcon?: LucideIcon;
-  SuffixIcon?: LucideIcon;
-  prefixText?: string;
+  label: string
+  id: string
+  type?: string
+  placeholder: string
+  required: boolean
+  className?: string
+  value: string
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
+  select?: boolean
+  selectOptions?: SelectOption[]
+  onSelectChange?: (value: string) => void
+  PrefixIcon?: LucideIcon
+  SuffixIcon?: LucideIcon
+  prefixText?: string
 }) => {
+  const { error } = useFormField()
   return (
     <div className={cn("space-y-2.5", className)}>
       <Label htmlFor={id}>
-        {label} {required && <span className="text-primary">*</span>}
+        {label} {required && <span className="text-destructive">*</span>}
       </Label>
+
       {select ? (
         <Select onValueChange={onSelectChange} value={value}>
           <SelectTrigger className="w-full bg-background cursor-pointer rounded focus-visible:ring-[0px] ">
@@ -73,7 +70,8 @@ export const CustomInput = ({
           className={cn(
             "flex w-full gap-2 overflow-hidden border border-input rounded bg-background transition-all duration-200",
             "hover:border-primary/50",
-            "focus-within:border-primary"
+            "focus-within:border-primary",
+            error?.message && "border-destructive"
           )}
         >
           {(prefixText || PrefixIcon) && (
@@ -107,5 +105,5 @@ export const CustomInput = ({
         </div>
       )}
     </div>
-  );
-};
+  )
+}
