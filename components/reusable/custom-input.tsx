@@ -41,7 +41,6 @@ export const CustomInput = ({
   SuffixIcon?: LucideIcon
   prefixText?: string
 }) => {
-  const { error } = useFormField()
   return (
     <div className={cn("space-y-2.5", className)}>
       <Label htmlFor={id}>
@@ -70,8 +69,7 @@ export const CustomInput = ({
           className={cn(
             "flex w-full gap-2 overflow-hidden border border-input rounded bg-background transition-all duration-200",
             "hover:border-primary/50",
-            "focus-within:border-primary",
-            error?.message && "border-destructive"
+            "focus-within:border-primary"
           )}
         >
           {(prefixText || PrefixIcon) && (
