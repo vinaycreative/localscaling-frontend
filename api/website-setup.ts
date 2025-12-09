@@ -20,7 +20,7 @@ export async function getWebsiteSetup() {
   }
 }
 
-export async function saveWebsiteSetup(data: WebsiteSetupPayload) {
+export async function createWebsiteSetup(data: WebsiteSetupPayload) {
   try {
     console.log("Saving Website Setup Data:", data)
     const res = await api.post("/onboarding/website-setup", data)
