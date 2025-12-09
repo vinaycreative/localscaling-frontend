@@ -10,7 +10,7 @@ export const useBrandingInfoQuery = () => {
   })
 }
 
-export const useCreateBrandingInfoQuery = () => {
+export const useCreateBrandingInfoMutation = () => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: saveBrandingInfo,

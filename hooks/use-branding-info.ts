@@ -1,4 +1,4 @@
-import { useBrandingInfoQuery, useCreateBrandingInfoQuery } from "@/queries/branding-info-queries"
+import { useBrandingInfoQuery, useCreateBrandingInfoMutation } from "@/queries/branding-info-queries"
 
 export const useBrandingInfo = () => {
   const { data, isLoading, error } = useBrandingInfoQuery()
@@ -6,6 +6,6 @@ export const useBrandingInfo = () => {
 }
 
 export const useCreateBrandingInfo = () => {
-  const { mutateAsync: createBrandingInfo, error, isPending } = useCreateBrandingInfoQuery()
+  const { mutateAsync: createBrandingInfo, error, isPending } = useCreateBrandingInfoMutation()
   return { createBrandingInfo, error, isPending }
 }
