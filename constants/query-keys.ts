@@ -1,3 +1,4 @@
 export const BRANDING_INFO_KEY = "branding-info"
 export const BUSINESS_INFO_KEY = "business-info"
 export const WESBITE_SETUP_KEY = "website-setup"
+export const ADS_BUDGET_KEY = "ads-budget"
