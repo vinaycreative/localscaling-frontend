@@ -12,13 +12,13 @@ import {
   IntroductoryVideoOption,
   TeamMember,
 } from "@/interfaces/onboarding/branding-content";
-import { getBrandingInfo, saveBrandingInfo } from "@/lib/api";
 import { uploadFileToStorage } from "@/lib/storage";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { TeamMemberList } from "./components/member-entry-list";
+import { getBrandingInfo, saveBrandingInfo } from "@/api/branding-info";
 
 const initialFormData: BrandingContentFormData = {
   fontLink: "",
