@@ -1,133 +1,125 @@
-"use client";
+"use client"
 
-import { CustomInput } from "@/components/reusable/custom-input";
-import OnboardingVideo from "@/components/reusable/onboarding-video";
-import { Button } from "@/components/ui/button";
-import { BusinessFormData } from "@/interfaces/onboarding/business-information";
-import { getBusinessInfo, saveBusinessInfo } from "@/lib/api";
-import { ChevronRight, CircleQuestionMark, Loader2, Mail } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import { useEffect, useState } from "react"
+import { file, z } from "zod"
+import { useRouter } from "next/navigation"
+
+import { Form, FormField, FormItem, FormMessage, FormControl } from "@/components/ui/form"
+import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import OnboardingVideo from "@/components/reusable/onboarding-video"
+import { ChevronRight, Loader2, Mail, CircleQuestionMark } from "lucide-react"
+import { CustomInput } from "@/components/reusable/custom-input"
+import { useBusinessInfo, useCreateBusinessInfo } from "@/hooks/use-business-info"
+
+const businessInformationFormSchema = z.object({
+  company: z.string().min(1, "Company name is required"),
+  startYear: z.string().min(1, "Start year is required"),
+  streetAddress: z.string().min(1, "Street address is required"),
+  postalCode: z.string().min(1, "Postal code is required"),
+  city: z.string().min(1, "City is required"),
+  state: z.string().min(1, "State is required"),
+  country: z.string().min(1, "Country is required"),
+  vatId: z.string().min(1, "VAT ID is required"),
+  contactName: z.string().min(1, "Contact name is required"),
+  email: z.string().email("Invalid email"),
+  contactNumber: z.string().min(1, "Contact number is required"),
+  whatsappNumber: z.string().optional(),
+  website: z.string().min(1).url("Invalid URL"),
+  facebook: z.string().optional(),
+  instagram: z.string().optional(),
+  twitter: z.string().optional(),
+  googleBusinessProfileLink: z.string().optional(),
+})
 
 const generateYearOptions = (startYear: number, endYear: number) => {
-  const years = [];
+  const years = []
   for (let year = endYear; year >= startYear; year--) {
-    years.push(year.toString());
+    years.push(year.toString())
   }
-  return years;
-};
-const CURRENT_YEAR = new Date().getFullYear();
-const YEAR_OPTIONS_VALUES = generateYearOptions(1900, CURRENT_YEAR);
+  return years
+}
+const CURRENT_YEAR = new Date().getFullYear()
+const YEAR_OPTIONS_VALUES = generateYearOptions(1900, CURRENT_YEAR)
 
 const YEAR_OPTIONS = YEAR_OPTIONS_VALUES.map((year) => ({
   value: year,
   label: year,
-}));
+}))
 
-function BusinessInformationPage() {
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+export default function BusinessInformationPage() {
+  const router = useRouter()
 
-  const [formData, setFormData] = useState<BusinessFormData>({
-    company: "",
-    startYear: "",
-    streetAddress: "",
-    postalCode: "",
-    city: "",
-    state: "",
-    country: "",
-    vatId: "",
-    contactName: "",
-    email: "",
-    contactNumber: "",
-    whatsappNumber: "",
-    website: "",
-    facebook: "",
-    instagram: "",
-    twitter: "",
-    googleBusinessProfileLink: "",
-  });
+  const {
+    data: businessInfoData,
+    isLoading: businessInfoLoading,
+    error: businessInfoError,
+  } = useBusinessInfo()
+
+  const {
+    createBusinessInfo,
+    isPending: isSubmitting,
+    error: createBusinessInfoError,
+  } = useCreateBusinessInfo()
+
+  const form = useForm<z.infer<typeof businessInformationFormSchema>>({
+    resolver: zodResolver(businessInformationFormSchema),
+    defaultValues: {
+      company: "",
+      startYear: "",
+      streetAddress: "",
+      postalCode: "",
+      city: "",
+      state: "",
+      country: "",
+      vatId: "",
+      contactName: "",
+      email: "",
+      contactNumber: "",
+      whatsappNumber: "",
+      website: "",
+      facebook: "",
+      instagram: "",
+      twitter: "",
+      googleBusinessProfileLink: "",
+    },
+  })
 
   useEffect(() => {
     const loadData = async () => {
-      try {
-        const response = await getBusinessInfo();
-
-        if (response && response.data) {
-          const dbData = response.data;
-
-          setFormData({
-            company: dbData.company || "",
-            startYear: dbData.startYear || "",
-            streetAddress: dbData.streetAddress || "",
-            postalCode: dbData.postalCode || "",
-            city: dbData.city || "",
-            state: dbData.state || "",
-            country: dbData.country || "",
-            vatId: dbData.vatId || "",
-            contactName: dbData.contactName || "",
-            email: dbData.email || "",
-            contactNumber: dbData.contactNumber || "",
-            whatsappNumber: dbData.whatsappNumber || "",
-            website: dbData.website || "",
-            facebook: dbData.facebook || "",
-            instagram: dbData.instagram || "",
-            twitter: dbData.twitter || "",
-            googleBusinessProfileLink: dbData.googleBusinessProfileLink || "",
-          });
-        }
-      } catch (error) {
-        console.error("Error loading data:", error);
-      } finally {
-        setIsLoading(false);
+      if (businessInfoData) {
+        let keys = businessInfoData?.data || {}
+        let data = businessInfoData?.data
+        keys?.forEach((el: any) => {
+          form.setValue(el, data[el])
+        })
       }
-    };
-
-    loadData();
-  }, []);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      console.log("Business Info Payload:", formData);
-
-      await saveBusinessInfo(formData);
-
-      toast.success("Business information saved!");
-      router.push("/tasks/branding-content");
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to save. Please try again.");
-    } finally {
-      setIsSubmitting(false);
     }
-  };
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = event.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [id]: value,
-    }));
-  };
+    if (businessInfoData) {
+      loadData()
+    }
+  }, [businessInfoData])
 
-  const handleSelectChange = (id: keyof BusinessFormData, value: string) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      [id]: value,
-    }));
-  };
+  const onSubmit = async (values: z.infer<typeof businessInformationFormSchema>) => {
+    try {
+      await createBusinessInfo(values as any)
+      toast.success("Business information saved!")
+      router.push("/tasks/branding-content")
+    } catch (error) {
+      toast.error("Failed to save. Please try again.")
+    } finally {
+    }
+  }
 
-  if (isLoading) {
+  if (businessInfoLoading) {
     return (
       <div className="w-full h-full flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <Loader2 className="w-8 h-8 animate-spin textcus-primary" />
       </div>
-    );
+    )
   }
 
   return (
@@ -136,197 +128,321 @@ function BusinessInformationPage() {
         title="1. General Business Information"
         subTitle="Provide essential company details."
       />
-      <form
-        onSubmit={handleSubmit}
-        className="rounded-lg border-border border bg-background w-full h-full grid grid-rows-[auto_60px] overflow-hidden"
-      >
-        <div className="p-6 h-full grid grid-cols-2 overflow-y-scroll gap-4">
-          <CustomInput
-            label="Company Name"
-            id="company"
-            type="text"
-            placeholder="Company Name"
-            required={true}
-            value={formData.company}
-            onChange={handleChange}
-          />
-          <CustomInput
-            label="Company Start Year"
-            id="startYear"
-            placeholder="Year"
-            required={true}
-            value={formData.startYear}
-            select={true}
-            selectOptions={YEAR_OPTIONS}
-            onSelectChange={(value) => handleSelectChange("startYear", value)}
-          />
-          <CustomInput
-            label="Street Address"
-            id="streetAddress"
-            type="text"
-            placeholder="123 Main St"
-            required={true}
-            value={formData.streetAddress}
-            onChange={handleChange}
-            className="col-span-2"
-          />
-          <CustomInput
-            label="Postal Code"
-            id="postalCode"
-            type="text"
-            placeholder="10001"
-            required={true}
-            value={formData.postalCode}
-            onChange={handleChange}
-          />
-          <CustomInput
-            label="City"
-            id="city"
-            type="text"
-            placeholder="New York"
-            required={true}
-            value={formData.city}
-            onChange={handleChange}
-          />
-          <CustomInput
-            label="State"
-            id="state"
-            type="text"
-            placeholder="NY"
-            required={true}
-            value={formData.state}
-            onChange={handleChange}
-          />
-          <CustomInput
-            label="Country"
-            id="country"
-            type="text"
-            placeholder="USA"
-            required={true}
-            value={formData.country}
-            onChange={handleChange}
-          />
-          <CustomInput
-            label="VAT ID"
-            id="vatId"
-            type="text"
-            placeholder="DE123456789"
-            required={true}
-            value={formData.vatId}
-            onChange={handleChange}
-            className="col-span-2"
-          />
-          <CustomInput
-            label="Contact name"
-            id="contactName"
-            type="text"
-            placeholder="Contact Name"
-            required={true}
-            value={formData.contactName}
-            onChange={handleChange}
-          />
-          <CustomInput
-            label="Contact email"
-            id="email"
-            type="email"
-            placeholder="info@yourcompany.com"
-            required={true}
-            value={formData.email}
-            onChange={handleChange}
-            PrefixIcon={Mail}
-            SuffixIcon={CircleQuestionMark}
-          />
-          <CustomInput
-            label="Contact number"
-            id="contactNumber"
-            type="text"
-            placeholder="+1 (555) 000-0000"
-            required={true}
-            value={formData.contactNumber}
-            onChange={handleChange}
-            prefixText={"DE"}
-            SuffixIcon={CircleQuestionMark}
-          />
-          <CustomInput
-            label="Whatsapp number"
-            id="whatsappNumber"
-            type="text"
-            placeholder="+44 (555) 000-0000"
-            required={false}
-            value={formData.whatsappNumber}
-            onChange={handleChange}
-            prefixText={"DE"}
-            SuffixIcon={CircleQuestionMark}
-          />
-          <CustomInput
-            label="Current website"
-            id="website"
-            type="text"
-            placeholder="www.yoursite.com"
-            required={true}
-            value={formData.website}
-            onChange={handleChange}
-            className="col-span-2"
-            prefixText={"http://"}
-          />
-          <CustomInput
-            label="Facebook link"
-            id="facebook"
-            type="text"
-            placeholder="www.facebook.com"
-            required={false}
-            value={formData.facebook}
-            onChange={handleChange}
-            className="col-span-2"
-            prefixText={"http://"}
-          />
-          <CustomInput
-            label="Instagram link"
-            id="instagram"
-            type="text"
-            placeholder="www.instagram.com"
-            required={false}
-            value={formData.instagram}
-            onChange={handleChange}
-            className="col-span-2"
-            prefixText={"http://"}
-          />
-          <CustomInput
-            label="X (Twitter) link"
-            id="twitter"
-            type="text"
-            placeholder="www.x.com"
-            required={false}
-            value={formData.twitter}
-            onChange={handleChange}
-            className="col-span-2"
-            prefixText={"http://"}
-          />
-          <CustomInput
-            label="Google Business Profile link"
-            id="googleBusinessProfileLink"
-            type="text"
-            placeholder="maps.app.goo.gl/..."
-            required={false}
-            value={formData.googleBusinessProfileLink}
-            onChange={handleChange}
-            className="col-span-2"
-            prefixText={"http://"}
-          />
-        </div>
-        <div className="px-4 border-t flex items-center justify-end">
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            className="rounded group bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
-          >
-            {isSubmitting ? "Saving..." : "Next"}
-            <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-all duration-300" />
-          </Button>
-        </div>
-      </form>
-    </section>
-  );
-}
 
-export default BusinessInformationPage;
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="rounded-lg border-border border bg-background w-full h-full grid grid-rows-[auto_60px] overflow-hidden"
+        >
+          <div className="p-6 h-full grid grid-cols-2 overflow-y-scroll gap-4">
+            {/* Company */}
+            <FormField
+              control={form.control}
+              name="company"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <CustomInput
+                      label="Company Name"
+                      id={field?.name}
+                      type="text"
+                      required={true}
+                      value={field.value}
+                      onChange={field?.onChange}
+                      placeholder="Company Name"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Start Year */}
+            <FormField
+              control={form.control}
+              name="startYear"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <CustomInput
+                      label="Company Start Year"
+                      id={field?.name}
+                      placeholder="Year"
+                      required={true}
+                      value={field.value}
+                      select={true}
+                      selectOptions={YEAR_OPTIONS}
+                      onSelectChange={(value) => field.onChange(field?.name, value)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Street Address */}
+            <FormField
+              control={form.control}
+              name="streetAddress"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <CustomInput
+                      label="Street Address"
+                      id={field?.name}
+                      type="text"
+                      placeholder="123 Main St"
+                      required={true}
+                      value={field.value}
+                      onChange={field?.onChange}
+                      className="col-span-2"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Postal Code */}
+            <FormField
+              control={form.control}
+              name="postalCode"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <CustomInput
+                      label="Postal Code"
+                      id={field?.name}
+                      type="text"
+                      placeholder="10001"
+                      required={true}
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* City */}
+            <FormField
+              control={form.control}
+              name="city"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <CustomInput
+                      label="City"
+                      id={field?.name}
+                      type="text"
+                      placeholder="New York"
+                      required={true}
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* State */}
+            <FormField
+              control={form.control}
+              name="state"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <CustomInput
+                      label="State"
+                      id={field.name}
+                      type="text"
+                      placeholder="NY"
+                      required={true}
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Country */}
+            <FormField
+              control={form.control}
+              name="country"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <CustomInput
+                      label="Country"
+                      id={field.name}
+                      type="text"
+                      placeholder="USA"
+                      required={true}
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* VAT ID */}
+            <FormField
+              control={form.control}
+              name="vatId"
+              render={({ field }) => (
+                <FormItem className="col-span-2">
+                  <FormControl>
+                    <CustomInput
+                      label="VAT ID"
+                      id="vatId"
+                      type="text"
+                      placeholder="DE123456789"
+                      required={true}
+                      value={field.value}
+                      onChange={field.onChange}
+                      className="col-span-2"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Contact Fields */}
+            <FormField
+              name="contactName"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <CustomInput
+                      label="Contact name"
+                      id={field?.name}
+                      type="text"
+                      placeholder="Contact Name"
+                      required={true}
+                      value={field.value}
+                      onChange={field?.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              name="email"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <CustomInput
+                      label="Contact email"
+                      id={field.name}
+                      type="email"
+                      placeholder="info@yourcompany.com"
+                      required={true}
+                      value={field.value}
+                      onChange={field.onChange}
+                      PrefixIcon={Mail}
+                      SuffixIcon={CircleQuestionMark}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              name="contactNumber"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <CustomInput
+                      label="Contact number"
+                      id={field?.name}
+                      type="text"
+                      placeholder="+1 (555) 000-0000"
+                      required={true}
+                      value={field.value}
+                      onChange={field.onChange}
+                      prefixText={"DE"}
+                      SuffixIcon={CircleQuestionMark}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              name="whatsappNumber"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <CustomInput
+                      label="Whatsapp number"
+                      id="whatsappNumber"
+                      type="text"
+                      placeholder="+44 (555) 000-0000"
+                      required={false}
+                      value={field?.value ?? ""}
+                      onChange={field.onChange}
+                      prefixText={"DE"}
+                      SuffixIcon={CircleQuestionMark}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Website + Social Links */}
+            {["website", "facebook", "instagram", "twitter", "googleBusinessProfileLink"].map(
+              (fieldName) => (
+                <FormField
+                  key={fieldName}
+                  control={form.control}
+                  name={fieldName as any}
+                  render={({ field }) => (
+                    <FormItem className="col-span-2">
+                      {/* <FormLabel>{fieldName.replace(/([A-Z])/g, " $1")}</FormLabel> */}
+                      <FormControl>
+                        <CustomInput
+                          id={fieldName}
+                          type="text"
+                          value={field.value}
+                          label={fieldName.replace(/([A-Z])/g, " $1")}
+                          required={false}
+                          placeholder={`Enter ${fieldName} link`}
+                          prefixText={"http://"}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )
+            )}
+          </div>
+
+          {/* Submit Button */}
+          <div className="px-4 border-t flex items-center justify-end">
+            <Button type="submit" disabled={isSubmitting} className="rounded bg-primary text-white">
+              {isSubmitting ? "Saving..." : "Next"}
+              <ChevronRight className="ml-2 w-4 h-4" />
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </section>
+  )
+}
