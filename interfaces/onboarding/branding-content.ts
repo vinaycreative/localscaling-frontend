@@ -20,3 +20,15 @@ export interface BrandingContentFormData {
   videoCreationOption: IntroductoryVideoOption;
   videoTestimonial: File | null;
 }
+
+export interface BrandingInfoPayload {
+  fontLink: string;
+  primaryBrandColor: string;
+  secondaryBrandColor: string;
+  logoUrl: string;
+  teamPhotoUrls: string[];
+  teamMembers: TeamMember[];
+  videoCreationOption: IntroductoryVideoOption;
+  ceoVideoUrl: string;
+  videoTestimonialUrl: string;
+}

@@ -1,4 +1,5 @@
-import { api, BrandingInfoPayload } from "@/lib/api"
+import { BrandingInfoPayload } from "@/interfaces/onboarding/branding-content"
+import { api } from "@/lib/api"
 import { logError } from "@/lib/utils"
 
 export async function getBrandingInfo() {
