@@ -1,6 +1,6 @@
 "use client";
 
-import { fetchMe } from "@/lib/api";
+import { fetchMe } from "@/api/auth";
 import { useAuthStore } from "@/store/auth";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";

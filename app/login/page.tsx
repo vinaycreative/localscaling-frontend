@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DefaultRedirectByRole } from "@/constants/auth";
 import { useLogin } from "@/hooks/use-login";
-import { devLogin } from "@/lib/api";
+import { devLogin } from "@/api/auth";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
