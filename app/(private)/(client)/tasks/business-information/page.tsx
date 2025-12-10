@@ -25,13 +25,20 @@ const businessInformationFormSchema = z.object({
   vat_id: z.string().min(1, "VAT ID is required"),
   contact_name: z.string().min(1, "Contact name is required"),
   email: z.string().email("Invalid email"),
-  contact_number: z.string().min(1, "Contact number is required"),
-  whatsapp_number: z.string().optional(),
+  contact_number: z.string().regex(/^[6-9]\d{9}$/, "Invalid phone number"),
+  whatsapp_number: z
+    .string()
+    .regex(/^[6-9]\d{9}$/, "Invalid WhatsApp number")
+    .optional()
+    .or(z.literal("")),
   website: z.string().min(1).url("Invalid URL"),
-  facebook: z.string().optional(),
-  instagram: z.string().optional(),
-  twitter: z.string().optional(),
-  google_business_profile_link: z.string().optional(),
+  facebook: z.union([z.literal(""), z.url({ message: "Invalid Facebook URL" })]),
+  instagram: z.union([z.literal(""), z.url({ message: "Invalid Instagram URL" })]),
+  twitter: z.union([z.literal(""), z.url({ message: "Invalid Twitter URL" })]),
+  google_business_profile_link: z.union([
+    z.literal(""),
+    z.url({ message: "Invalid Google Business Profile URL" }),
+  ]),
 })
 
 const generateYearOptions = (startYear: number, endYear: number) => {
@@ -172,7 +179,7 @@ export default function BusinessInformationPage() {
                       value={field.value}
                       select={true}
                       selectOptions={YEAR_OPTIONS}
-                      onSelectChange={(value) => field.onChange(field?.name, value)}
+                      onSelectChange={(value) => field.onChange(value)}
                     />
                   </FormControl>
                   <FormMessage />
@@ -406,7 +413,7 @@ export default function BusinessInformationPage() {
             />
 
             {/* Website + Social Links */}
-            {["website", "facebook", "instagram", "twitter", "googleBusinessProfileLink"].map(
+            {["website", "facebook", "instagram", "twitter", "google_business_profile_link"].map(
               (fieldName) => (
                 <FormField
                   key={fieldName}
@@ -420,7 +427,11 @@ export default function BusinessInformationPage() {
                           id={fieldName}
                           type="text"
                           value={field.value}
-                          label={fieldName.replace(/([A-Z])/g, " $1")}
+                          onChange={field.onChange}
+                          label={fieldName
+                            .toLowerCase()
+                            .replace(/_/g, " ")
+                            .replace(/^\w/, (c) => c.toUpperCase())}
                           required={false}
                           placeholder={`Enter ${fieldName} link`}
                           prefixText={"http://"}
