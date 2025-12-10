@@ -1,19 +1,19 @@
 export interface BusinessFormData {
-  company: string;
-  startYear: string;
-  streetAddress: string;
-  postalCode: string;
-  city: string;
-  state: string;
-  country: string;
-  vatId: string;
-  contactName: string;
-  email: string;
-  contactNumber: string;
-  whatsappNumber: string;
-  website: string;
-  facebook: string;
-  instagram: string;
-  twitter: string;
-  googleBusinessProfileLink: string;
+  company: string
+  start_year: string
+  street_address: string
+  postal_code: string
+  city: string
+  state: string
+  country: string
+  vat_id: string
+  contact_name: string
+  email: string
+  contact_number: string
+  whatsapp_number: string
+  website: string
+  facebook: string
+  instagram: string
+  twitter: string
+  google_business_profile_link: string
 }
