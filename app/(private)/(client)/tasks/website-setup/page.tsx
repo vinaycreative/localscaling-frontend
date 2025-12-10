@@ -1,299 +1,317 @@
-"use client";
+"use client"
 
-import LegalAssetUploader from "@/components/reusable/legal-asset-uploader";
-import LegalLinkInput from "@/components/reusable/legal-link-input";
-import OnboardingVideo from "@/components/reusable/onboarding-video";
-import { TagInput } from "@/components/reusable/tags/tag-input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import { createWebsiteSetup, getWebsiteSetup, WebsiteSetupPayload } from "@/api/website-setup"
+import LegalAssetUploader from "@/components/reusable/legal-asset-uploader"
+import LegalLinkInput from "@/components/reusable/legal-link-input"
+import OnboardingVideo from "@/components/reusable/onboarding-video"
+import { TagInput } from "@/components/reusable/tags/tag-input"
+
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { domainProviders } from "@/constants/website-setup";
-import { WebsiteSetupFormData } from "@/interfaces/onboarding/website-setup";
-import {
-  getWebsiteSetup,
-  saveWebsiteSetup,
-  WebsiteSetupPayload,
-} from "@/lib/api";
-import { uploadFileToStorage } from "@/lib/storage";
-import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
-import { toast } from "sonner";
+} from "@/components/ui/select"
 
-const initialWebsiteSetupFormData: WebsiteSetupFormData = {
-  domainProvider: "",
-  accessGranted: false,
-  businessClientsWorked: [],
-  legalFiles: null,
-  legalLinks: [],
-  seoLocations: [],
-};
+import { domainProviders } from "@/constants/website-setup"
+import { uploadFileToStorage } from "@/lib/storage"
+
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react"
+import { useRouter } from "next/navigation"
+import React, { useEffect, useState } from "react"
+import { toast } from "sonner"
+
+import { z } from "zod"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+
+import { Form, FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form"
+import { useCreateWebsiteSetup, useWebsiteSetup } from "@/hooks/use-website-setup"
+
+const WebsiteSetupSchema = z.object({
+  domainProvider: z.string().min(1, "Domain provider is required"),
+  accessGranted: z.boolean(),
+  businessClientsWorked: z.array(z.string().min(1)).min(1, "At least one client is required"),
+  legalLinks: z.array(z.string().url("Invalid link")).min(1, "At least one Links is required"),
+  seoLocations: z.array(z.string().min(1)).min(1, "Add at least one SEO location"),
+  legalFiles: z.array(z.any()).optional(), // file array handled separately
+})
+
+type WebsiteSetupForm = z.infer<typeof WebsiteSetupSchema>
 
 export default function WebsiteSetupPage() {
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [existingLegalFileUrls, setExistingLegalFileUrls] = useState<string[]>(
-    []
-  );
+  const router = useRouter()
 
-  const [formData, setFormData] = useState<WebsiteSetupFormData>(
-    initialWebsiteSetupFormData
-  );
+  const {
+    data: websiteSetupData,
+    isLoading: websiteSetupLoading,
+    error: websiteSetupError,
+  } = useWebsiteSetup()
+
+  const {
+    createWebsiteSetup,
+    isPending: isSubmitting,
+    error: createwebsiteSetupError,
+  } = useCreateWebsiteSetup()
+
+  const [existingLegalFileUrls, setExistingLegalFileUrls] = useState<string[]>([])
+
+  const form = useForm<WebsiteSetupForm>({
+    resolver: zodResolver(WebsiteSetupSchema),
+    defaultValues: {
+      domainProvider: "",
+      accessGranted: false,
+      businessClientsWorked: [],
+      legalFiles: [],
+      legalLinks: [],
+      seoLocations: [],
+    },
+  })
+
+  const watch = form.watch()
+  const {
+    formState: { errors },
+  } = form
+  console.log("🚀 ~ WebsiteSetupPage ~ errors:", errors)
 
   useEffect(() => {
     const loadData = async () => {
-      try {
-        const response = await getWebsiteSetup();
-        const data = response;
-
-        if (data) {
-          setFormData((prev) => ({
-            ...prev,
-            domainProvider: data.domainProvider || "",
-            accessGranted: data.accessGranted || false,
-            businessClientsWorked: data.businessClientsWorked || [],
-            legalLinks: data.legalLinks || [],
-            seoLocations: data.seoLocations || [],
-            legalFiles: null,
-          }));
-
-          if (data.legalFiles && Array.isArray(data.legalFiles)) {
-            setExistingLegalFileUrls(data.legalFiles);
-          }
-        }
-      } catch (error) {
-        console.error("Failed to load website setup data:", error);
-        toast.error("Failed to load existing data.");
-      } finally {
-        setIsLoading(false);
+      if (websiteSetupData) {
+        let keys = websiteSetupData?.data || {}
+        let data = websiteSetupData?.data
+        keys?.forEach((el: any) => {
+          form.setValue(el, data[el])
+        })
       }
-    };
-
-    loadData();
-  }, []);
-
-  const handlePrev = () => {
-    router.push("/tasks/branding-content");
-  };
-
-  const handleNext = async () => {
-    setIsSubmitting(true);
-    try {
-      // 1. Upload new files if any
-      let newFileUrls: string[] = [];
-      if (formData.legalFiles && formData.legalFiles.length > 0) {
-        const uploadPromises = formData.legalFiles.map((file) =>
-          uploadFileToStorage(file, "documents")
-        );
-        newFileUrls = await Promise.all(uploadPromises);
-      }
-
-      // 2. Combine existing URLs with new URLs
-      const allLegalFiles = [...existingLegalFileUrls, ...newFileUrls];
-
-      // 3. Construct Payload
-      const payload: WebsiteSetupPayload = {
-        domainProvider: formData.domainProvider,
-        accessGranted: formData.accessGranted,
-        businessClientsWorked: formData.businessClientsWorked,
-        legalLinks: formData.legalLinks,
-        seoLocations: formData.seoLocations,
-        legalFiles: allLegalFiles,
-      };
-
-      // 4. Save to API
-      await saveWebsiteSetup(payload);
-
-      toast.success("Website setup saved successfully!");
-      router.push("/tasks/tools-access");
-    } catch (error) {
-      console.error("Error saving website setup:", error);
-      toast.error("Failed to save changes. Please try again.");
-    } finally {
-      setIsSubmitting(false);
     }
-  };
 
-  const handleClientsChange = (newClients: string[]) => {
-    setFormData((prev) => ({
-      ...prev,
-      businessClientsWorked: newClients,
-    }));
-  };
+    if (websiteSetupData) {
+      loadData()
+    }
+  }, [websiteSetupData])
 
-  const handleSEOChange = (seoLocations: string[]) => {
-    setFormData((prev) => ({
-      ...prev,
-      seoLocations,
-    }));
-  };
+  const onSubmit = async (values: WebsiteSetupForm) => {
+    
+    try {
+      const data = form.getValues()
 
-  const handleLegalFilesChange = (newFiles: File[]) => {
-    setFormData((prev) => ({
-      ...prev,
-      legalFiles: newFiles,
-    }));
-  };
+      // Upload new legal files
+      let newFileUrls: string[] = []
 
-  const handleLegalLinksChange = (newLinks: string[]) => {
-    setFormData((prev) => ({
-      ...prev,
-      legalLinks: newLinks,
-    }));
-  };
+      if (data.legalFiles && data.legalFiles.length > 0) {
+        const uploadPromises = Array.from(data.legalFiles).map((file: File) =>
+          uploadFileToStorage(file, "documents")
+        )
+        newFileUrls = await Promise.all(uploadPromises)
+      }
 
-  if (isLoading) {
+      // Combine existing + new
+      const allLegalFiles = [...existingLegalFileUrls, ...newFileUrls]
+
+      const payload: WebsiteSetupPayload = {
+        domainProvider: data.domainProvider,
+        accessGranted: data.accessGranted,
+        businessClientsWorked: data.businessClientsWorked,
+        legalLinks: data.legalLinks || [],
+        seoLocations: data.seoLocations,
+        legalFiles: allLegalFiles,
+      }
+
+      await createWebsiteSetup(payload)
+
+      toast.success("Website setup saved successfully!")
+      router.push("/tasks/tools-access")
+    } catch (error) {
+      toast.error("Failed to save changes.")
+    } finally {
+    }
+  }
+
+  const handlePrev = () => router.push("/tasks/branding-content")
+
+  if (websiteSetupLoading) {
     return (
       <div className="w-full h-full flex items-center justify-center min-h-[400px]">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
-    );
+    )
   }
 
   return (
-    <section className="w-full h-full grid lg:grid-cols-[auto_1fr] gap-4 overflow-hidden pt-4">
-      <OnboardingVideo
-        title="3. Website Setup"
-        subTitle="Define your project scope and objectives."
-      />
-      <div className="rounded-lg border-border border bg-background w-full h-full grid grid-rows-[auto_60px] overflow-hidden">
-        <div className="p-6 h-full overflow-y-scroll flex flex-col gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="domainProvider">
-              Domain provider <span className="text-primary">*</span>
-            </Label>
-            <div className="flex items-center justify-between gap-4">
-              <Select
-                value={formData.domainProvider}
-                onValueChange={(newProvider) => {
-                  setFormData({
-                    ...formData,
-                    domainProvider: newProvider,
-                  });
-                  if (formData.accessGranted) {
-                    setFormData({
-                      ...formData,
-                      accessGranted: false,
-                    });
-                  }
-                }}
-              >
-                <SelectTrigger
-                  id="domainProvider"
-                  className="w-full rounded cursor-pointer focus-visible:ring-[0px]"
-                >
-                  <SelectValue placeholder="Select domain provider (Fields – Strato, GoDaddy, etc.)" />
-                </SelectTrigger>
-                <SelectContent className="rounded">
-                  {domainProviders.map((domain) => (
-                    <SelectItem
-                      className="rounded cursor-pointer"
-                      key={domain}
-                      value={domain}
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="w-full h-full grid lg:grid-cols-[auto_1fr] gap-4 overflow-hidden pt-4"
+      >
+        <OnboardingVideo
+          title="3. Website Setup"
+          subTitle="Define your project scope and objectives."
+        />
+
+        <div className="rounded-lg border-border border bg-background w-full h-full grid grid-rows-[auto_60px] overflow-hidden">
+          {/* SCROLL AREA */}
+          <div className="p-6 h-full overflow-y-scroll flex flex-col gap-4">
+            {/* DOMAIN PROVIDER */}
+            <FormField
+              control={form.control}
+              name="domainProvider"
+              render={({ field }) => (
+                <FormItem className="space-y-2">
+                  <Label>
+                    Domain provider <span className="text-primary">*</span>
+                  </Label>
+                  <FormControl>
+                    <Select
+                      value={field.value}
+                      onValueChange={(val) => {
+                        field.onChange(val)
+                        form.setValue("accessGranted", false)
+                      }}
                     >
-                      {domain}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button
-                type="button"
-                variant={formData.accessGranted ? "default" : "outline"}
-                className={`rounded cursor-pointer ${formData.accessGranted && "bg-primary text-primary-foreground"}`}
-                onClick={() =>
-                  setFormData({
-                    ...formData,
-                    accessGranted: !formData.accessGranted,
-                  })
-                }
-                disabled={!formData.domainProvider}
-                aria-pressed={formData.accessGranted}
-              >
-                {formData.accessGranted ? "Granted" : "Grant access"}
-              </Button>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <TagInput
-              label="Business Clients Worked"
-              placeholder="e.g., Google, Amazon, Acme Corp (Press Enter to add)"
-              value={formData.businessClientsWorked}
-              onChange={handleClientsChange}
-              required={true}
+                      <SelectTrigger className="w-full rounded cursor-pointer focus-visible:ring-[0px]">
+                        <SelectValue placeholder="Select domain provider" />
+                      </SelectTrigger>
+                      <SelectContent className="rounded">
+                        {domainProviders.map((domain) => (
+                          <SelectItem key={domain} value={domain}>
+                            {domain}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            <p className="text-xs text-muted-foreground mt-[2px]">
-              Enter a client name and press Enter to add it as a tag. Press
-              Backspace to remove the last tag.
-            </p>
+
+            {/* GRANT ACCESS BUTTON */}
+            <Button
+              type="button"
+              variant={watch.accessGranted ? "default" : "outline"}
+              onClick={() => form.setValue("accessGranted", !watch.accessGranted)}
+              disabled={!watch.domainProvider}
+            >
+              {watch.accessGranted ? "Granted" : "Grant access"}
+            </Button>
+
+            {/* CLIENTS WORKED WITH */}
+            <FormField
+              control={form.control}
+              name="businessClientsWorked"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <TagInput
+                      label="Business Clients Worked"
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder="e.g., Google, Amazon"
+                      required={true}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* LEGAL FILES */}
+            <FormField
+              control={form.control}
+              name="legalFiles"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <LegalAssetUploader
+                      label="Legal Asset Uploader"
+                      multiple
+                      maxFiles={5}
+                      value={field.value as any[]}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {existingLegalFileUrls.length > 0 && (
+              <p className="text-xs text-muted-foreground">
+                {existingLegalFileUrls.length} file(s) already uploaded.
+              </p>
+            )}
+
+            {/* LEGAL LINKS */}
+            <FormField
+              control={form.control}
+              name="legalLinks"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <LegalLinkInput
+                      value={field.value as string[]}
+                      onChange={(val) => {
+                        field.onChange(val)
+                      }}
+                      errors={errors?.legalLinks}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* SEO LOCATIONS */}
+            <FormField
+              control={form.control}
+              name="seoLocations"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <TagInput
+                      label="Most Important Locations for SEO"
+                      value={field.value}
+                      onChange={field.onChange}
+                      required={true}
+                      placeholder="Enter SEO Location"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
 
-          <LegalAssetUploader
-            label="Legal Asset Uploader"
-            multiple={true}
-            value={formData.legalFiles}
-            onChange={handleLegalFilesChange}
-            maxFiles={5}
-          />
-          {existingLegalFileUrls.length > 0 && (
-            <p className="text-xs text-muted-foreground">
-              {existingLegalFileUrls.length} file(s) already uploaded. New files
-              will be appended.
-            </p>
-          )}
+          {/* FOOTER BUTTONS */}
+          <div className="flex p-2 pt-4 gap-2 justify-end border-t">
+            <Button type="button" variant="outline" onClick={handlePrev} disabled={isSubmitting}>
+              <ChevronLeft className="w-4 h-4 mr-2" />
+              Previous
+            </Button>
 
-          <LegalLinkInput
-            value={formData.legalLinks}
-            onChange={handleLegalLinksChange}
-          />
-
-          <TagInput
-            label="Most Important Locations for SEO"
-            placeholder="Enter SEO Location"
-            value={formData.seoLocations}
-            onChange={handleSEOChange}
-            required={true}
-          />
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="bg-primary text-primary-foreground"
+            >
+              {isSubmitting ? (
+                <>
+                  Saving...
+                  <Loader2 className="w-4 h-4 ml-2 animate-spin" />
+                </>
+              ) : (
+                <>
+                  Next
+                  <ChevronRight className="w-4 h-4 ml-2" />
+                </>
+              )}
+            </Button>
+          </div>
         </div>
-        <div className="flex p-2 pt-4 gap-2 justify-end border-t">
-          <Button
-            type="button"
-            variant="outline"
-            className="rounded bg-transparent cursor-pointer group"
-            onClick={handlePrev}
-            disabled={isSubmitting}
-          >
-            <ChevronLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-all duration-300" />
-            Previous
-          </Button>
-
-          <Button
-            type="button"
-            className="rounded bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer group"
-            onClick={handleNext}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <>
-                Saving...
-                <Loader2 className="w-4 h-4 ml-2 animate-spin" />
-              </>
-            ) : (
-              <>
-                Next
-                <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-all duration-300" />
-              </>
-            )}
-          </Button>
-        </div>
-      </div>
-    </section>
-  );
+      </form>
+    </Form>
+  )
 }

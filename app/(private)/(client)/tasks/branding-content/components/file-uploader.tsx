@@ -59,7 +59,7 @@ export function FileUploader({
   useEffect(() => {
     const urls: Record<string, string> = {};
     for (const f of files) {
-      if (f.type.startsWith("image/")) {
+      if (f?.type?.startsWith("image/")) {
         urls[getFileKey(f)] = URL.createObjectURL(f);
       }
     }
@@ -225,7 +225,6 @@ export function FileUploader({
     <div className={cn("w-full", className)}>
       <Label className="mb-2">
         {label}
-        <span className="text-primary">*</span>
       </Label>
       <div
         role="button"
