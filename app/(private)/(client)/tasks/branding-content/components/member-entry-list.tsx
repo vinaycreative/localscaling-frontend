@@ -1,25 +1,26 @@
-"use client";
-import { CustomInput } from "@/components/reusable/custom-input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
-import { PlusIcon, Trash } from "lucide-react";
+"use client"
+import { CustomInput } from "@/components/reusable/custom-input"
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+import { cn } from "@/lib/utils"
+import { PlusIcon, Trash } from "lucide-react"
 
 export interface TeamMember {
-  name: string;
-  position: string;
+  name: string
+  position: string
 }
 
 type TeamMemberListProps = {
-  value: TeamMember[];
-  onChange: (next: TeamMember[]) => void;
-  required: boolean;
-  label?: string;
-  addButtonLabel?: string;
-  minRows?: number;
-  maxRows?: number;
-  className?: string;
-};
+  value: TeamMember[]
+  onChange: (next: TeamMember[]) => void
+  required: boolean
+  label?: string
+  addButtonLabel?: string
+  minRows?: number
+  maxRows?: number
+  className?: string
+  errors?: any
+}
 
 export function TeamMemberList({
   value,
@@ -30,34 +31,29 @@ export function TeamMemberList({
   minRows = 1,
   maxRows,
   className,
+  errors,
 }: TeamMemberListProps) {
-  const list = value ?? [];
-  const emptyTeamMember: TeamMember = { name: "", position: "" };
+  const list = value ?? []
+  const emptyTeamMember: TeamMember = { name: "", position: "" }
 
-  const canAdd = typeof maxRows === "number" ? list.length < maxRows : true;
-  const canDelete = () => list.length > minRows;
+  const canAdd = typeof maxRows === "number" ? list.length < maxRows : true
+  const canDelete = () => list.length > minRows
 
   const handleAdd = () => {
-    if (!canAdd) return;
-    onChange([...list, emptyTeamMember]);
-  };
+    if (!canAdd) return
+    onChange([...list, emptyTeamMember])
+  }
 
   const handleDelete = (index: number) => {
-    if (!canDelete()) return;
-    const next = list.filter((_, i) => i !== index);
-    onChange(next);
-  };
+    if (!canDelete()) return
+    const next = list.filter((_, i) => i !== index)
+    onChange(next)
+  }
 
-  const handleChange = (
-    index: number,
-    field: keyof TeamMember,
-    nextValue: string
-  ) => {
-    const next = list.map((member, i) =>
-      i === index ? { ...member, [field]: nextValue } : member
-    );
-    onChange(next);
-  };
+  const handleChange = (index: number, field: keyof TeamMember, nextValue: string) => {
+    const next = list.map((member, i) => (i === index ? { ...member, [field]: nextValue } : member))
+    onChange(next)
+  }
 
   return (
     <div className={cn("w-full", className)}>
@@ -78,12 +74,12 @@ export function TeamMemberList({
       </div>
 
       <ul className="flex flex-col gap-4">
-        {list.map((member, idx) => (
+        {list?.map((member, idx) => (
           <li
             key={`team-member-${idx}`}
-            className="flex items-end gap-2 rounded border p-4 bg-muted/30"
+            className="flex items-start gap-4 rounded border p-4 bg-muted/30"
           >
-            <div className="flex-1 grid grid-cols-2 gap-4">
+            <div className="flex-1 grid grid-cols-2 gap-4 items-center">
               <div className="space-y-2">
                 <CustomInput
                   label="Name"
@@ -94,6 +90,9 @@ export function TeamMemberList({
                   value={member.name}
                   onChange={(e) => handleChange(idx, "name", e.target.value)}
                 />
+                {errors?.[idx]?.name?.message && (
+                  <p className={"text-destructive text-[12px]"}>{errors?.[idx]?.name?.message}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -104,10 +103,11 @@ export function TeamMemberList({
                   placeholder="e.g., CEO"
                   required={required}
                   value={member.position}
-                  onChange={(e) =>
-                    handleChange(idx, "position", e.target.value)
-                  }
+                  onChange={(e) => handleChange(idx, "position", e.target.value)}
                 />
+                {errors?.[idx]?.position?.message && (
+                  <p className={"text-destructive text-[12px]"}>{errors?.[idx]?.position?.message}</p>
+                )}
               </div>
             </div>
 
@@ -116,7 +116,7 @@ export function TeamMemberList({
                 type="button"
                 variant="outline"
                 onClick={() => handleDelete(idx)}
-                className="rounded cursor-pointer h-10 w-10 p-0 flex-shrink-0 hover:bg-muted/30 transition-all duration-300"
+                className="cursor-pointer rounded-full h-10 w-10 p-0 flex-shrink-0 hover:bg-muted/30 transition-all duration-300"
                 aria-label={`Delete Team Member ${idx + 1}`}
               >
                 <Trash className="w-4 h-4" />
@@ -132,5 +132,5 @@ export function TeamMemberList({
         ) : null}
       </ul>
     </div>
-  );
+  )
 }
