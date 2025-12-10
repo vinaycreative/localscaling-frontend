@@ -16,22 +16,22 @@ import { useBusinessInfo, useCreateBusinessInfo } from "@/hooks/use-business-inf
 
 const businessInformationFormSchema = z.object({
   company: z.string().min(1, "Company name is required"),
-  startYear: z.string().min(1, "Start year is required"),
-  streetAddress: z.string().min(1, "Street address is required"),
-  postalCode: z.string().min(1, "Postal code is required"),
+  start_year: z.string().min(1, "Start year is required"),
+  street_address: z.string().min(1, "Street address is required"),
+  postal_code: z.string().min(1, "Postal code is required"),
   city: z.string().min(1, "City is required"),
   state: z.string().min(1, "State is required"),
   country: z.string().min(1, "Country is required"),
-  vatId: z.string().min(1, "VAT ID is required"),
-  contactName: z.string().min(1, "Contact name is required"),
+  vat_id: z.string().min(1, "VAT ID is required"),
+  contact_name: z.string().min(1, "Contact name is required"),
   email: z.string().email("Invalid email"),
-  contactNumber: z.string().min(1, "Contact number is required"),
-  whatsappNumber: z.string().optional(),
+  contact_number: z.string().min(1, "Contact number is required"),
+  whatsapp_number: z.string().optional(),
   website: z.string().min(1).url("Invalid URL"),
   facebook: z.string().optional(),
   instagram: z.string().optional(),
   twitter: z.string().optional(),
-  googleBusinessProfileLink: z.string().optional(),
+  google_business_profile_link: z.string().optional(),
 })
 
 const generateYearOptions = (startYear: number, endYear: number) => {
@@ -68,22 +68,22 @@ export default function BusinessInformationPage() {
     resolver: zodResolver(businessInformationFormSchema),
     defaultValues: {
       company: "",
-      startYear: "",
-      streetAddress: "",
-      postalCode: "",
+      start_year: "",
+      street_address: "",
+      postal_code: "",
       city: "",
       state: "",
       country: "",
-      vatId: "",
-      contactName: "",
+      vat_id: "",
+      contact_name: "",
       email: "",
-      contactNumber: "",
-      whatsappNumber: "",
+      contact_number: "",
+      whatsapp_number: "",
       website: "",
       facebook: "",
       instagram: "",
       twitter: "",
-      googleBusinessProfileLink: "",
+      google_business_profile_link: "",
     },
   })
 
@@ -160,7 +160,7 @@ export default function BusinessInformationPage() {
             {/* Start Year */}
             <FormField
               control={form.control}
-              name="startYear"
+              name="start_year"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
@@ -183,7 +183,7 @@ export default function BusinessInformationPage() {
             {/* Street Address */}
             <FormField
               control={form.control}
-              name="streetAddress"
+              name="street_address"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
@@ -206,7 +206,7 @@ export default function BusinessInformationPage() {
             {/* Postal Code */}
             <FormField
               control={form.control}
-              name="postalCode"
+              name="postal_code"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
@@ -294,7 +294,7 @@ export default function BusinessInformationPage() {
             {/* VAT ID */}
             <FormField
               control={form.control}
-              name="vatId"
+              name="vat_id"
               render={({ field }) => (
                 <FormItem className="col-span-2">
                   <FormControl>
@@ -316,7 +316,7 @@ export default function BusinessInformationPage() {
 
             {/* Contact Fields */}
             <FormField
-              name="contactName"
+              name="contact_name"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
@@ -360,7 +360,7 @@ export default function BusinessInformationPage() {
             />
 
             <FormField
-              name="contactNumber"
+              name="contact_number"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
@@ -383,7 +383,7 @@ export default function BusinessInformationPage() {
             />
 
             <FormField
-              name="whatsappNumber"
+              name="whatsapp_number"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
