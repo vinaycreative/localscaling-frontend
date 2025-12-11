@@ -33,7 +33,7 @@ const FormLayout = ({
 
       <div
         className={cn(
-          "p-6 h-full grid overflow-y-scroll gap-4 grid-cols-1 items-center justify-center",
+          "p-6 h-full grid overflow-y-scroll gap-4 grid-cols-1 items-start justify-center",
           className
         )}
         style={{ gridAutoRows: "min-content" }}
