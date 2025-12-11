@@ -33,7 +33,7 @@ const FormLayout = ({
       <div className={cn("p-6 h-full grid grid-cols-2 overflow-y-scroll gap-4", className)}>
         {children}
       </div>
-      <div className={cn("px-4 border-t flex items-center justify-end", footerClassName)}>
+      <div className={cn("px-4 border-t flex items-center justify-end gap-4", footerClassName)}>
         {footer}
       </div>
     </div>
