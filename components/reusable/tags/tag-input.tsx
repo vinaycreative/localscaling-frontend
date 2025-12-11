@@ -66,7 +66,7 @@ export function TagInput({
   return (
     <div className="space-y-2.5">
       <Label>
-        {label} {required && <span className="text-primary">*</span>}
+        {label} {required && <span className="text-destructive">*</span>}
       </Label>
 
       <div

@@ -60,7 +60,7 @@ export function TeamMemberList({
       <div className="mb-2 flex justify-between items-center w-full">
         <Label className="text-sm">
           {label}
-          {required && <span className="text-primary ml-1">*</span>}
+          {required && <span className="text-destructive ml-1">*</span>}
         </Label>
         <Button
           type="button"

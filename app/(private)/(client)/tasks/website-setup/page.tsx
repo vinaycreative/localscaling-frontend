@@ -182,7 +182,7 @@ export default function WebsiteSetupPage() {
               render={({ field }) => (
                 <FormItem className="space-y-2">
                   <Label>
-                    Domain provider <span className="text-primary">*</span>
+                    Domain provider <span className="text-destructive">*</span>
                   </Label>
                   <FormControl>
                     <Select

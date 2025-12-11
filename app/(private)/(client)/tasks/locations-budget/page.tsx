@@ -103,7 +103,7 @@ export default function LocationsBudgetPage() {
               render={({ field }) => (
                 <FormItem>
                   <Label>
-                    Set monthly ads budget <span className="text-primary">*</span>
+                    Set monthly ads budget <span className="text-destructive">*</span>
                   </Label>
 
                   <div className="flex rounded border">
