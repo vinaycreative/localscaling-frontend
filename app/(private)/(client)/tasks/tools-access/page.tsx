@@ -128,12 +128,14 @@ function ToolsAccessPage() {
   }
 
   useEffect(() => {
-    // if (toolsAccessData) {
-    //   form.setValue({
-    //     ...toolsAccessData.data
-    //   })
-    // }
-  }, [toolsAccessData])
+    if (toolsAccessData.data && !toolsAccessLoading) {
+      let keys = Object.keys(toolsAccessData.data || {})
+      let data = toolsAccessData.data
+      keys.forEach((key) => {
+        form.setValue(key as keyof ToolsAccessForm, data?.[key])
+      })
+    }
+  }, [toolsAccessData.data])
 
   if (toolsAccessLoading) {
     return (
