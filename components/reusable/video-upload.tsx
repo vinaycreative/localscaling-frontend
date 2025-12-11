@@ -98,7 +98,7 @@ export function VideoUpload({
   return (
     <div className="w-full space-y-2.5">
       <Label>
-        {label} {required && <span className="text-primary">*</span>}
+        {label} {required && <span className="text-destructive">*</span>}
       </Label>
       {!isVideoPresent ? (
         <div
