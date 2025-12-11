@@ -2,12 +2,12 @@ import { api } from "@/lib/api"
 import { logError } from "@/lib/utils"
 
 export interface WebsiteSetupPayload {
-  accessGranted: boolean
-  domainProvider: string
-  businessClientsWorked: string[]
-  legalLinks: string[]
-  legalFiles: string[]
-  seoLocations: string[]
+  access_granted: boolean
+  domain_provider: string
+  business_clients_worked: string[]
+  legal_links: string[]
+  legal_files: string[]
+  seo_locations: string[]
 }
 
 export async function getWebsiteSetup() {

@@ -25,22 +25,32 @@ import React, { useEffect, useState } from "react"
 import { toast } from "sonner"
 
 import { z } from "zod"
-import { useForm } from "react-hook-form"
+import { useForm, Resolver } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 
 import { Form, FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form"
 import { useCreateWebsiteSetup, useWebsiteSetup } from "@/hooks/use-website-setup"
 
 const WebsiteSetupSchema = z.object({
-  domainProvider: z.string().min(1, "Domain provider is required"),
-  accessGranted: z.boolean(),
-  businessClientsWorked: z.array(z.string().min(1)).min(1, "At least one client is required"),
-  legalLinks: z.array(z.string().url("Invalid link")).min(1, "At least one Links is required"),
-  seoLocations: z.array(z.string().min(1)).min(1, "Add at least one SEO location"),
-  legalFiles: z.array(z.any()).optional(), // file array handled separately
+  access_granted: z.boolean(),
+  domain_provider: z.string().min(1, { message: "Domain provider is required" }),
+  business_clients_worked: z.array(z.string()).default([]),
+  legal_links: z.array(z.string().url({ message: "Invalid URL in legal links" })).default([]),
+  // allow both string (existing uploaded URLs) and File (new uploads)
+  legal_files: z.array(z.any()).default([]),
+  seo_locations: z.array(z.string()).default([]),
 })
 
-type WebsiteSetupForm = z.infer<typeof WebsiteSetupSchema>
+// Explicit TS type that matches how we actually use the form values
+type WebsiteSetupForm = {
+  access_granted: boolean
+  domain_provider: string
+  business_clients_worked: string[]
+  legal_links: string[]
+  // legal_files can be existing URLs (string) or new File objects
+  legal_files: (File | string)[]
+  seo_locations: string[]
+}
 
 export default function WebsiteSetupPage() {
   const router = useRouter()
@@ -60,14 +70,14 @@ export default function WebsiteSetupPage() {
   const [existingLegalFileUrls, setExistingLegalFileUrls] = useState<string[]>([])
 
   const form = useForm<WebsiteSetupForm>({
-    resolver: zodResolver(WebsiteSetupSchema),
+    resolver: zodResolver(WebsiteSetupSchema) as Resolver<WebsiteSetupForm>,
     defaultValues: {
-      domainProvider: "",
-      accessGranted: false,
-      businessClientsWorked: [],
-      legalFiles: [],
-      legalLinks: [],
-      seoLocations: [],
+      domain_provider: "",
+      access_granted: false,
+      business_clients_worked: [],
+      legal_files: [],
+      legal_links: [],
+      seo_locations: [],
     },
   })
 
@@ -78,33 +88,43 @@ export default function WebsiteSetupPage() {
   console.log("🚀 ~ WebsiteSetupPage ~ errors:", errors)
 
   useEffect(() => {
-    const loadData = async () => {
-      if (websiteSetupData) {
-        let keys = websiteSetupData?.data || {}
-        let data = websiteSetupData?.data
-        keys?.forEach((el: any) => {
-          form.setValue(el, data[el])
-        })
+    // Defensive: websiteSetupData?.data might be an object of key -> value
+    if (!websiteSetupData) return
+    const data = websiteSetupData.data || {}
+    // if data is an array of keys (original code), handle both shapes:
+    if (Array.isArray(data)) {
+      // If API returned an array of keys for some reason, skip
+      return
+    } else {
+      const keys = Object.keys(data)
+      keys.forEach((key) => {
+        // only set values that exist in the form to avoid runtime errors
+        if ((form.getValues() as any)[key] !== undefined) {
+          form.setValue(key as any, (data as any)[key])
+        }
+      })
+
+      // If backend returned existing uploaded file URLs, populate existingLegalFileUrls
+      if (Array.isArray((data as any).legal_files)) {
+        const urls = ((data as any).legal_files as any[]).filter((x) => typeof x === "string")
+        setExistingLegalFileUrls(urls)
       }
     }
-
-    if (websiteSetupData) {
-      loadData()
-    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [websiteSetupData])
 
   const onSubmit = async (values: WebsiteSetupForm) => {
-    
     try {
-      const data = form.getValues()
+      // be explicit about the return type
+      const data = form.getValues() as WebsiteSetupForm
 
-      // Upload new legal files
+      // Upload new legal files (only File instances)
       let newFileUrls: string[] = []
 
-      if (data.legalFiles && data.legalFiles.length > 0) {
-        const uploadPromises = Array.from(data.legalFiles).map((file: File) =>
-          uploadFileToStorage(file, "documents")
-        )
+      const filesToUpload = (data.legal_files || []).filter((f): f is File => f instanceof File)
+
+      if (filesToUpload.length > 0) {
+        const uploadPromises = filesToUpload.map((file) => uploadFileToStorage(file, "documents"))
         newFileUrls = await Promise.all(uploadPromises)
       }
 
@@ -112,12 +132,12 @@ export default function WebsiteSetupPage() {
       const allLegalFiles = [...existingLegalFileUrls, ...newFileUrls]
 
       const payload: WebsiteSetupPayload = {
-        domainProvider: data.domainProvider,
-        accessGranted: data.accessGranted,
-        businessClientsWorked: data.businessClientsWorked,
-        legalLinks: data.legalLinks || [],
-        seoLocations: data.seoLocations,
-        legalFiles: allLegalFiles,
+        domain_provider: data.domain_provider,
+        access_granted: data.access_granted,
+        business_clients_worked: data.business_clients_worked,
+        legal_links: data.legal_links || [],
+        seo_locations: data.seo_locations,
+        legal_files: allLegalFiles,
       }
 
       await createWebsiteSetup(payload)
@@ -125,6 +145,7 @@ export default function WebsiteSetupPage() {
       toast.success("Website setup saved successfully!")
       router.push("/tasks/tools-access")
     } catch (error) {
+      console.error(error)
       toast.error("Failed to save changes.")
     } finally {
     }
@@ -157,7 +178,7 @@ export default function WebsiteSetupPage() {
             {/* DOMAIN PROVIDER */}
             <FormField
               control={form.control}
-              name="domainProvider"
+              name="domain_provider"
               render={({ field }) => (
                 <FormItem className="space-y-2">
                   <Label>
@@ -168,14 +189,14 @@ export default function WebsiteSetupPage() {
                       value={field.value}
                       onValueChange={(val) => {
                         field.onChange(val)
-                        form.setValue("accessGranted", false)
+                        form.setValue("access_granted", false)
                       }}
                     >
                       <SelectTrigger className="w-full rounded cursor-pointer focus-visible:ring-[0px]">
                         <SelectValue placeholder="Select domain provider" />
                       </SelectTrigger>
                       <SelectContent className="rounded">
-                        {domainProviders.map((domain) => (
+                        {domainProviders?.map((domain) => (
                           <SelectItem key={domain} value={domain}>
                             {domain}
                           </SelectItem>
@@ -191,17 +212,17 @@ export default function WebsiteSetupPage() {
             {/* GRANT ACCESS BUTTON */}
             <Button
               type="button"
-              variant={watch.accessGranted ? "default" : "outline"}
-              onClick={() => form.setValue("accessGranted", !watch.accessGranted)}
-              disabled={!watch.domainProvider}
+              variant={watch.access_granted ? "default" : "outline"}
+              onClick={() => form.setValue("access_granted", !watch.access_granted)}
+              disabled={!watch.domain_provider}
             >
-              {watch.accessGranted ? "Granted" : "Grant access"}
+              {watch.access_granted ? "Granted" : "Grant access"}
             </Button>
 
             {/* CLIENTS WORKED WITH */}
             <FormField
               control={form.control}
-              name="businessClientsWorked"
+              name="business_clients_worked"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
@@ -221,7 +242,7 @@ export default function WebsiteSetupPage() {
             {/* LEGAL FILES */}
             <FormField
               control={form.control}
-              name="legalFiles"
+              name="legal_files"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
@@ -247,7 +268,7 @@ export default function WebsiteSetupPage() {
             {/* LEGAL LINKS */}
             <FormField
               control={form.control}
-              name="legalLinks"
+              name="legal_links"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
@@ -256,7 +277,7 @@ export default function WebsiteSetupPage() {
                       onChange={(val) => {
                         field.onChange(val)
                       }}
-                      errors={errors?.legalLinks}
+                      errors={errors?.legal_links}
                     />
                   </FormControl>
                   <FormMessage />
@@ -267,7 +288,7 @@ export default function WebsiteSetupPage() {
             {/* SEO LOCATIONS */}
             <FormField
               control={form.control}
-              name="seoLocations"
+              name="seo_locations"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
