@@ -427,12 +427,37 @@ export default function BusinessInformationPage() {
                           id={fieldName}
                           type="text"
                           value={field.value}
-                          onChange={field.onChange}
+                          required={fieldName === "website"}
+                          onChange={(event) => {
+                            const value = event.target.value.trim().toLowerCase()
+
+                            // Allow clearing input
+                            if (!value) {
+                              field.onChange("")
+                              return
+                            }
+
+                            // If user is manually deleting "https://" → DO NOT auto-correct yet
+                            if ("https://".startsWith(value.toLowerCase())) {
+                              field.onChange(value)
+                              return
+                            }
+
+                            const protocolPattern = /^https?:\/\//i
+                            const isExactProtocolOnly = value.match(protocolPattern)?.[0] === value
+                            const startsWithProtocol = protocolPattern.test(value)
+
+                            const normalizedUrl =
+                              startsWithProtocol && !isExactProtocolOnly
+                                ? value
+                                : `https://${value}`
+
+                            field.onChange(normalizedUrl)
+                          }}
                           label={fieldName
                             .toLowerCase()
                             .replace(/_/g, " ")
                             .replace(/^\w/, (c) => c.toUpperCase())}
-                          required={false}
                           placeholder={`Enter ${fieldName} link`}
                           prefixText={"http://"}
                         />
