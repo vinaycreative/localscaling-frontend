@@ -375,7 +375,7 @@ export default function BusinessInformationPage() {
                     <CustomInput
                       label="Contact number"
                       id={field?.name}
-                      type="text"
+                      type="number"
                       placeholder="+1 (555) 000-0000"
                       required={true}
                       value={field.value}
@@ -398,7 +398,7 @@ export default function BusinessInformationPage() {
                     <CustomInput
                       label="Whatsapp number"
                       id="whatsappNumber"
-                      type="text"
+                      type="number"
                       placeholder="+44 (555) 000-0000"
                       required={false}
                       value={field?.value ?? ""}
