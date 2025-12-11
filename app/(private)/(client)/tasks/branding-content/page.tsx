@@ -31,32 +31,32 @@ import {
 } from "@/components/ui/form"
 
 const BrandingSchema = z.object({
-  fontLink: z.string().min(1, "Font link is required"),
-  primaryBrandColor: z.string(),
-  secondaryBrandColor: z.string(),
-  logoFile: z.any().nullable(),
-  teamPhotos: z.any().nullable(),
-  teamMembers: z.array(
+  font_link: z.string().min(1, "Font link is required"),
+  primary_brand_color: z.string(),
+  secondary_brand_color: z.string(),
+  logo_file: z.any().nullable(),
+  team_photos: z.any().nullable(),
+  team_members: z.array(
     z.object({
       name: z.string().min(1, "Name required"),
       position: z.string().min(1, "Position required"),
     })
   ),
-  videoCreationOption: z.enum(["upload", "studio", "remote"]),
-  ceoVideo: z.any().nullable(),
-  videoTestimonial: z.any().nullable(),
+  video_creation_option: z.enum(["upload", "studio", "remote"]),
+  ceo_video: z.any().nullable(),
+  video_testimonial: z.any().nullable(),
 })
 
 const initialFormData: BrandingContentFormData = {
-  fontLink: "",
-  primaryBrandColor: "#007BFF",
-  secondaryBrandColor: "#6C757D",
-  logoFile: null,
-  teamPhotos: null,
-  teamMembers: [{ name: "", position: "" }],
-  videoCreationOption: "upload",
-  ceoVideo: null,
-  videoTestimonial: null,
+  font_link: "",
+  primary_brand_color: "#007BFF",
+  secondary_brand_color: "#6C757D",
+  logo_file: null,
+  team_photos: null,
+  team_members: [{ name: "", position: "" }],
+  video_creation_option: "upload",
+  ceo_video: null,
+  video_testimonial: null,
 }
 
 const urlToFile = async (url: string, filename: string, mimeType: string): Promise<File> => {
@@ -105,23 +105,23 @@ function BrandingContentPage() {
       if (brandingInfoData.data) {
         const dbData = brandingInfoData.data
 
-        let logoFile = null
+        let logo_file = null
         if (dbData.logoUrl) {
-          logoFile = await urlToFile(dbData.logoUrl, "logo.png", "image/png")
+          logo_file = await urlToFile(dbData.logoUrl, "logo.png", "image/png")
         }
 
-        let teamPhotos: File[] = []
+        let team_photos: File[] = []
         if (dbData.teamPhotoUrls && Array.isArray(dbData.teamPhotoUrls)) {
-          teamPhotos = await Promise.all(
+          team_photos = await Promise.all(
             dbData.teamPhotoUrls.map((url: string, index: number) =>
               urlToFile(url, `team-${index}.jpg`, "image/jpeg")
             )
           )
         }
 
-        let ceoVideo = null
+        let ceo_video = null
         if (dbData.ceoVideoUrl) {
-          ceoVideo = await urlToFile(dbData.ceoVideoUrl, "ceo-intro.mp4", "video/mp4")
+          ceo_video = await urlToFile(dbData.ceoVideoUrl, "ceo-intro.mp4", "video/mp4")
         }
 
         let videoTestimonial = null
@@ -149,44 +149,44 @@ function BrandingContentPage() {
 
     try {
       // LOGO -> branding-assets/logos
-      let logoFile = values.logoFile || null
+      let logo_file = values.logo_file || null
       let logoUrl = ""
-      if (logoFile) {
+      if (logo_file) {
         // Optimization: Skip upload if it's the same file content (simple check would be name/size/type match against saved)
         // For now, we upload to ensure consistency.
-        logoUrl = await uploadFileToStorage(logoFile, "branding-assets", "logos")
+        logoUrl = await uploadFileToStorage(logo_file, "branding-assets", "logos")
       }
       // TEAM PHOTOS -> branding-assets/team
-      let teamPhotos: File[] = values.teamPhotos || []
+      let team_photos: File[] = values.team_photos || []
       let teamPhotoUrls: string[] = []
-      if (teamPhotos && teamPhotos.length > 0) {
-        const uploadPromises = teamPhotos.map((f) =>
+      if (team_photos && team_photos.length > 0) {
+        const uploadPromises = team_photos.map((f) =>
           uploadFileToStorage(f, "branding-assets", "team")
         )
         teamPhotoUrls = await Promise.all(uploadPromises)
       }
       // CEO VIDEO -> videos/ceo-intro
-      let ceoVideo = values.ceoVideo || null
+      let ceo_video = values.ceo_video || null
       let ceoVideoUrl = null
-      if (ceoVideo) {
-        ceoVideoUrl = await uploadFileToStorage(ceoVideo, "videos", "ceo-intro")
+      if (ceo_video) {
+        ceoVideoUrl = await uploadFileToStorage(ceo_video, "videos", "ceo-intro")
       }
       // TESTIMONIALS -> videos/testimonials
-      let videoTestimonial = values.videoTestimonial || null
+      let videoTestimonial = values.video_testimonial || null
       let videoTestimonialUrl = null
       if (videoTestimonial) {
         videoTestimonialUrl = await uploadFileToStorage(videoTestimonial, "videos", "testimonials")
       }
       const payload: BrandingInfoPayload = {
-        fontLink: values.fontLink,
-        primaryBrandColor: values.primaryBrandColor,
-        secondaryBrandColor: values.secondaryBrandColor,
-        logoUrl: logoUrl,
-        teamPhotoUrls: teamPhotoUrls,
-        teamMembers: values.teamMembers,
-        videoCreationOption: values.videoCreationOption,
-        ceoVideoUrl: ceoVideoUrl,
-        videoTestimonialUrl: videoTestimonialUrl,
+        font_link: values.font_link,
+        primary_brand_color: values.primary_brand_color,
+        secondary_brand_color: values.secondary_brand_color,
+        logo_url: logoUrl,
+        team_photo_urls: teamPhotoUrls,
+        team_members: values.team_members,
+        video_creation_option: values.video_creation_option,
+        ceo_video_url: ceoVideoUrl,
+        video_testimonial_url: videoTestimonialUrl,
       }
 
       await createBrandingInfo(payload)
@@ -258,13 +258,13 @@ function BrandingContentPage() {
                 </div>
                 <FormField
                   control={form.control}
-                  name="fontLink"
+                  name="font_link"
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
                         <CustomInput
                           label="Font Link"
-                          id="fontLink"
+                          id="font_link"
                           type="text"
                           placeholder="www.fontlink.com"
                           required={true}
@@ -280,7 +280,7 @@ function BrandingContentPage() {
                 <div className="flex flex-col gap-2">
                   <FormField
                     control={form.control}
-                    name="primaryBrandColor"
+                    name="primary_brand_color"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Primary Brand Color</FormLabel>
@@ -294,7 +294,7 @@ function BrandingContentPage() {
 
                   <FormField
                     control={form.control}
-                    name="secondaryBrandColor"
+                    name="secondary_brand_color"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Secondary Brand Color</FormLabel>
@@ -313,13 +313,13 @@ function BrandingContentPage() {
 
                 <FormField
                   control={form.control}
-                  name="logoFile"
+                  name="logo_file"
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
                         <BrandAssetUploader
                           label="Company Logo"
-                          field={field.name}
+                          field={field?.name}
                           multiple={false}
                           value={field.value as File}
                           onChange={field.onChange}
@@ -332,7 +332,7 @@ function BrandingContentPage() {
                 />
                 <FormField
                   control={form.control}
-                  name="teamPhotos"
+                  name="team_photos"
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
@@ -352,7 +352,7 @@ function BrandingContentPage() {
 
                 <FormField
                   control={form.control}
-                  name="teamMembers"
+                  name="team_members"
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
@@ -364,7 +364,7 @@ function BrandingContentPage() {
                           minRows={1}
                           required={true}
                           className="mt-4"
-                          errors={errors?.teamMembers}
+                          errors={errors?.team_members}
                         />
                       </FormControl>
                       <FormMessage />
@@ -382,7 +382,7 @@ function BrandingContentPage() {
 
                 <FormField
                   control={form.control}
-                  name="ceoVideo"
+                  name="ceo_video"
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
@@ -405,7 +405,7 @@ function BrandingContentPage() {
 
                 <FormField
                   control={form.control}
-                  name="videoCreationOption"
+                  name="video_creation_option"
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
@@ -416,9 +416,9 @@ function BrandingContentPage() {
                             field.onChange("studio")
                           }}
                           className={`rounded cursor-pointer transition-all duration-300 w-fit justify-start 
-                          ${watch("videoCreationOption") === "studio" && "ring-2 ring-primary border-primary bg-accent/20"}
+                          ${watch("video_creation_option") === "studio" && "ring-2 ring-primary border-primary bg-accent/20"}
                           `}
-                          disabled={!!watch("ceoVideo")}
+                          disabled={!!watch("ceo_video")}
                         >
                           Schedule a Studio Session
                         </Button>
@@ -438,7 +438,7 @@ function BrandingContentPage() {
 
                 <FormField
                   control={form.control}
-                  name="videoCreationOption"
+                  name="video_creation_option"
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
@@ -449,9 +449,9 @@ function BrandingContentPage() {
                             field.onChange("remote")
                           }}
                           className={`rounded cursor-pointer transition-all duration-300 w-fit justify-start 
-                          ${watch("videoCreationOption") === "remote" && "ring-2 ring-primary border-primary bg-accent/20"}
+                          ${watch("video_creation_option") === "remote" && "ring-2 ring-primary border-primary bg-accent/20"}
                           `}
-                          disabled={!!watch("ceoVideo")}
+                          disabled={!!watch("ceo_video")}
                         >
                           Record Remotely
                         </Button>
@@ -475,7 +475,7 @@ function BrandingContentPage() {
 
                 <FormField
                   control={form.control}
-                  name="videoTestimonial"
+                  name="video_testimonial"
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>

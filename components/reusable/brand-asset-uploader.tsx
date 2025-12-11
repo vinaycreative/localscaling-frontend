@@ -7,10 +7,10 @@ type FileRejection = { file: File; reason: string }
 
 interface BrandAssetUploaderProps {
   label: string
-  field: "logoFile" | "teamPhotos"
+  field: "logo_file" | "team_photos"
   multiple: boolean
   value: File | File[] | null
-  onChange: (file: File | File[] | null, field: "logoFile" | "teamPhotos") => void
+  onChange: (file: File | File[] | null, field: "logo_file" | "team_photos") => void
   maxFiles?: number
 }
 

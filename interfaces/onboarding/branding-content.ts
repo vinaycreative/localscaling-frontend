@@ -10,25 +10,25 @@ export interface TeamMember {
 }
 
 export interface BrandingContentFormData {
-  fontLink: string
-  primaryBrandColor: string
-  secondaryBrandColor: string
-  logoFile: File | null
-  teamPhotos: File[] | null
-  teamMembers: TeamMember[]
-  ceoVideo: File | null
-  videoCreationOption: IntroductoryVideoOption
-  videoTestimonial: File | null
+  font_link: string
+  primary_brand_color: string
+  secondary_brand_color: string
+  logo_file: File | null
+  team_photos: File[] | null
+  team_members: TeamMember[]
+  ceo_video: File | null
+  video_creation_option: IntroductoryVideoOption
+  video_testimonial: File | null
 }
 
 export interface BrandingInfoPayload {
-  fontLink: string
-  primaryBrandColor: string
-  secondaryBrandColor: string
-  logoUrl: string
-  teamPhotoUrls: string[]
-  teamMembers: TeamMember[]
-  videoCreationOption: IntroductoryVideoOption
-  ceoVideoUrl: string | null
-  videoTestimonialUrl: string | null
+  font_link: string
+  primary_brand_color: string
+  secondary_brand_color: string
+  logo_url: string
+  team_photo_urls: string[]
+  team_members: TeamMember[]
+  video_creation_option: IntroductoryVideoOption
+  ceo_video_url: string | null
+  video_testimonial_url: string | null
 }
