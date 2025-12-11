@@ -3,6 +3,7 @@
 import OnboardingVideo from "@/components/reusable/onboarding-video"
 import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form"
+import FormLayout from "@/components/ui/form-layout"
 import { Label } from "@/components/ui/label"
 import { useCreateToolsAccess, useToolsAccess } from "@/hooks/use-tools-access"
 import { ToolsAccessForm } from "@/interfaces/onboarding/tools-access"
@@ -10,7 +11,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { useEffect } from "react"
+import { Fragment, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import z from "zod"
@@ -146,65 +147,59 @@ function ToolsAccessPage() {
   }
 
   return (
-    <>
+    <section className="w-full h-full grid lg:grid-cols-[auto_1fr] gap-4 overflow-hidden pt-4">
+      <OnboardingVideo
+        title="4. Tools Access"
+        subTitle="Enable analytics and performance tracking."
+      />
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="w-full h-full grid lg:grid-cols-[auto_1fr] gap-4 overflow-hidden pt-4"
-        >
-          <OnboardingVideo
-            title="4. Tools Access"
-            subTitle="Enable analytics and performance tracking."
-          />
+        <form onSubmit={form.handleSubmit(onSubmit)} className="overflow-scroll">
+          <FormLayout
+            footer={
+              <Fragment>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="rounded bg-transparent cursor-pointer group"
+                  onClick={handlePrev}
+                >
+                  <ChevronLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-all duration-300" />
+                  Previous
+                </Button>
 
-          <div className="rounded-lg border-border border bg-background w-full h-full grid grid-rows-[auto_60px] overflow-hidden">
-            {/* SCROLL AREA */}
-            <div className="p-6 h-full overflow-y-scroll flex flex-col gap-4">
-              {ACCESS_TOOLS.map((tool) => (
-                <FormField
-                  key={tool.key as keyof ToolsAccessForm}
-                  control={form.control}
-                  name={tool.key as keyof ToolsAccessForm}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <AccessToolField
-                          field={field}
-                          title={tool.title}
-                          iconSrc={tool.icon}
-                          buttonText={tool.buttonText}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              ))}
-            </div>
-
-            {/* FOOTER BUTTONS */}
-            <div className="flex p-2 pt-4 gap-2 justify-end border-t">
-              <Button
-                type="button"
-                variant="outline"
-                className="rounded bg-transparent cursor-pointer group"
-                onClick={handlePrev}
-              >
-                <ChevronLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-all duration-300" />
-                Previous
-              </Button>
-
-              <Button
-                type="submit"
-                className="rounded bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer group"
-              >
-                Next
-                <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-all duration-300" />
-              </Button>
-            </div>
-          </div>
+                <Button
+                  type="submit"
+                  className="rounded bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer group"
+                >
+                  Next
+                  <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-all duration-300" />
+                </Button>
+              </Fragment>
+            }
+          >
+            {ACCESS_TOOLS.map((tool) => (
+              <FormField
+                key={tool.key as keyof ToolsAccessForm}
+                control={form.control}
+                name={tool.key as keyof ToolsAccessForm}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <AccessToolField
+                        field={field}
+                        title={tool.title}
+                        iconSrc={tool.icon}
+                        buttonText={tool.buttonText}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            ))}
+          </FormLayout>
         </form>
       </Form>
-    </>
+    </section>
   )
 }
 

@@ -21,7 +21,7 @@ import { uploadFileToStorage } from "@/lib/storage"
 
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
-import React, { useEffect, useState } from "react"
+import React, { Fragment, useEffect, useState } from "react"
 import { toast } from "sonner"
 
 import { z } from "zod"
@@ -30,6 +30,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 
 import { Form, FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form"
 import { useCreateWebsiteSetup, useWebsiteSetup } from "@/hooks/use-website-setup"
+import FormLayout from "@/components/ui/form-layout"
 
 const WebsiteSetupSchema = z.object({
   access_granted: z.boolean(),
@@ -162,177 +163,180 @@ export default function WebsiteSetupPage() {
   }
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="w-full h-full grid lg:grid-cols-[auto_1fr] gap-4 overflow-hidden pt-4"
-      >
-        <OnboardingVideo
-          title="3. Website Setup"
-          subTitle="Define your project scope and objectives."
-        />
+    <section className="w-full h-full grid lg:grid-cols-[auto_1fr] gap-4 overflow-hidden pt-4">
+      <OnboardingVideo
+        title="3. Website Setup"
+        subTitle="Define your project scope and objectives."
+      />
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="overflow-scroll">
+          <FormLayout
+            footer={
+              <Fragment>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handlePrev}
+                  disabled={isSubmitting}
+                >
+                  <ChevronLeft className="w-4 h-4 mr-2" />
+                  Previous
+                </Button>
 
-        <div className="rounded-lg border-border border bg-background w-full h-full grid grid-rows-[auto_60px] overflow-hidden">
-          {/* SCROLL AREA */}
-          <div className="p-6 h-full overflow-y-scroll flex flex-col gap-4">
-            {/* DOMAIN PROVIDER */}
-            <FormField
-              control={form.control}
-              name="domain_provider"
-              render={({ field }) => (
-                <FormItem className="space-y-2">
-                  <Label>
-                    Domain provider <span className="text-destructive">*</span>
-                  </Label>
-                  <FormControl>
-                    <Select
-                      value={field.value}
-                      onValueChange={(val) => {
-                        field.onChange(val)
-                        form.setValue("access_granted", false)
-                      }}
-                    >
-                      <SelectTrigger className="w-full rounded cursor-pointer focus-visible:ring-[0px]">
-                        <SelectValue placeholder="Select domain provider" />
-                      </SelectTrigger>
-                      <SelectContent className="rounded">
-                        {domainProviders?.map((domain) => (
-                          <SelectItem key={domain} value={domain}>
-                            {domain}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="bg-primary text-primary-foreground"
+                >
+                  {isSubmitting ? (
+                    <>
+                      Saving...
+                      <Loader2 className="w-4 h-4 ml-2 animate-spin" />
+                    </>
+                  ) : (
+                    <>
+                      Next
+                      <ChevronRight className="w-4 h-4 ml-2" />
+                    </>
+                  )}
+                </Button>
+              </Fragment>
+            }
+          >
+            <Fragment>
+              {/* DOMAIN PROVIDER */}
+              <FormField
+                control={form.control}
+                name="domain_provider"
+                render={({ field }) => (
+                  <FormItem className="space-y-2">
+                    <Label>
+                      Domain provider <span className="text-destructive">*</span>
+                    </Label>
+                    <FormControl>
+                      <Select
+                        value={field.value}
+                        onValueChange={(val) => {
+                          field.onChange(val)
+                          form.setValue("access_granted", false)
+                        }}
+                      >
+                        <SelectTrigger className="w-full rounded cursor-pointer focus-visible:ring-[0px]">
+                          <SelectValue placeholder="Select domain provider" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded">
+                          {domainProviders?.map((domain) => (
+                            <SelectItem key={domain} value={domain}>
+                              {domain}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* GRANT ACCESS BUTTON */}
+              <Button
+                type="button"
+                variant={watch.access_granted ? "default" : "outline"}
+                onClick={() => form.setValue("access_granted", !watch.access_granted)}
+                disabled={!watch.domain_provider}
+              >
+                {watch.access_granted ? "Granted" : "Grant access"}
+              </Button>
+
+              {/* CLIENTS WORKED WITH */}
+              <FormField
+                control={form.control}
+                name="business_clients_worked"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <TagInput
+                        label="Business Clients Worked"
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder="e.g., Google, Amazon"
+                        required={true}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* LEGAL FILES */}
+              <FormField
+                control={form.control}
+                name="legal_files"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <LegalAssetUploader
+                        label="Legal Asset Uploader"
+                        multiple
+                        maxFiles={5}
+                        value={field.value as any[]}
+                        onChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {existingLegalFileUrls.length > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  {existingLegalFileUrls.length} file(s) already uploaded.
+                </p>
               )}
-            />
 
-            {/* GRANT ACCESS BUTTON */}
-            <Button
-              type="button"
-              variant={watch.access_granted ? "default" : "outline"}
-              onClick={() => form.setValue("access_granted", !watch.access_granted)}
-              disabled={!watch.domain_provider}
-            >
-              {watch.access_granted ? "Granted" : "Grant access"}
-            </Button>
+              {/* LEGAL LINKS */}
+              <FormField
+                control={form.control}
+                name="legal_links"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <LegalLinkInput
+                        value={field.value as string[]}
+                        onChange={(val) => {
+                          field.onChange(val)
+                        }}
+                        errors={errors?.legal_links}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            {/* CLIENTS WORKED WITH */}
-            <FormField
-              control={form.control}
-              name="business_clients_worked"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <TagInput
-                      label="Business Clients Worked"
-                      value={field.value}
-                      onChange={field.onChange}
-                      placeholder="e.g., Google, Amazon"
-                      required={true}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* LEGAL FILES */}
-            <FormField
-              control={form.control}
-              name="legal_files"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <LegalAssetUploader
-                      label="Legal Asset Uploader"
-                      multiple
-                      maxFiles={5}
-                      value={field.value as any[]}
-                      onChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {existingLegalFileUrls.length > 0 && (
-              <p className="text-xs text-muted-foreground">
-                {existingLegalFileUrls.length} file(s) already uploaded.
-              </p>
-            )}
-
-            {/* LEGAL LINKS */}
-            <FormField
-              control={form.control}
-              name="legal_links"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <LegalLinkInput
-                      value={field.value as string[]}
-                      onChange={(val) => {
-                        field.onChange(val)
-                      }}
-                      errors={errors?.legal_links}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* SEO LOCATIONS */}
-            <FormField
-              control={form.control}
-              name="seo_locations"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <TagInput
-                      label="Most Important Locations for SEO"
-                      value={field.value}
-                      onChange={field.onChange}
-                      required={true}
-                      placeholder="Enter SEO Location"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          {/* FOOTER BUTTONS */}
-          <div className="flex p-2 pt-4 gap-2 justify-end border-t">
-            <Button type="button" variant="outline" onClick={handlePrev} disabled={isSubmitting}>
-              <ChevronLeft className="w-4 h-4 mr-2" />
-              Previous
-            </Button>
-
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="bg-primary text-primary-foreground"
-            >
-              {isSubmitting ? (
-                <>
-                  Saving...
-                  <Loader2 className="w-4 h-4 ml-2 animate-spin" />
-                </>
-              ) : (
-                <>
-                  Next
-                  <ChevronRight className="w-4 h-4 ml-2" />
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
-      </form>
-    </Form>
+              {/* SEO LOCATIONS */}
+              <FormField
+                control={form.control}
+                name="seo_locations"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <TagInput
+                        label="Most Important Locations for SEO"
+                        value={field.value}
+                        onChange={field.onChange}
+                        required={true}
+                        placeholder="Enter SEO Location"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </Fragment>
+          </FormLayout>
+        </form>
+      </Form>
+    </section>
   )
 }

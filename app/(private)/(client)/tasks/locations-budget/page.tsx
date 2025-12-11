@@ -16,7 +16,7 @@ import {
 
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useEffect } from "react"
+import { Fragment, useEffect } from "react"
 import { toast } from "sonner"
 import { useAdsBudget, useCreateAdsBudget } from "@/hooks/use-ads-budget"
 
@@ -24,6 +24,7 @@ import z from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Form, FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form"
+import FormLayout from "@/components/ui/form-layout"
 
 export const locationBudgetSchema = z.object({
   budget: z.string().min(1, "Budget is required"),
@@ -83,131 +84,134 @@ export default function LocationsBudgetPage() {
   }
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="w-full h-full grid lg:grid-cols-[auto_1fr] gap-4 overflow-hidden pt-4"
-      >
-        <OnboardingVideo
-          title="5. Locations & Budget"
-          subTitle="Set your ads budget and its location."
-        />
+    <section className="w-full h-full grid lg:grid-cols-[auto_1fr] gap-4 overflow-hidden pt-4">
+      <OnboardingVideo
+        title="5. Locations & Budget"
+        subTitle="Set your ads budget and its location."
+      />
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="overflow-scroll">
+          <FormLayout
+            footer={
+              <Fragment>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handlePrev}
+                  disabled={isSubmitting}
+                >
+                  <ChevronLeft className="w-4 h-4 mr-2" /> Previous
+                </Button>
 
-        <div className="rounded-lg border border-border bg-background w-full h-full grid grid-rows-[auto_60px] overflow-hidden">
-          {/* SCROLL AREA */}
-          <div className="p-6 h-full overflow-y-scroll flex flex-col gap-6">
-            {/* BUDGET FIELD */}
-            <FormField
-              control={form.control}
-              name="budget"
-              render={({ field }) => (
-                <FormItem>
-                  <Label>
-                    Set monthly ads budget <span className="text-destructive">*</span>
-                  </Label>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      Saving...
+                      <Loader2 className="w-4 h-4 ml-2 animate-spin" />
+                    </>
+                  ) : (
+                    <>
+                      Submit
+                      <ChevronRight className="w-4 h-4 ml-2" />
+                    </>
+                  )}
+                </Button>
+              </Fragment>
+            }
+          >
+            <Fragment>
+              {/* BUDGET FIELD */}
+              <FormField
+                control={form.control}
+                name="budget"
+                render={({ field }) => (
+                  <FormItem>
+                    <Label>
+                      Set monthly ads budget <span className="text-destructive">*</span>
+                    </Label>
 
-                  <div className="flex rounded border">
-                    {/* Currency */}
-                    <FormField
-                      control={form.control}
-                      name="currency"
-                      render={({ field }) => (
-                        <FormItem>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger className="border-0 border-r w-[100px] rounded-r-none">
-                                <SelectValue placeholder="Select currency" />
-                              </SelectTrigger>
-                            </FormControl>
+                    <div className="flex rounded border">
+                      {/* Currency */}
+                      <FormField
+                        control={form.control}
+                        name="currency"
+                        render={({ field }) => (
+                          <FormItem>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger className="border-0 border-r w-[100px] rounded-r-none">
+                                  <SelectValue placeholder="Select currency" />
+                                </SelectTrigger>
+                              </FormControl>
 
-                            <SelectContent>
-                              <SelectItem value="EUR">€ (EUR)</SelectItem>
-                              <SelectItem value="USD">$ (USD)</SelectItem>
-                              <SelectItem value="GBP">£ (GBP)</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </FormItem>
-                      )}
-                    />
+                              <SelectContent>
+                                <SelectItem value="EUR">€ (EUR)</SelectItem>
+                                <SelectItem value="USD">$ (USD)</SelectItem>
+                                <SelectItem value="GBP">£ (GBP)</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormItem>
+                        )}
+                      />
 
-                    {/* Budget Input */}
+                      {/* Budget Input */}
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="1000"
+                          min="0"
+                          className="rounded-l-none border-0 focus-visible:ring-0"
+                          {...field}
+                        />
+                      </FormControl>
+                    </div>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Locations */}
+              <FormField
+                control={form.control}
+                name="locations"
+                render={({ field }) => (
+                  <FormItem>
                     <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="1000"
-                        min="0"
-                        className="rounded-l-none border-0 focus-visible:ring-0"
-                        {...field}
+                      <TagInput
+                        label="Most important locations for SEO"
+                        placeholder="e.g., Berlin, London, New York"
+                        value={field.value}
+                        onChange={field.onChange}
                       />
                     </FormControl>
-                  </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Locations */}
-            <FormField
-              control={form.control}
-              name="locations"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <TagInput
-                      label="Most important locations for SEO"
-                      placeholder="e.g., Berlin, London, New York"
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Services */}
-            <FormField
-              control={form.control}
-              name="services"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <TagInput
-                      label="Services provided"
-                      placeholder="e.g., Web Design, Content Writing, PPC"
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          {/* FOOTER BUTTONS */}
-          <div className="flex p-2 gap-2 justify-end border-t">
-            <Button type="button" variant="outline" onClick={handlePrev} disabled={isSubmitting}>
-              <ChevronLeft className="w-4 h-4 mr-2" /> Previous
-            </Button>
-
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <>
-                  Saving...
-                  <Loader2 className="w-4 h-4 ml-2 animate-spin" />
-                </>
-              ) : (
-                <>
-                  Submit
-                  <ChevronRight className="w-4 h-4 ml-2" />
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
-      </form>
-    </Form>
+              {/* Services */}
+              <FormField
+                control={form.control}
+                name="services"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <TagInput
+                        label="Services provided"
+                        placeholder="e.g., Web Design, Content Writing, PPC"
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </Fragment>
+          </FormLayout>
+        </form>
+      </Form>
+    </section>
   )
 }

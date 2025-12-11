@@ -14,6 +14,7 @@ import { ChevronRight, Loader2, Mail, CircleQuestionMark } from "lucide-react"
 import { CustomInput } from "@/components/reusable/custom-input"
 import { useBusinessInfo, useCreateBusinessInfo } from "@/hooks/use-business-info"
 import { normalizedUrl } from "@/lib/utils"
+import FormLayout from "@/components/ui/form-layout"
 
 const businessInformationFormSchema = z.object({
   company: z.string().min(1, "Company name is required"),
@@ -138,11 +139,20 @@ export default function BusinessInformationPage() {
       />
 
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="rounded-lg border-border border bg-background w-full h-full grid grid-rows-[auto_60px] overflow-hidden"
-        >
-          <div className="p-6 h-full grid grid-cols-2 overflow-y-scroll gap-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="overflow-scroll">
+          <FormLayout
+            className="grid-cols-2"
+            footer={
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="rounded bg-primary text-white"
+              >
+                {isSubmitting ? "Saving..." : "Next"}
+                <ChevronRight className="ml-2 w-4 h-4" />
+              </Button>
+            }
+          >
             {/* Company */}
             <FormField
               control={form.control}
@@ -446,15 +456,7 @@ export default function BusinessInformationPage() {
                 />
               )
             )}
-          </div>
-
-          {/* Submit Button */}
-          <div className="px-4 border-t flex items-center justify-end">
-            <Button type="submit" disabled={isSubmitting} className="rounded bg-primary text-white">
-              {isSubmitting ? "Saving..." : "Next"}
-              <ChevronRight className="ml-2 w-4 h-4" />
-            </Button>
-          </div>
+          </FormLayout>
         </form>
       </Form>
     </section>

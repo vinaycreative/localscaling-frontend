@@ -14,7 +14,7 @@ import {
 import { uploadFileToStorage } from "@/lib/storage"
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { Fragment, useEffect, useState } from "react"
 import { toast } from "sonner"
 import { TeamMemberList } from "./components/member-entry-list"
 import z from "zod"
@@ -29,6 +29,7 @@ import {
   FormControl,
   FormLabel,
 } from "@/components/ui/form"
+import FormLayout from "@/components/ui/form-layout"
 
 const BrandingSchema = z.object({
   font_link: z.string().min(1, "Font link is required"),
@@ -246,10 +247,47 @@ function BrandingContentPage() {
       />
 
       <Form {...form}>
-        <div className="rounded-lg border-border border bg-background w-full h-full grid grid-rows-[auto_60px] overflow-hidden">
-          <form onSubmit={form.handleSubmit(onSubmit)} className="overflow-y-scroll">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="overflow-scroll">
+          <FormLayout
+            footer={
+              <Fragment>
+                <Button
+                  variant="outline"
+                  className="rounded bg-transparent cursor-pointer group"
+                  onClick={handlePrevious}
+                  disabled={isSubmitting}
+                >
+                  <ChevronLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-all duration-300" />
+                  Previous
+                </Button>
+
+                {currentStep < totalSteps ? (
+                  <Button
+                    className="rounded bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer group"
+                    onClick={handleNext}
+                  >
+                    Next
+                    <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-all duration-300" />
+                  </Button>
+                ) : (
+                  <Button
+                    type="submit"
+                    className="rounded bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer group"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "Submitting..." : "Submit"}
+                    {isSubmitting ? (
+                      <Loader2 className="w-4 h-4 ml-2 animate-spin" />
+                    ) : (
+                      <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-all duration-300" />
+                    )}
+                  </Button>
+                )}
+              </Fragment>
+            }
+          >
             {currentStep === 1 && (
-              <div className="p-6 h-full overflow-y-scroll flex flex-col gap-4">
+              <Fragment>
                 <div className="mb-4">
                   <h3 className="text-xl font-semibold">Brand Identity</h3>
                   <p className="text-sm text-muted-foreground">
@@ -371,11 +409,11 @@ function BrandingContentPage() {
                     </FormItem>
                   )}
                 />
-              </div>
+              </Fragment>
             )}
 
             {currentStep === 2 && (
-              <div className="p-6 h-full overflow-y-scroll flex flex-col gap-4">
+              <Fragment>
                 <p className="text-muted-foreground italic text-xs">
                   Please watch the entire video, before proceeding with the form.
                 </p>
@@ -464,11 +502,11 @@ function BrandingContentPage() {
                   Schedule an online session, our team will guide you over a video call and edit it
                   for you.
                 </p>
-              </div>
+              </Fragment>
             )}
 
             {currentStep === 3 && (
-              <div className="p-6 h-full overflow-y-scroll flex flex-col gap-4">
+              <Fragment>
                 <p className="text-muted-foreground italic text-xs">
                   Please watch the entire video, before proceeding with the form.
                 </p>
@@ -490,45 +528,10 @@ function BrandingContentPage() {
                     </FormItem>
                   )}
                 />
-              </div>
+              </Fragment>
             )}
-          </form>
-
-          <div className="flex p-2 pt-4 gap-2 justify-end border-t">
-            <Button
-              variant="outline"
-              className="rounded bg-transparent cursor-pointer group"
-              onClick={handlePrevious}
-              disabled={isSubmitting}
-            >
-              <ChevronLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-all duration-300" />
-              Previous
-            </Button>
-
-            {currentStep < totalSteps ? (
-              <Button
-                className="rounded bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer group"
-                onClick={handleNext}
-              >
-                Next
-                <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-all duration-300" />
-              </Button>
-            ) : (
-              <Button
-                type="submit"
-                className="rounded bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer group"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Submitting..." : "Submit"}
-                {isSubmitting ? (
-                  <Loader2 className="w-4 h-4 ml-2 animate-spin" />
-                ) : (
-                  <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-all duration-300" />
-                )}
-              </Button>
-            )}
-          </div>
-        </div>
+          </FormLayout>
+        </form>
       </Form>
     </section>
   )
