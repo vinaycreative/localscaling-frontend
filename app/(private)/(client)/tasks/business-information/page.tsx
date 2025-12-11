@@ -13,6 +13,7 @@ import OnboardingVideo from "@/components/reusable/onboarding-video"
 import { ChevronRight, Loader2, Mail, CircleQuestionMark } from "lucide-react"
 import { CustomInput } from "@/components/reusable/custom-input"
 import { useBusinessInfo, useCreateBusinessInfo } from "@/hooks/use-business-info"
+import { normalizedUrl } from "@/lib/utils"
 
 const businessInformationFormSchema = z.object({
   company: z.string().min(1, "Company name is required"),
@@ -429,30 +430,7 @@ export default function BusinessInformationPage() {
                           value={field.value}
                           required={fieldName === "website"}
                           onChange={(event) => {
-                            const value = event.target.value.trim().toLowerCase()
-
-                            // Allow clearing input
-                            if (!value) {
-                              field.onChange("")
-                              return
-                            }
-
-                            // If user is manually deleting "https://" → DO NOT auto-correct yet
-                            if ("https://".startsWith(value.toLowerCase())) {
-                              field.onChange(value)
-                              return
-                            }
-
-                            const protocolPattern = /^https?:\/\//i
-                            const isExactProtocolOnly = value.match(protocolPattern)?.[0] === value
-                            const startsWithProtocol = protocolPattern.test(value)
-
-                            const normalizedUrl =
-                              startsWithProtocol && !isExactProtocolOnly
-                                ? value
-                                : `https://${value}`
-
-                            field.onChange(normalizedUrl)
+                            field.onChange(normalizedUrl(event.target.value))
                           }}
                           label={fieldName
                             .toLowerCase()
