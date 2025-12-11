@@ -48,25 +48,25 @@ const AccessToolField = ({ field, title, iconSrc, buttonText }: AccessToolFieldP
 
 const ACCESS_TOOLS = [
   {
-    key: "googleAds",
+    key: "google_ads_access_granted",
     title: "Google Ads",
     icon: "/google-ads.png",
     buttonText: "Grant Google Ads access",
   },
   {
-    key: "gtm",
+    key: "gtm_access_granted",
     title: "Google Tag Manager (GTM)",
     icon: "/google-tag.svg",
     buttonText: "Grant GTM access",
   },
   {
-    key: "ga4",
+    key: "ga4_access_granted",
     title: "Google Analytics 4 (GA4)",
     icon: "/google-analytics.png",
     buttonText: "Grant GA4 access",
   },
   {
-    key: "gsc",
+    key: "google_search_console_access_granted",
     title: "Google Search Console",
     icon: null,
     buttonText: "Grant Google Search Console access",
@@ -114,7 +114,7 @@ function ToolsAccessPage() {
       const payload: ToolsAccessForm = {
         ...values,
       }
-      await createToolsAccess(payload)
+      await createToolsAccess(values)
       toast.success("Website setup saved successfully!")
       handleNext()
     } catch (error) {
