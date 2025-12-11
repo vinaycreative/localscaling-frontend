@@ -49,9 +49,24 @@ export const CustomInput = ({
 
       {select ? (
         <Select onValueChange={onSelectChange} value={value}>
-          <SelectTrigger className="w-full bg-background cursor-pointer rounded focus-visible:ring-[0px] ">
-            <SelectValue placeholder={placeholder} />
-          </SelectTrigger>
+          <div
+            className={cn(
+              "flex w-full overflow-hidden border border-input rounded bg-background transition-all duration-200",
+              "hover:border-primary/50",
+              "focus-within:border-primary"
+            )}
+          >
+            <SelectTrigger
+              id={id}
+              className={cn(
+                "w-full bg-transparent border-none shadow-none focus-visible:ring-0 focus-visible:ring-offset-0",
+                "h-9.5 px-3 py-1 rounded-none"
+              )}
+            >
+              <SelectValue placeholder={placeholder} />
+            </SelectTrigger>
+          </div>
+
           <SelectContent className="cursor-pointer rounded">
             {selectOptions.map((option) => (
               <SelectItem
