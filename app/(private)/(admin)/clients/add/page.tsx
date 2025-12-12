@@ -1,18 +1,21 @@
-"use client";
+"use client"
 
-import type React from "react";
+import type React from "react"
 
-import Page from "@/components/base/Page";
-import { CustomInput } from "@/components/reusable/custom-input";
-import { Button } from "@/components/ui/button";
-import type { AddClientFormData } from "@/interfaces/client/add-client";
-import {
-  ChevronRight,
-  FileQuestion as CircleQuestionMark,
-  Mail,
-} from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import Page from "@/components/base/Page"
+import { CustomInput } from "@/components/reusable/custom-input"
+import { Button } from "@/components/ui/button"
+import { ChevronRight, FileQuestion as CircleQuestionMark, Mail } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { Fragment, useState } from "react"
+import z, { file } from "zod"
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form"
+import { ClientsFormData } from "@/interfaces/onboarding/clients"
+import { useCreateNewClients, useGetClients } from "@/hooks/use-clients"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { toast } from "sonner"
+import FormLayout from "@/components/ui/form-layout"
 
 const COUNTRY_OPTIONS = [
   { value: "US", label: "United States" },
@@ -23,7 +26,7 @@ const COUNTRY_OPTIONS = [
   { value: "FR", label: "France" },
   { value: "IN", label: "India" },
   { value: "JP", label: "Japan" },
-];
+]
 
 const STATE_OPTIONS = [
   { value: "CA", label: "California" },
@@ -34,54 +37,74 @@ const STATE_OPTIONS = [
   { value: "PA", label: "Pennsylvania" },
   { value: "OH", label: "Ohio" },
   { value: "GA", label: "Georgia" },
-];
+]
+
+export const createClientsSchema = z.object({
+  company_name: z.string().min(1, "Company name is required"),
+  client_name: z
+    .string()
+    .min(1, "Client name is required")
+    .max(100, "Client name must be less than 100 characters"),
+  client_email: z.string().min(1, "Email is required").email("Please enter a valid email address"),
+  vat_id: z.string().min(1, "VAT ID is required"),
+  street_address: z.string().min(1, "Street address is required"),
+  postal_code: z.string().min(1, "Postal code is required"),
+  city: z.string().min(1, "City is required"),
+  state: z.string().min(1, "State is required").max(50, "State must be less than 50 characters"),
+  country: z
+    .string()
+    .min(1, "Country is required")
+    .max(50, "Country must be less than 50 characters"),
+  monthly_payment: z
+    .string()
+    .min(1, "Monthly payment is required")
+    .regex(/^\d+(\.\d{1,2})?$/, "Please enter a valid amount (e.g., 1000 or 1000.50)")
+    .transform((val) => parseFloat(val).toFixed(2)),
+})
 
 function AddClientPage() {
-  const router = useRouter();
-  const [formData, setFormData] = useState<AddClientFormData>({
-    companyName: "",
-    clientName: "",
-    clientEmail: "",
-    vatId: "",
-    streetAddress: "",
-    postalCode: "",
-    city: "",
-    state: "",
-    country: "",
-    monthlyPayment: "",
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter()
+  const { data: clientsData, isLoading: clientsLoading, error: clientsError } = useGetClients()
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+  const {
+    createNewClients,
+    isPending: isSubmitting,
+    error: createNewClientsError,
+  } = useCreateNewClients()
 
-    console.log("Submitting client data:", formData);
-
-    setTimeout(() => {
-      setIsSubmitting(false);
-      handleBack();
-    }, 1000);
-  };
-
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = event.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [id]: value,
-    }));
-  };
-
-  const handleSelectChange = (id: keyof AddClientFormData, value: string) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      [id]: value,
-    }));
-  };
+  const form = useForm<z.infer<typeof createClientsSchema>>({
+    resolver: zodResolver(createClientsSchema),
+    defaultValues: {
+      company_name: "",
+      client_name: "",
+      client_email: "",
+      vat_id: "",
+      street_address: "",
+      postal_code: "",
+      city: "",
+      state: "",
+      country: "",
+      monthly_payment: "",
+    },
+  })
 
   const handleBack = (): void => {
-    router.back();
-  };
+    router.back()
+  }
+
+  const onSubmit = async (values: ClientsFormData) => {
+    try {
+      const payload: ClientsFormData = {
+        ...values,
+      }
+      await createNewClients(values)
+      toast.success("Website setup saved successfully!")
+      // handleNext()
+    } catch (error) {
+      toast.error("Failed to save changes.")
+    } finally {
+    }
+  }
 
   return (
     <Page
@@ -89,133 +112,242 @@ function AddClientPage() {
       title="Add New Client"
       description="Enter client details and billing information"
     >
-      <form
-        onSubmit={handleSubmit}
-        className="flex-1 overflow-hidden flex flex-col"
-      >
-        <div className="flex-1 overflow-y-auto p-6">
-          <div className="grid grid-cols-2 gap-4 max-w-4xl bg-background p-4 rounded ">
-            <CustomInput
-              label="Company name"
-              id="companyName"
-              type="text"
-              placeholder="Webbywolf Innovations"
-              required={true}
-              value={formData.companyName}
-              onChange={handleChange}
-              className="col-span-2"
-            />
-
-            <CustomInput
-              label="Client name"
-              id="clientName"
-              type="text"
-              placeholder="Olivia"
-              required={true}
-              value={formData.clientName}
-              onChange={handleChange}
-            />
-            <CustomInput
-              label="Client email"
-              id="clientEmail"
-              type="email"
-              placeholder="olivia@littlecloud.com"
-              required={true}
-              value={formData.clientEmail}
-              onChange={handleChange}
-              PrefixIcon={Mail}
-              SuffixIcon={CircleQuestionMark}
-            />
-
-            <CustomInput
-              label="VAT ID"
-              id="vatId"
-              type="text"
-              placeholder="DE123456789"
-              required={true}
-              value={formData.vatId}
-              onChange={handleChange}
-              className="col-span-2"
-            />
-
-            <CustomInput
-              label="Street address"
-              id="streetAddress"
-              type="text"
-              placeholder="123 Main Street"
-              required={true}
-              value={formData.streetAddress}
-              onChange={handleChange}
-              className="col-span-2"
-            />
-
-            <CustomInput
-              label="Postal code"
-              id="postalCode"
-              type="text"
-              placeholder="10001"
-              required={true}
-              value={formData.postalCode}
-              onChange={handleChange}
-            />
-            <CustomInput
-              label="City"
-              id="city"
-              type="text"
-              placeholder="New York"
-              required={true}
-              value={formData.city}
-              onChange={handleChange}
-            />
-
-            <CustomInput
-              label="State"
-              id="state"
-              placeholder="Select state"
-              required={true}
-              value={formData.state}
-              select={true}
-              selectOptions={STATE_OPTIONS}
-              onSelectChange={(value) => handleSelectChange("state", value)}
-            />
-            <CustomInput
-              label="Country"
-              id="country"
-              placeholder="Select country"
-              required={true}
-              value={formData.country}
-              select={true}
-              selectOptions={COUNTRY_OPTIONS}
-              onSelectChange={(value) => handleSelectChange("country", value)}
-            />
-
-            <CustomInput
-              label="Monthly payment (Excluding taxes)"
-              id="monthlyPayment"
-              type="text"
-              placeholder="$5,000"
-              required={true}
-              value={formData.monthlyPayment}
-              onChange={handleChange}
-              className="col-span-2"
-              prefixText="$"
-            />
-          </div>
-        </div>
-
-        <div className="border-t border-border px-6 py-4 flex items-center justify-end bg-background">
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            className="rounded group bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="overflow-scroll">
+          <FormLayout
+            className="grid-cols-2"
+            footer={
+              <Fragment>
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="rounded group bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
+                >
+                  {isSubmitting ? "Saving..." : "Add lead"}
+                  <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-all duration-300" />
+                </Button>
+              </Fragment>
+            }
           >
-            {isSubmitting ? "Saving..." : "Add lead"}
-            <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-all duration-300" />
-          </Button>
-        </div>
-      </form>
+            <FormField
+              control={form.control}
+              name="company_name"
+              render={({ field }) => (
+                <FormItem className="col-span-2">
+                  <FormControl>
+                    <CustomInput
+                      label="Company name"
+                      id={field.name}
+                      type="text"
+                      placeholder="Webbywolf Innovations"
+                      required={true}
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="client_name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <CustomInput
+                      label="Company name"
+                      id={field.name}
+                      type="text"
+                      placeholder="Olivia"
+                      required={true}
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="client_email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <CustomInput
+                      label="Client email"
+                      id={field.name}
+                      type="email"
+                      placeholder="olivia@littlecloud.com"
+                      required={true}
+                      value={field.value}
+                      onChange={field.onChange}
+                      PrefixIcon={Mail}
+                      SuffixIcon={CircleQuestionMark}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="vat_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <CustomInput
+                      label="VAT ID"
+                      id={field.name}
+                      type="text"
+                      placeholder="DE123456789"
+                      required={true}
+                      value={field.value}
+                      onChange={field.onChange}
+                      className="col-span-2"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="street_address"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <CustomInput
+                      label="Street address"
+                      id={field.name}
+                      type="text"
+                      placeholder="123 Main Street"
+                      required={true}
+                      value={field.value}
+                      onChange={field.onChange}
+                      className="col-span-2"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="postal_code"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <CustomInput
+                      label="Postal code"
+                      id={field.name}
+                      type="text"
+                      placeholder="10001"
+                      required={true}
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="city"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <CustomInput
+                      label="City"
+                      id={field.name}
+                      type="text"
+                      placeholder="New York"
+                      required={true}
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="state"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <CustomInput
+                      label="State"
+                      id={field.name}
+                      type="text"
+                      placeholder="Select state"
+                      required={true}
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="country"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <CustomInput
+                      label="Country"
+                      id={field.name}
+                      type="text"
+                      placeholder="Select country"
+                      required={true}
+                      value={field.value}
+                      select={true}
+                      selectOptions={COUNTRY_OPTIONS}
+                      onSelectChange={(value) => field.onChange(value)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="monthly_payment"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <CustomInput
+                      label="Monthly payment (Excluding taxes)"
+                      id="monthlyPayment"
+                      type="number"
+                      placeholder="$5,000"
+                      required={true}
+                      value={field.value}
+                      onChange={field.onChange}
+                      className="col-span-2"
+                      prefixText="$"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </FormLayout>
+        </form>
+      </Form>
     </Page>
-  );
+  )
 }
 
-export default AddClientPage;
+export default AddClientPage
