@@ -1,18 +1,11 @@
-import { NavUser } from "@/components/sidebar/nav-user";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-} from "@/components/ui/sidebar";
-import { Role, type RoleValue } from "@/constants/auth";
-import { parseJwtPayload } from "@/lib/auth/parse";
-import { MessageCircle } from "lucide-react";
-import { cookies } from "next/headers";
-import Image from "next/image";
-import * as React from "react";
-import { NavMain } from "./nav-main";
-import { NavSecondary } from "./nav-secondary";
+import { NavUser } from "@/components/sidebar/nav-user"
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader } from "@/components/ui/sidebar"
+import { MessageCircle } from "lucide-react"
+import Image from "next/image"
+import * as React from "react"
+import { NavMain } from "./nav-main"
+import { NavSecondary } from "./nav-secondary"
+import { useLoggedInUser } from "@/hooks/useAuth"
 
 const data = {
   user: {
@@ -27,41 +20,25 @@ const data = {
       icon: MessageCircle,
     },
   ],
-};
+}
 
-export default async function AppSidebar({
-  ...props
-}: React.ComponentProps<typeof Sidebar>) {
-  const jar = await cookies();
-  const token = jar.get("access_token")?.value;
-  const decoded = token ? parseJwtPayload(token) : null;
-  const rawRole = decoded?.role;
-  const role =
-    rawRole === "authenticated" || !rawRole
-      ? Role.CLIENT
-      : (rawRole as RoleValue);
-  const name = decoded?.name ?? "User";
-  const email = decoded?.email ?? "";
+export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { user } = useLoggedInUser()
+
   return (
     <Sidebar {...props} variant="floating" className="bg-muted">
       <SidebarHeader className="h-16 bg-background rounded-t-md ">
         <div className="flex h-full w-full items-center justify-start px-2">
-          <Image
-            width={100}
-            height={50}
-            src="/logo.svg"
-            alt="Logo"
-            className="w-40"
-          />
+          <Image width={100} height={50} src="/logo.svg" alt="Logo" className="w-40" />
         </div>
       </SidebarHeader>
       <SidebarContent className="bg-background">
-        <NavMain initialRole={role} />
+        <NavMain initialRole={user?.role} />
       </SidebarContent>
       <SidebarFooter className="bg-background rounded-b-md">
         <NavSecondary items={data.navSecondary} className="mt-auto" />
-        <NavUser user={{ name, email }} />
+        <NavUser user={{ name: user?.first_name ?? "", email: user?.email ?? "" }} />
       </SidebarFooter>
     </Sidebar>
-  );
+  )
 }

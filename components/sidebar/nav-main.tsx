@@ -22,7 +22,7 @@ import {
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Badge } from "../ui/badge"
-import { useAuth } from "@/hooks/use-auth"
+import { useLoggedInUser } from "@/hooks/useAuth"
 import type { RoleValue } from "@/constants/auth"
 import { Role } from "@/constants/auth"
 
@@ -49,24 +49,24 @@ const NAV_ITEMS: readonly NavItem[] = [
     label: "Dashboard",
     href: "/dashboard",
     icon: Home,
-    roles: [Role.CLIENT, Role.SUPPORT_HEAD_ADMIN, Role.SUPPORT_ADMIN, Role.ADMIN],
+    roles: [Role.client, Role.support_head_admin, Role.support_admin, Role.admin],
   },
   {
     label: "Tickets",
     href: "/tickets",
     icon: Ticket,
-    roles: [Role.SUPPORT_HEAD_ADMIN, Role.SUPPORT_ADMIN],
+    roles: [Role.support_head_admin, Role.support_admin],
   },
-  { label: "Projects", href: "/projects", icon: Server, roles: [Role.ADMIN] },
-  { label: "Clients", href: "/clients", icon: Users, roles: [Role.ADMIN] },
-  { label: "Tools", href: "/tools", icon: ToggleRight, roles: [Role.ADMIN] },
-  { label: "Finance", href: "/finance", icon: ChartPie, roles: [Role.ADMIN] },
+  { label: "Projects", href: "/projects", icon: Server, roles: [Role.admin] },
+  { label: "Clients", href: "/clients", icon: Users, roles: [Role.admin] },
+  { label: "Tools", href: "/tools", icon: ToggleRight, roles: [Role.admin] },
+  { label: "Finance", href: "/finance", icon: ChartPie, roles: [Role.admin] },
 ]
 
 export function NavMain({ initialRole }: { initialRole?: RoleValue }) {
   const pathName = usePathname()
-  const { user } = useAuth()
-  const role = user?.role ?? initialRole
+  const { user } = useLoggedInUser()
+  const role = user?.role
   if (!role) return null
   return (
     <SidebarMenu>
@@ -86,7 +86,7 @@ export function NavMain({ initialRole }: { initialRole?: RoleValue }) {
       ))}
 
       <SidebarGroup className="py-0">
-        {role === Role.CLIENT && (
+        {role === Role.client && (
           <Collapsible defaultOpen className="group/collapsible">
             <SidebarGroupLabel
               asChild

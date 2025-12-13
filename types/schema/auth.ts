@@ -2,7 +2,6 @@ import { z } from "zod"
 import { ApiResponseSchema } from "@/types/schema/commonSchema"
 
 export const RoleEnum = z.enum(["client", "admin", "support_admin", "support_head_admin"]) // matches constants/auth.ts
-
 export const AuthUserSchema = z.object({
   id: z.string(),
   first_name: z.string(),
@@ -11,7 +10,7 @@ export const AuthUserSchema = z.object({
   role: RoleEnum,
 })
 
-export type AuthUser = z.infer<typeof AuthUserSchema>
-
 export const LoginResponseSchema = ApiResponseSchema(AuthUserSchema)
-export type MeResponseSchema = z.infer<typeof LoginResponseSchema>
+
+export type AuthUser = z.infer<typeof AuthUserSchema>
+export type LoginResponse = z.infer<typeof LoginResponseSchema>
