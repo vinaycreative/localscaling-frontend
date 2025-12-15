@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils"
 import React, { ReactNode } from "react"
 
 type FormLayoutProps = {
+  wrapperClassName?: string
   className?: string
   headerClassName?: string
   footerClassName?: string
@@ -14,6 +15,7 @@ const FormLayout = ({
   children,
   footer,
   header,
+  wrapperClassName,
   className,
   footerClassName,
   headerClassName,
@@ -22,7 +24,8 @@ const FormLayout = ({
     <div
       className={cn(
         "rounded-lg border-border border bg-background w-full h-full grid grid-rows-[auto_60px]",
-        header && "grid-rows-[auto_auto_60px]"
+        header && "grid-rows-[auto_auto_60px]",
+        wrapperClassName
       )}
     >
       {header && (
