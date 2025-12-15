@@ -14,7 +14,7 @@ interface PageProps {
 
 const Page = ({ children, navURL, navURLCount, title, description, rightButton }: PageProps) => {
   return (
-    <main className="grid grid-rows-[60px_1fr] w-full h-dvh px-3 pt-4 pb-2 overflow-hidden">
+    <main className="grid grid-rows-[52px_1fr] w-full h-dvh px-3 pt-4 pb-2 overflow-hidden">
       <Header>
         <Link
           href={`/${navURL.toLowerCase()}`}

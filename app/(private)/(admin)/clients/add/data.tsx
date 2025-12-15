@@ -87,8 +87,8 @@ export const ClinetData = () => {
   }
 
   return (
-    <div className="flex flex-col gap-4 py-4 flex-1 overflow-y-hidden">
-      <Table className="bg-background rounded-xl overflow-y-auto">
+    <div className="flex flex-col gap-4 py-4 flex-1 h-full">
+      <Table className="bg-background rounded-xl">
         <TableHeader>
           <TableRow>
             <TableHead className="w-12 px-4">
