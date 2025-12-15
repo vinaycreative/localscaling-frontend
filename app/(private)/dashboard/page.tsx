@@ -3,187 +3,91 @@
 import Page from "@/components/base/Page"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Checkbox } from "@/components/ui/checkbox"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { ChevronDown, ChevronsUpDown, ChevronUp, MoreVertical } from "lucide-react"
+import { DataTable, ColumnDef } from "@/components/reusable/data-table"
+import { useGetClientLeads } from "@/hooks/useClientLead"
+import { MoreVertical } from "lucide-react"
 import { useState } from "react"
+import moment from "moment"
+import { ClientLeads } from "@/types/schema/clientLeadSchema"
 
 function Dashboard() {
-  const [selectedProjects, setSelectedProjects] = useState<number[]>([])
-  const [sortColumn, setSortColumn] = useState<string | null>(null)
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc")
+  const { data, isLoading, error } = useGetClientLeads()
+  const [selectedProjects, setSelectedProjects] = useState<(string | number)[]>([])
+
+  const activeProjects = data?.filter((client) => client.status === "completed").length || 0
+  const pendingClientActions = data?.filter((client) => client.status === "pending").length || 0
+  const pendingTasks = data?.filter((client) => client.status === "delayed").length || 0
 
   const metrics = [
-    { label: "Active projects", value: "82" },
-    { label: "Pending client actions", value: "13" },
-    { label: "Pending tasks", value: "3" },
+    { label: "Active projects", value: activeProjects.toString() },
+    { label: "Pending client actions", value: pendingClientActions.toString() },
+    { label: "Pending tasks", value: pendingTasks.toString() },
   ]
 
-  const projectsData = [
+  const getStatusColor = (state: string) => {
+    switch (state?.toLowerCase()) {
+      case "completed":
+        return "bg-green-500"
+      case "pending":
+        return "bg-yellow-500"
+      case "delayed":
+        return "bg-red-500"
+      default:
+        return "bg-gray-500"
+    }
+  }
+
+  const columns: ColumnDef<ClientLeads["data"][number]>[] = [
     {
-      id: 1,
-      name: "GreenCity Bins",
-      stage: "Branding",
-      owner: "John doe",
-      lastUpdate: "Sep 1, 2025",
-      status: "On time",
-      statusColor: "bg-green-500",
+      accessorKey: "name",
+      header: "Owner",
+      sortable: true,
+      cell: (row) => <span className="text-muted-foreground">{row.name}</span>,
     },
     {
-      id: 2,
-      name: "Enterprising24 GmbH",
-      stage: "Google ads",
-      owner: "John doe",
-      lastUpdate: "Sep 1, 2025",
-      status: "Delayed",
-      statusColor: "bg-red-500",
+      accessorKey: "company_name",
+      header: "Company name",
+      sortable: true,
+      cell: (row) => <span className="font-medium text-foreground">{row.company_name}</span>,
     },
     {
-      id: 3,
-      name: "ElektroPius Berlin",
-      stage: "Website setup",
-      owner: "John doe",
-      lastUpdate: "Sep 1, 2025",
-      status: "Pending",
-      statusColor: "bg-yellow-500",
+      accessorKey: "monthly_payment_excluding_taxes",
+      header: "Payment",
+      sortable: true,
+      cell: (row) => (
+        <span className="text-muted-foreground">{row.monthly_payment_excluding_taxes}</span>
+      ),
     },
     {
-      id: 4,
-      name: "GreenCity Bins",
-      stage: "Branding",
-      owner: "John doe",
-      lastUpdate: "Sep 1, 2025",
-      status: "On time",
-      statusColor: "bg-green-500",
+      accessorKey: "payment_status",
+      header: "Payment Status",
+      sortable: true,
+      cell: (row) => (
+        <span className="text-muted-foreground capitalize">{row.payment_status}</span>
+      ),
     },
     {
-      id: 5,
-      name: "Enterprising24 GmbH",
-      stage: "Google ads",
-      owner: "John doe",
-      lastUpdate: "Sep 1, 2025",
-      status: "Delayed",
-      statusColor: "bg-red-500",
+      accessorKey: "status",
+      header: "Status",
+      sortable: true,
+      cell: (row) => (
+        <span className="text-muted-foreground">
+          {row.status === "pending" ? "Started" : "Completed"}
+        </span>
+      ),
     },
+
     {
-      id: 6,
-      name: "ElektroPius Berlin",
-      stage: "Website setup",
-      owner: "John doe",
-      lastUpdate: "Sep 1, 2025",
-      status: "Pending",
-      statusColor: "bg-yellow-500",
-    },
-    {
-      id: 7,
-      name: "GreenCity Bins",
-      stage: "Branding",
-      owner: "John doe",
-      lastUpdate: "Sep 1, 2025",
-      status: "On time",
-      statusColor: "bg-green-500",
-    },
-    {
-      id: 8,
-      name: "Enterprising24 GmbH",
-      stage: "Google ads",
-      owner: "John doe",
-      lastUpdate: "Sep 1, 2025",
-      status: "Delayed",
-      statusColor: "bg-red-500",
-    },
-    {
-      id: 9,
-      name: "ElektroPius Berlin",
-      stage: "Website setup",
-      owner: "John doe",
-      lastUpdate: "Sep 1, 2025",
-      status: "Pending",
-      statusColor: "bg-yellow-500",
-    },
-    {
-      id: 10,
-      name: "GreenCity Bins",
-      stage: "Branding",
-      owner: "John doe",
-      lastUpdate: "Sep 1, 2025",
-      status: "On time",
-      statusColor: "bg-green-500",
-    },
-    {
-      id: 11,
-      name: "Enterprising24 GmbH",
-      stage: "Google ads",
-      owner: "John doe",
-      lastUpdate: "Sep 1, 2025",
-      status: "Delayed",
-      statusColor: "bg-red-500",
-    },
-    {
-      id: 12,
-      name: "ElektroPius Berlin",
-      stage: "Website setup",
-      owner: "John doe",
-      lastUpdate: "Sep 1, 2025",
-      status: "Pending",
-      statusColor: "bg-yellow-500",
+      accessorKey: "created_at",
+      header: "Last update",
+      sortable: true,
+      cell: (row) => (
+        <span className="text-muted-foreground">
+          {row.created_at ? moment(row.created_at).format("lll") : "-"}
+        </span>
+      ),
     },
   ]
-
-  const toggleProject = (id: number) => {
-    setSelectedProjects((prev) =>
-      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
-    )
-  }
-
-  const handleSort = (column: string) => {
-    if (sortColumn === column) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc")
-    } else {
-      setSortColumn(column)
-      setSortDirection("asc")
-    }
-  }
-
-  const sortedProjects = [...projectsData].sort((a, b) => {
-    if (!sortColumn) return 0
-
-    const aValue = a[sortColumn as keyof typeof a]
-    const bValue = b[sortColumn as keyof typeof b]
-
-    if (typeof aValue === "string" && typeof bValue === "string") {
-      return sortDirection === "asc" ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue)
-    }
-
-    return 0
-  })
-
-  const SortIcon = ({ column }: { column: string }) => {
-    if (sortColumn !== column) return <ChevronsUpDown className="w-4 h-4 opacity-40" />
-    return sortDirection === "asc" ? (
-      <ChevronUp className="w-4 h-4" />
-    ) : (
-      <ChevronDown className="w-4 h-4" />
-    )
-  }
-
-  const allProjectIds = projectsData.map((p) => p.id)
-  const isAllSelected = selectedProjects.length === projectsData.length && projectsData.length > 0
-
-  const toggleSelectAll = (checked: boolean) => {
-    if (checked) {
-      setSelectedProjects(allProjectIds)
-    } else {
-      setSelectedProjects([])
-    }
-  }
 
   return (
     <Page
@@ -230,87 +134,30 @@ function Dashboard() {
           </div>
         </div>
 
-        <Table className="bg-background rounded-xl overflow-y-auto">
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-12 px-4">
-                <Checkbox
-                  checked={isAllSelected}
-                  onCheckedChange={toggleSelectAll}
-                  className="cursor-pointer"
-                />
-              </TableHead>
-              <TableHead>
-                <button
-                  onClick={() => handleSort("name")}
-                  className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all duration-300 cursor-pointer"
-                >
-                  Client/Project name
-                  <SortIcon column="name" />
-                </button>
-              </TableHead>
-              <TableHead>
-                <button
-                  onClick={() => handleSort("stage")}
-                  className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all duration-300 cursor-pointer"
-                >
-                  Stage
-                  <SortIcon column="stage" />
-                </button>
-              </TableHead>
-              <TableHead>
-                <button
-                  onClick={() => handleSort("owner")}
-                  className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all duration-300 cursor-pointer"
-                >
-                  Owner
-                  <SortIcon column="owner" />
-                </button>
-              </TableHead>
-              <TableHead>
-                <button
-                  onClick={() => handleSort("lastUpdate")}
-                  className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all duration-300 cursor-pointer"
-                >
-                  Last update
-                  <SortIcon column="lastUpdate" />
-                </button>
-              </TableHead>
-              <TableHead>
-                <button
-                  onClick={() => handleSort("status")}
-                  className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all duration-300 cursor-pointer"
-                >
-                  Status
-                  <SortIcon column="status" />
-                </button>
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {sortedProjects.map((project) => (
-              <TableRow key={project.id}>
-                <TableCell className="py-4  px-4">
-                  <Checkbox
-                    checked={selectedProjects.includes(project.id)}
-                    onCheckedChange={() => toggleProject(project.id)}
-                    className="cursor-pointer"
-                  />
-                </TableCell>
-                <TableCell className="font-medium">{project.name}</TableCell>
-                <TableCell className="text-muted-foreground">{project.stage}</TableCell>
-                <TableCell className="text-muted-foreground">{project.owner}</TableCell>
-                <TableCell className="text-muted-foreground">{project.lastUpdate}</TableCell>
-                <TableCell className="text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <div className={`w-2 h-2 rounded-full ${project.statusColor}`}></div>
-                    <span>{project.status}</span>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        {isLoading ? (
+          <div className="flex items-center justify-center py-8">
+            <p className="text-muted-foreground">Loading...</p>
+          </div>
+        ) : error ? (
+          <div className="flex items-center justify-center py-8">
+            <p className="text-destructive">Error loading client leads</p>
+          </div>
+        ) : !data || data.length === 0 ? (
+          <div className="flex items-center justify-center py-8">
+            <p className="text-muted-foreground">No client leads found</p>
+          </div>
+        ) : (
+          <DataTable
+            data={data}
+            columns={columns}
+            enableSelection={true}
+            onSelectionChange={(selectedIds) => setSelectedProjects(selectedIds)}
+            getRowId={(row) => {
+              const id = row.id || `client-${row.name}-${row.company_name}`
+              return id as string | number
+            }}
+          />
+        )}
       </div>
     </Page>
   )

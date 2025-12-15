@@ -1,7 +1,7 @@
 import Page from "@/components/base/Page"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { ClinetData } from "./add/data"
+import { ClinetData } from "./data"
 
 function ClientsPage() {
   return (

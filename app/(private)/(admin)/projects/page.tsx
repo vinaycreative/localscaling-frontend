@@ -184,7 +184,7 @@ function ProjectsPage() {
       title="Projects"
       description="Overview of project progress, client assets, and setup status."
     >
-      <div className="flex flex-col h-full overflow-hidden py-4 min-h-0">
+      <div className="flex flex-col h-full overflow-hidden pt-4 min-h-0">
         <DataTable
           data={projectsData}
           columns={columns}

@@ -1,5 +1,4 @@
 import { z } from "zod"
-import { ApiResponseSchema } from "@/types/schema/commonSchema"
 
 export const createClientsSchema = z.object({
   id: z.string().optional(),
@@ -27,8 +26,3 @@ export const createClientsSchema = z.object({
   created_at: z.string().optional(),
   updated_at: z.string().optional(),
 })
-
-export type CreateClientsSchema = z.infer<typeof createClientsSchema>
-export const CreateClientsResponseSchema = ApiResponseSchema(createClientsSchema)
-export const GetClientsResponseSchema = ApiResponseSchema(createClientsSchema.array())
-export type CreateClientsResponse = z.infer<typeof CreateClientsResponseSchema>
