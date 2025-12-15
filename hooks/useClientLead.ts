@@ -8,8 +8,8 @@ export const useCreateClientLead = () => {
   return useCreateClientLeadMutation()
 }
 
-export const useGetClientLeads = () => {
-  const { data, isLoading, error } = useGetClientLeadsQuery()
+export const useGetClientLeads = (type: "internal" | "client") => {
+  const { data, isLoading, error } = useGetClientLeadsQuery(type)
   return { data: data?.data?.data, isLoading, error }
 }
 

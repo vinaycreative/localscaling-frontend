@@ -21,7 +21,8 @@ export default function LoginPage() {
   const router = useRouter()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const { login, isLoginLoading } = useAuth()
+  const [loginType, setLoginType] = useState<"internal" | "client">("internal")
+  const { login, isLoginLoading } = useAuth(loginType)
 
   const onSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault()
@@ -79,6 +80,7 @@ export default function LoginPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => {
+                  setLoginType(r.label === "Client" ? "client" : "internal")
                   setEmail(r.email)
                   setPassword("Dealer@1234")
                 }}

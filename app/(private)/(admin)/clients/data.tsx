@@ -6,9 +6,12 @@ import Image from "next/image"
 import moment from "moment"
 import { ClientLeads } from "@/types/schema/clientLeadSchema"
 import Link from "next/link"
+import { useAuthStore } from "@/store/authStore"
+import { useLoggedInUser } from "@/hooks/useAuth"
 
 export const ClinetData = () => {
-  const { data, isLoading, error } = useGetClientLeads()
+  const { user } = useLoggedInUser()
+  const { data, isLoading, error } = useGetClientLeads(user?.type as "internal" | "client")
   const [selectedClients, setSelectedClients] = useState<(string | number)[]>([])
 
   const getPaymentColor = (status: string) => {

@@ -15,7 +15,7 @@ export async function getBusinessInfo() {
 export async function createBusinessInfo(data: BusinessFormData) {
   try {
     console.log("data is ", data)
-    const res = await api.post("/onboarding/business-info", data)
+    const res = await api.post("/client/info/business-info", data)
     return res.data
   } catch (error) {
     logError(error)

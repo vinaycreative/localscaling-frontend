@@ -8,6 +8,7 @@ export const AuthUserSchema = z.object({
   last_name: z.string().nullable(),
   email: z.string().email(),
   role: RoleEnum,
+  type: z.enum(["internal", "client"]),
 })
 
 export const LoginResponseSchema = ApiResponseSchema(AuthUserSchema)

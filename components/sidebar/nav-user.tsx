@@ -1,13 +1,5 @@
-"use client";
-
-import {
-  BadgeCheck,
-  Bell,
-  ChevronsUpDown,
-  CreditCard,
-  LogOut,
-  Sparkles,
-} from "lucide-react";
+"use client"
+import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles } from "lucide-react"
 
 import {
   DropdownMenu,
@@ -17,27 +9,22 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu"
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@/components/ui/sidebar";
-import { useLogout } from "@/hooks/use-logout";
-import { useRouter } from "next/navigation";
+} from "@/components/ui/sidebar"
+import { useLogout } from "@/hooks/use-logout"
+import { useRouter } from "next/navigation"
+import { useLoggedInUser } from "@/hooks/useAuth"
 
-export function NavUser({
-  user,
-}: {
-  user: {
-    name: string;
-    email: string;
-  };
-}) {
-  const { isMobile } = useSidebar();
-  const logout = useLogout();
-  const router = useRouter();
+export function NavUser() {
+  const { user } = useLoggedInUser()
+  const { isMobile } = useSidebar()
+  const logout = useLogout()
+  const router = useRouter()
 
   return (
     <SidebarMenu>
@@ -49,8 +36,10 @@ export function NavUser({
               className="bg-muted text-foreground cursor-pointer focus-visible:ring-0"
             >
               <div className="flex flex-col flex-1 text-left text-sm leading-tight text-foreground">
-                <span className="truncate font-medium">{user.name}</span>
-                <span className="truncate text-xs">{user.email}</span>
+                <span className="truncate font-medium">
+                  {user?.first_name} {user?.last_name}
+                </span>
+                <span className="truncate text-xs">{user?.email}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -64,8 +53,10 @@ export function NavUser({
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <div className="grid flex-1 text-left text-sm leading-tight text-foreground">
-                  <span className="truncate font-medium">{user.name}</span>
-                  <span className="truncate text-xs">{user.email}</span>
+                  <span className="truncate font-medium">
+                    {user?.first_name} {user?.last_name}
+                  </span>
+                  <span className="truncate text-xs">{user?.email}</span>
                 </div>
               </div>
             </DropdownMenuLabel>
@@ -95,8 +86,8 @@ export function NavUser({
             <DropdownMenuItem
               className="cursor-pointer"
               onClick={async () => {
-                await logout.mutateAsync();
-                router.replace("/login");
+                await logout.mutateAsync()
+                router.replace("/login")
               }}
             >
               <LogOut />
@@ -106,5 +97,5 @@ export function NavUser({
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
-  );
+  )
 }

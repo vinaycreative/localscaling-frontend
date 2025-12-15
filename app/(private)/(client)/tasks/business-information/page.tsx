@@ -11,7 +11,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import OnboardingVideo from "@/components/reusable/onboarding-video"
 import { ChevronRight, Loader2, Mail, CircleQuestionMark } from "lucide-react"
 import { CustomInput } from "@/components/reusable/custom-input"
-import { useBusinessInfo, useCreateBusinessInfo } from "@/hooks/use-business-info"
+import { useBusinessInfo, useCreateBusinessInfo } from "@/hooks/useBusinessInfo"
 import { normalizedUrl } from "@/lib/utils"
 import FormLayout from "@/components/ui/form-layout"
 
@@ -112,14 +112,12 @@ export default function BusinessInformationPage() {
   }, [businessInfoData])
 
   const onSubmit = async (values: z.infer<typeof businessInformationFormSchema>) => {
-    try {
-      await createBusinessInfo(values as any)
-      toast.success("Business information saved!")
-      router.push("/tasks/branding-content")
-    } catch (error) {
-      toast.error("Failed to save. Please try again.")
-    } finally {
-    }
+    await createBusinessInfo(values as any, {
+      onSuccess: () => {
+        toast.success("Business information saved!")
+        router.push("/tasks/branding-content")
+      },
+    })
   }
 
   if (businessInfoLoading) {

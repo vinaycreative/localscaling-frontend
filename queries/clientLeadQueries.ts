@@ -19,10 +19,12 @@ export const useCreateClientLeadMutation = () => {
   })
 }
 
-export const useGetClientLeadsQuery = () => {
+export const useGetClientLeadsQuery = (type: "internal" | "client") => {
+  const isInternal = type === "internal"
   return useQuery({
     queryKey: ["client-leads"],
     queryFn: getClientLeads,
+    enabled: isInternal,
   })
 }
 

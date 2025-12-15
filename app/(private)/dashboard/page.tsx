@@ -9,9 +9,13 @@ import { MoreVertical } from "lucide-react"
 import { useState } from "react"
 import moment from "moment"
 import { ClientLeads } from "@/types/schema/clientLeadSchema"
+import { useLoggedInUser } from "@/hooks/useAuth"
+import { useAuthStore } from "@/store/authStore"
 
 function Dashboard() {
-  const { data, isLoading, error } = useGetClientLeads()
+  const { user } = useAuthStore()
+  console.log("user is ", user)
+  const { data, isLoading, error } = useGetClientLeads(user?.type as "internal" | "client")
   const [selectedProjects, setSelectedProjects] = useState<(string | number)[]>([])
 
   const activeProjects = data?.filter((client) => client.status === "active").length || 0

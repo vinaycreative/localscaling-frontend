@@ -10,26 +10,22 @@ import { useRouter } from "next/navigation"
 export const useFetchAuthQuery = () => {
   return useQuery<AuthUser>({
     queryKey: ["auth"],
-    queryFn: async () => {
-      const user = await fetchLoggedInUser()
-      if (user) {
-        useAuthStore.setState({ user: user as AuthUser })
-      }
-      return user
-    },
-    staleTime: 1000 * 60 * 10,
-    refetchOnWindowFocus: false,
-    retry: false,
+    queryFn: async () => fetchLoggedInUser(),
+    retry: 3,
   })
 }
 
-export const useLoginMutation = () => {
+export const useLoginMutation = (type: "internal" | "client") => {
   const router = useRouter()
   return useMutation({
     mutationFn: ({ email, password }: { email: string; password: string }) =>
-      login(email, password),
+      login(email, password, type),
     onSuccess: (user) => {
-      useAuthStore.setState({ user: user as AuthUser })
+      useAuthStore.setState({ user: user as AuthUser, userType: type })
+      // Store userType in localStorage for persistence across page refreshes
+      if (typeof window !== "undefined") {
+        localStorage.setItem("user-type", type)
+      }
       toast.success(`Welcome ${user?.first_name} ${user?.last_name}`)
       router.replace(DefaultRedirectByRole[user.role as RoleValue] ?? "/")
     },

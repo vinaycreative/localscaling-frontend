@@ -5,7 +5,8 @@ import { useStore } from "zustand"
 
 type AuthState = {
   user: AuthUser | null
-  setAuth: (user: AuthUser) => void
+  userType: "internal" | "client" | null
+  setAuth: (user: AuthUser, userType: "internal" | "client") => void
   clearAuth: () => void
   hasRole: (roles: RoleValue) => boolean
   canAccess: (pathname: string) => boolean
@@ -13,8 +14,9 @@ type AuthState = {
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
-  setAuth: (user) => set({ user }),
-  clearAuth: () => set({ user: null }),
+  userType: null,
+  setAuth: (user, userType) => set({ user, userType }),
+  clearAuth: () => set({ user: null, userType: null }),
   hasRole: (roles) => {
     const current = get().user?.role as RoleValue
     if (!current) return false

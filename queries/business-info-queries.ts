@@ -1,11 +1,12 @@
 import { createBusinessInfo, getBusinessInfo } from "@/api/business-info"
 import { BUSINESS_INFO_KEY } from "@/constants/query-keys"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { getApiErrorMessage } from "@/utils/formatAxiosError"
 import { toast } from "sonner"
 
 export const useGetBusinessInfoQuery = () => {
   return useQuery({
-    queryKey: [BUSINESS_INFO_KEY],
+    queryKey: ["business-info"],
     queryFn: getBusinessInfo,
   })
 }
@@ -15,11 +16,10 @@ export const useCreateBusinessInfoMutation = () => {
   return useMutation({
     mutationFn: createBusinessInfo,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [BUSINESS_INFO_KEY] })
-      toast.success("Business Information saved successfully")
+      queryClient.invalidateQueries({ queryKey: ["business-info"] })
     },
     onError: (error) => {
-      //   toast.error(getApiErrorMessage(error))
+      toast.error(getApiErrorMessage(error))
     },
   })
 }

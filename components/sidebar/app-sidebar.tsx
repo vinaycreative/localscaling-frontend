@@ -37,7 +37,7 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
       </SidebarContent>
       <SidebarFooter className="bg-background rounded-b-md">
         <NavSecondary items={data.navSecondary} className="mt-auto" />
-        <NavUser user={{ name: user?.first_name ?? "", email: user?.email ?? "" }} />
+        <NavUser />
       </SidebarFooter>
     </Sidebar>
   )
