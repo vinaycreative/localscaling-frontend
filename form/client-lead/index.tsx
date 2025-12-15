@@ -297,7 +297,7 @@ export const ClientLeadForm = () => {
                       label="Monthly payment (Excluding taxes)"
                       id="monthlyPayment"
                       type="number"
-                      placeholder="$5,000"
+                      placeholder="Ex. 5000"
                       required={true}
                       value={field.value}
                       onChange={field.onChange}

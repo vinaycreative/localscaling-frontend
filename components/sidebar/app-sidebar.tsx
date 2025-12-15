@@ -26,7 +26,7 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
   const { user } = useLoggedInUser()
 
   return (
-    <Sidebar {...props} variant="floating" className="bg-muted">
+    <Sidebar {...props} variant="floating" className="bg-muted shadow-none">
       <SidebarHeader className="h-16 bg-background rounded-t-md ">
         <div className="flex h-full w-full items-center justify-start px-2">
           <Image width={100} height={50} src="/logo.svg" alt="Logo" className="w-40" />

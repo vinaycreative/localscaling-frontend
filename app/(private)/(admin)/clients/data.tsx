@@ -5,6 +5,7 @@ import { DataTable, ColumnDef } from "@/components/reusable/data-table"
 import Image from "next/image"
 import moment from "moment"
 import { ClientLeads } from "@/types/schema/clientLeadSchema"
+import Link from "next/link"
 
 export const ClinetData = () => {
   const { data, isLoading, error } = useGetClientLeads()
@@ -33,7 +34,14 @@ export const ClinetData = () => {
       accessorKey: "company_name",
       header: "Company name",
       sortable: true,
-      cell: (row) => <span className="font-medium text-foreground">{row.company_name}</span>,
+      cell: (row) => (
+        <Link
+          href={`/clients/payment?success=${row.id}`}
+          className="font-medium text-foreground hover:underline"
+        >
+          {row.company_name}
+        </Link>
+      ),
     },
     {
       accessorKey: "name",

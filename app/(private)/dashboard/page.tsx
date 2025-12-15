@@ -14,7 +14,7 @@ function Dashboard() {
   const { data, isLoading, error } = useGetClientLeads()
   const [selectedProjects, setSelectedProjects] = useState<(string | number)[]>([])
 
-  const activeProjects = data?.filter((client) => client.status === "completed").length || 0
+  const activeProjects = data?.filter((client) => client.status === "active").length || 0
   const pendingClientActions = data?.filter((client) => client.status === "pending").length || 0
   const pendingTasks = data?.filter((client) => client.status === "delayed").length || 0
 

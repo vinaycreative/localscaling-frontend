@@ -14,3 +14,10 @@ export const getClientLeads = async () => {
   console.log("Data: ", response.data.data)
   return GetClientsResponseSchema.safeParse(response.data)
 }
+
+// Test endpoint
+
+export const successPayment = async (id: string) => {
+  const response = await api.post(`/admin/clients/success-payment/${id}`)
+  return response.data.data
+}

@@ -19,7 +19,8 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/login") ||
     pathname.startsWith("/register") ||
     pathname.startsWith("/forgot-password") ||
-    pathname.startsWith("/reset-password")
+    pathname.startsWith("/reset-password") ||
+    pathname.startsWith("/payment")
   if (!!!token && !isAuthPage) {
     return NextResponse.redirect(new URL("/login", request.url))
   }
