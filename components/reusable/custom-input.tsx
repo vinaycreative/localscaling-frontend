@@ -48,7 +48,7 @@ export const CustomInput = ({
       </Label>
 
       {select ? (
-        <Select onValueChange={onSelectChange} value={value}>
+        <Select onValueChange={onSelectChange} value={value} defaultValue={value ?? null}>
           <div
             className={cn(
               "flex w-full overflow-hidden border border-input rounded bg-background transition-all duration-200",
