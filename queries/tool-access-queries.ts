@@ -16,7 +16,7 @@ export const useCreateToolsAccessMutation = () => {
     mutationFn: createToolsAccess,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [TOOLS_ACCESS] })
-      toast.success("Business Information saved successfully")
+      toast.success("Tools Access Configuration Saved Successfully.")
     },
     onError: (error) => {
       //   toast.error(getApiErrorMessage(error))

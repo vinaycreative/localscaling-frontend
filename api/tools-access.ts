@@ -4,18 +4,18 @@ import { logError } from "@/lib/utils"
 
 export async function getToolsAccess() {
   try {
-    const res = await api.get("/onboarding/tools-access")
+    const res = await api.get("/client/info/tools-access")
     return res.data
   } catch (error) {
     console.error("Error fetching tools-access", error)
-    return null
+    return error
   }
 }
 
 export async function createToolsAccess(data: ToolsAccessForm) {
   try {
     console.log("Saving tools-access Data:", data)
-    const res = await api.post("/onboarding/tools-access", { ...data })
+    const res = await api.post("/client/info/tools-access", { ...data })
     return res.data
   } catch (error) {
     logError(error)
