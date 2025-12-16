@@ -20,7 +20,7 @@ export const businessInformationFormSchema = z.object({
   website: z.string().min(1).url("Invalid URL"),
   facebook: z.union([z.literal(""), z.url({ message: "Invalid Facebook URL" })]),
   instagram: z.union([z.literal(""), z.url({ message: "Invalid Instagram URL" })]),
-  twitter: z.union([z.literal(""), z.url({ message: "Invalid Twitter URL" })]),
+  x: z.union([z.literal(""), z.url({ message: "Invalid Twitter URL" })]),
   google_business_profile_link: z.union([
     z.literal(""),
     z.url({ message: "Invalid Google Business Profile URL" }),
