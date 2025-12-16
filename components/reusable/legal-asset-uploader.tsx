@@ -1,8 +1,5 @@
 import { useCallback, useState } from "react"
-import {
-  FileRejection,
-  FileUploader,
-} from "../../app/(private)/(client)/tasks/branding-content/components/file-uploader"
+import { FileRejection, FileUploader } from "@/form/branding-content/components/file-uploader"
 
 export interface LegalAssetUploaderProps {
   label: string
