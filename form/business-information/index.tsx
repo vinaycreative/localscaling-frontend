@@ -6,7 +6,16 @@ import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { ChevronRight, Loader2, Mail, CircleQuestionMark } from "lucide-react"
+import {
+  ChevronRight,
+  Loader2,
+  Mail,
+  CircleQuestionMark,
+  Building2,
+  MapPin,
+  Phone,
+  Globe,
+} from "lucide-react"
 import { CustomInput } from "@/components/reusable/custom-input"
 import { useBusinessInfo, useCreateBusinessInfo } from "@/hooks/useBusinessInfo"
 import { normalizedUrl } from "@/lib/utils"
@@ -64,31 +73,56 @@ export default function BusinessInformationForm() {
       website: "",
       facebook: "",
       instagram: "",
-      twitter: "",
+      x: "",
       google_business_profile_link: "",
     },
   })
 
   useEffect(() => {
-    const loadData = async () => {
-      if (businessInfoData) {
-        const data = businessInfoData as Partial<BusinessInformationFormValues>
-        ;(Object.keys(data) as (keyof BusinessInformationFormValues)[]).forEach((key) => {
-          const value = data[key]
-
-          // avoid setting undefined values
-          if (value !== undefined) {
-            form.setValue(key, value)
-            console.log("🚀 ~ loadData ~ key:", key, value)
-          }
-        })
+    if (businessInfoData && Object.keys(businessInfoData).length > 0) {
+      // Type assertion: API returns BusinessInformationFormValues plus metadata fields
+      const data = businessInfoData as unknown as BusinessInformationFormValues & {
+        id?: string
+        created_at?: string
+        updated_at?: string
+        user_id?: string
       }
-    }
 
-    if (businessInfoData) {
-      loadData()
+      // Validate and format start_year to match YEAR_OPTIONS values
+      const getStartYear = (): string => {
+        if (!data?.start_year) return ""
+        const yearValue = String(data.start_year).trim()
+        // Check if the year exists in available options
+        const isValidYear = YEAR_OPTIONS_VALUES.includes(yearValue)
+        return isValidYear ? yearValue : ""
+      }
+
+      // Extract only form fields, excluding API metadata fields
+      // Use optional chaining and nullish coalescing for safety
+      const formFields: Partial<BusinessInformationFormValues> = {
+        company_name: data?.company_name ?? "",
+        start_year: getStartYear(),
+        address: data?.address ?? "",
+        postal_code: data?.postal_code ?? "",
+        city: data?.city ?? "",
+        state: data?.state ?? "",
+        country: data?.country ?? "",
+        vat_id: data?.vat_id ?? "",
+        contact_name: data?.contact_name ?? "",
+        contact_email: data?.contact_email ?? "",
+        contact_number: data?.contact_number ?? "",
+        whatsapp_number: data?.whatsapp_number ?? "",
+        website: data?.website ?? "",
+        facebook: data?.facebook ?? "",
+        instagram: data?.instagram ?? "",
+        x: data?.x ?? "",
+        google_business_profile_link: data?.google_business_profile_link ?? "",
+      }
+
+      // Reset form with loaded data
+      form.reset(formFields)
     }
-  }, [businessInfoData])
+  }, [businessInfoData, form])
 
   const onSubmit = async (values: BusinessInformationFormValues) => {
     await createBusinessInfo(values, {
@@ -101,11 +135,20 @@ export default function BusinessInformationForm() {
 
   if (businessInfoLoading) {
     return (
-      <div className="w-full h-full flex items-center justify-center min-h-[400px]">
+      <div className="w-full h-full flex items-center justify-center min-h-[400px] bg-white rounded-lg p-4 border border-border">
         <Loader2 className="w-8 h-8 animate-spin textcus-primary" />
       </div>
     )
   }
+
+  // Section Header Component
+  const SectionHeader = ({ icon: Icon, title }: { icon: typeof Building2; title: string }) => (
+    <div className="col-span-2 flex items-center gap-2 pb-2 pt-4 first:pt-0">
+      <Icon className="w-5 h-5 text-muted-foreground" />
+      <h3 className="text-base font-semibold text-foreground">{title}</h3>
+      <div className="flex-1 h-px bg-border ml-2" />
+    </div>
+  )
 
   return (
     <Form {...form}>
@@ -113,13 +156,19 @@ export default function BusinessInformationForm() {
         <FormLayout
           className="grid-cols-2"
           footer={
-            <Button type="submit" disabled={isSubmitting} className="rounded bg-primary text-white">
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="rounded bg-primary text-white"
+            >
               {isSubmitting ? "Saving..." : isEmpty ? "Update" : "Next"}
               <ChevronRight className="ml-2 w-4 h-4" />
             </Button>
           }
         >
-          {/* Company */}
+          {/* Company Information Section */}
+          <SectionHeader icon={Building2} title="Company Information" />
+
           <FormField
             control={form.control}
             name="company_name"
@@ -141,7 +190,6 @@ export default function BusinessInformationForm() {
             )}
           />
 
-          {/* Start Year */}
           <FormField
             control={form.control}
             name="start_year"
@@ -164,12 +212,35 @@ export default function BusinessInformationForm() {
             )}
           />
 
-          {/* Street Address */}
+          <FormField
+            control={form.control}
+            name="vat_id"
+            render={({ field }) => (
+              <FormItem className="col-span-2">
+                <FormControl>
+                  <CustomInput
+                    label="VAT ID"
+                    id="vatId"
+                    type="text"
+                    placeholder="DE123456789"
+                    required={true}
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Address Section */}
+          <SectionHeader icon={MapPin} title="Address Information" />
+
           <FormField
             control={form.control}
             name="address"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="col-span-2">
                 <FormControl>
                   <CustomInput
                     label="Street Address"
@@ -179,7 +250,6 @@ export default function BusinessInformationForm() {
                     required={true}
                     value={field.value}
                     onChange={field?.onChange}
-                    className="col-span-2"
                   />
                 </FormControl>
                 <FormMessage />
@@ -187,7 +257,6 @@ export default function BusinessInformationForm() {
             )}
           />
 
-          {/* Postal Code */}
           <FormField
             control={form.control}
             name="postal_code"
@@ -209,7 +278,6 @@ export default function BusinessInformationForm() {
             )}
           />
 
-          {/* City */}
           <FormField
             control={form.control}
             name="city"
@@ -231,7 +299,6 @@ export default function BusinessInformationForm() {
             )}
           />
 
-          {/* State */}
           <FormField
             control={form.control}
             name="state"
@@ -253,7 +320,6 @@ export default function BusinessInformationForm() {
             )}
           />
 
-          {/* Country */}
           <FormField
             control={form.control}
             name="country"
@@ -275,30 +341,9 @@ export default function BusinessInformationForm() {
             )}
           />
 
-          {/* VAT ID */}
-          <FormField
-            control={form.control}
-            name="vat_id"
-            render={({ field }) => (
-              <FormItem className="col-span-2">
-                <FormControl>
-                  <CustomInput
-                    label="VAT ID"
-                    id="vatId"
-                    type="text"
-                    placeholder="DE123456789"
-                    required={true}
-                    value={field.value}
-                    onChange={field.onChange}
-                    className="col-span-2"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {/* Contact Information Section */}
+          <SectionHeader icon={Phone} title="Contact Information" />
 
-          {/* Contact Fields */}
           <FormField
             name="contact_name"
             control={form.control}
@@ -306,7 +351,7 @@ export default function BusinessInformationForm() {
               <FormItem>
                 <FormControl>
                   <CustomInput
-                    label="Contact name"
+                    label="Contact Name"
                     id={field?.name}
                     type="text"
                     placeholder="Contact Name"
@@ -327,7 +372,7 @@ export default function BusinessInformationForm() {
               <FormItem>
                 <FormControl>
                   <CustomInput
-                    label="Contact email"
+                    label="Contact Email"
                     id={field.name}
                     type="email"
                     placeholder="info@yourcompany.com"
@@ -350,7 +395,7 @@ export default function BusinessInformationForm() {
               <FormItem>
                 <FormControl>
                   <CustomInput
-                    label="Contact number"
+                    label="Contact Number"
                     id={field?.name}
                     type="number"
                     placeholder="+1 (555) 000-0000"
@@ -373,7 +418,7 @@ export default function BusinessInformationForm() {
               <FormItem>
                 <FormControl>
                   <CustomInput
-                    label="Whatsapp number"
+                    label="WhatsApp Number"
                     id="whatsappNumber"
                     type="number"
                     placeholder="+44 (555) 000-0000"
@@ -389,8 +434,10 @@ export default function BusinessInformationForm() {
             )}
           />
 
-          {/* Website + Social Links */}
-          {["website", "facebook", "instagram", "twitter", "google_business_profile_link"].map(
+          {/* Website & Social Media Section */}
+          <SectionHeader icon={Globe} title="Website & Social Media" />
+
+          {["website", "facebook", "instagram", "x", "google_business_profile_link"].map(
             (fieldName) => (
               <FormField
                 key={fieldName}
@@ -398,7 +445,6 @@ export default function BusinessInformationForm() {
                 name={fieldName as any}
                 render={({ field }) => (
                   <FormItem className="col-span-2">
-                    {/* <FormLabel>{fieldName.replace(/([A-Z])/g, " $1")}</FormLabel> */}
                     <FormControl>
                       <CustomInput
                         id={fieldName}
