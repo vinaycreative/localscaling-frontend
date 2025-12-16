@@ -29,7 +29,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     return arr.includes(current)
   },
   canAccess: (pathname) => {
-    const role = get().user?.role ?? Role.CLIENT
+    const role = get().user?.role ?? Role.client
     return canAccessPath(role, pathname)
   },
 }))
