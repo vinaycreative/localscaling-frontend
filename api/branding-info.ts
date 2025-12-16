@@ -8,7 +8,7 @@ export async function getBrandingInfo() {
     return res.data
   } catch (error) {
     console.error("Error fetching branding info", error)
-    return null
+    return error
   }
 }
 
