@@ -33,6 +33,15 @@ import { ACCESS_TOOLS } from "@/form/tools-access"
 import Image from "next/image"
 import { format } from "date-fns"
 import { Separator } from "@/components/ui/separator"
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
+import { Button } from "@/components/ui/button"
 
 const ClientProfilePage = () => {
   const { id } = useParams<{ id: string }>()
@@ -55,6 +64,23 @@ const ClientProfilePage = () => {
             <Skeleton className="h-12 w-full" />
             <Skeleton className="h-96 w-full" />
           </div>
+        </div>
+      </Page>
+    )
+  }
+
+  if (!isLoading && user && businessInfo && brandInfo && websiteSetup && toolsAccess && adsBudget) {
+    return (
+      <Page navURL="clients" title="Client Profile" description="client details">
+        <div className="col-span-2 overflow-auto">
+          <Empty>
+            <EmptyHeader>
+              <EmptyMedia variant="icon"></EmptyMedia>
+              <EmptyTitle>No data</EmptyTitle>
+              <EmptyDescription>No data found</EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent></EmptyContent>
+          </Empty>
         </div>
       </Page>
     )
@@ -690,7 +716,7 @@ const ClientProfilePage = () => {
                             className="flex items-center justify-between p-4 rounded-lg border bg-muted/50 hover:bg-muted transition-colors"
                           >
                             <div className="flex items-center gap-3">
-                               {tool.icon && (
+                              {tool.icon && (
                                 <Image
                                   src={tool.icon}
                                   alt={tool.title}
