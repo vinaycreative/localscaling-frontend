@@ -436,7 +436,6 @@ export default function BusinessInformationForm() {
 
           {/* Website & Social Media Section */}
           <SectionHeader icon={Globe} title="Website & Social Media" />
-
           {["website", "facebook", "instagram", "x", "google_business_profile_link"].map(
             (fieldName) => (
               <FormField
@@ -444,12 +443,12 @@ export default function BusinessInformationForm() {
                 control={form.control}
                 name={fieldName as any}
                 render={({ field }) => (
-                  <FormItem className="col-span-2">
+                  <FormItem className="col-span-1">
                     <FormControl>
                       <CustomInput
                         id={fieldName}
                         type="text"
-                        value={field.value}
+                        value={field.value?.replace(/^https?:\/\//, "") ?? ""}
                         required={fieldName === "website"}
                         onChange={(event) => {
                           field.onChange(normalizedUrl(event.target.value))
@@ -462,7 +461,7 @@ export default function BusinessInformationForm() {
                           .toLowerCase()
                           .replace(/_/g, " ")
                           .replace(/^\w/, (c) => c.toUpperCase())}`}
-                        prefixText={"http://"}
+                        prefixText={"https://"}
                       />
                     </FormControl>
                     <FormMessage />

@@ -43,9 +43,11 @@ export const CustomInput = ({
 }) => {
   return (
     <div className={cn("space-y-2.5", className)}>
-      <Label htmlFor={id}>
-        {label} {required && <span className="text-destructive">*</span>}
-      </Label>
+      {label && (
+        <Label htmlFor={id} className="inline-flex items-center gap-2">
+          {label} {required && <span className="text-destructive">*</span>}
+        </Label>
+      )}
 
       {select ? (
         <Select onValueChange={onSelectChange} value={value} defaultValue={value ?? null}>

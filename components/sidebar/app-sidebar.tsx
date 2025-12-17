@@ -6,6 +6,7 @@ import * as React from "react"
 import { NavMain } from "./nav-main"
 import { NavSecondary } from "./nav-secondary"
 import { useLoggedInUser } from "@/hooks/useAuth"
+import { useGetBusinessInformationQuery } from "@/queries/infoQueries"
 
 const data = {
   user: {

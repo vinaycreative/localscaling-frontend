@@ -1,6 +1,6 @@
 export interface LocationsBudgetForm {
-  budget: string;
-  currency: string;
-  locations: string[];
-  services: string[];
+  budget: string
+  currency: string
+  seo_locations: string[]
+  services_provided: string[]
 }
