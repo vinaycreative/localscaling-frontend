@@ -1,5 +1,5 @@
 "use client"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useClientProfile } from "@/hooks/use-client-profile"
@@ -32,12 +32,14 @@ import Page from "@/components/base/Page"
 import { ACCESS_TOOLS } from "@/form/tools-access"
 import Image from "next/image"
 import { format } from "date-fns"
+import { Separator } from "@/components/ui/separator"
 
 const ClientProfilePage = () => {
   const { id } = useParams<{ id: string }>()
   const { data, isLoading } = useClientProfile(id)
   const [activeTab, setActiveTab] = useState("business-information")
 
+  const user = data?.["user"] || {}
   const businessInfo = data?.["business_info"] || {}
   const brandInfo = data?.["branding_info"] || {}
   const websiteSetup = data?.["website_setup"] || {}
@@ -58,8 +60,8 @@ const ClientProfilePage = () => {
     )
   }
 
-  const companyInitials =
-    businessInfo?.company_name
+  const nameInitials =
+    user?.first_name
       ?.split(" ")
       .map((word: string) => word[0])
       .join("")
@@ -74,29 +76,22 @@ const ClientProfilePage = () => {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <Avatar className="h-16 w-16 border-2 border-primary">
-                  {brandInfo?.logo_url ? (
-                    <Image
-                      src={brandInfo.logo_url}
-                      alt={businessInfo?.company_name || "Company Logo"}
-                      width={64}
-                      height={64}
-                      className="rounded-full object-cover"
-                    />
-                  ) : (
-                    <AvatarFallback className="text-lg bg-primary text-primary-foreground">
-                      {companyInitials}
-                    </AvatarFallback>
-                  )}
+                  <AvatarImage src={user.first_name} alt={user.first_name} />
+
+                  <AvatarFallback className="text-lg bg-primary text-primary-foreground">
+                    {nameInitials}
+                  </AvatarFallback>
                 </Avatar>
                 <div>
-                  <CardTitle className="text-2xl">{businessInfo?.company_name || "N/A"}</CardTitle>
+                  <CardTitle className="text-2xl">
+                    {user?.first_name || "N/A"} {user?.last_name || ""}
+                  </CardTitle>
                   <CardDescription className="flex items-center gap-2 mt-1">
-                    <Badge variant="outline" className="font-normal">
-                      ID: {businessInfo?.id?.slice(0, 8) || id}
-                    </Badge>
-                    {businessInfo?.start_year && (
+                    <p>{user?.email}</p>
+                    <Badge className="font-normal">ID: {user?.id}</Badge>
+                    {user?.created_at && (
                       <Badge variant="secondary" className="font-normal">
-                        Est. {businessInfo.start_year}
+                        Est. {new Date(user.created_at).getFullYear()}
                       </Badge>
                     )}
                   </CardDescription>
@@ -111,7 +106,7 @@ const ClientProfilePage = () => {
             className="w-full"
           >
             <div className="overflow-x-auto">
-              <TabsList className="grid grid-cols-2 md:grid-cols-5 w-full h-auto min-h-[44px]">
+              <TabsList className="grid grid-cols-2 md:grid-cols-5 w-full h-auto min-h-[44px] bg-accent-foreground/10 border border-primary/20">
                 <TabsTrigger value="business-information" className="text-xs md:text-sm">
                   Business Info
                 </TabsTrigger>
@@ -130,14 +125,17 @@ const ClientProfilePage = () => {
               </TabsList>
             </div>
 
-            <CardContent className="pt-4 px-0">
+            <CardContent className="py-4 px-0">
               <TabsContent
                 value="business-information"
                 className="m-0 grid grid-cols-1 md:grid-cols-2 gap-4"
               >
                 <Card className="gap-2">
-                  <CardHeader className="flex gap-2 items-center">
-                    <BriefcaseBusiness className="h-5 w-5" /> Company Information
+                  <CardHeader>
+                    <div className="flex gap-2 items-center">
+                      <BriefcaseBusiness className="h-5 w-5" /> Company Information
+                    </div>
+                    <Separator className="inline-block my-2" />
                   </CardHeader>
                   <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <DetailItem label="Company Name" value={businessInfo?.company_name || "—"} />
@@ -152,8 +150,11 @@ const ClientProfilePage = () => {
                   </CardContent>
                 </Card>
                 <Card className="gap-2">
-                  <CardHeader className="flex gap-2 items-center">
-                    <LucideLocate className="h-5 w-5" /> Address Information
+                  <CardHeader>
+                    <div className="flex gap-2 items-center">
+                      <LucideLocate className="h-5 w-5" /> Address Information
+                    </div>
+                    <Separator className="inline-block my-2" />
                   </CardHeader>
                   <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <DetailItem
@@ -168,8 +169,11 @@ const ClientProfilePage = () => {
                   </CardContent>
                 </Card>
                 <Card className="gap-2">
-                  <CardHeader className="flex gap-2 items-center">
-                    <Contact className="h-5 w-5" /> Contact Information
+                  <CardHeader>
+                    <div className="flex gap-2 items-center">
+                      <Contact className="h-5 w-5" /> Contact Information+
+                    </div>
+                    <Separator className="inline-block my-2" />
                   </CardHeader>
                   <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <DetailItem label="Contact Name" value={businessInfo?.contact_name || "—"} />
@@ -225,8 +229,11 @@ const ClientProfilePage = () => {
                   </CardContent>
                 </Card>
                 <Card className="gap-2">
-                  <CardHeader className="flex gap-2 items-center">
-                    <Globe className="h-5 w-5" /> Website & Social Media
+                  <CardHeader>
+                    <div className="flex gap-2 items-center">
+                      <Globe className="h-5 w-5" /> Website & Social Media
+                    </div>
+                    <Separator className="inline-block my-2" />
                   </CardHeader>
                   <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <DetailItem
@@ -333,9 +340,12 @@ const ClientProfilePage = () => {
               >
                 {/* Brand Identity */}
                 <Card className="gap-2">
-                  <CardHeader className="flex gap-2 items-center">
-                    <Palette className="h-5 w-5" />
-                    Brand Identity
+                  <CardHeader>
+                    <div className="flex gap-2 items-center">
+                      <Palette className="h-5 w-5" />
+                      Brand Identity
+                    </div>
+                    <Separator className="inline-block my-2" />
                   </CardHeader>
 
                   <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -401,9 +411,13 @@ const ClientProfilePage = () => {
 
                 {/* Brand Assets */}
                 <Card className="gap-2">
-                  <CardHeader className="flex gap-2 items-center">
-                    <ImageIcon className="h-5 w-5" />
-                    Brand Assets
+                  <CardHeader>
+                    <div className="flex gap-2 items-center">
+                      <ImageIcon className="h-5 w-5" />
+                      Brand Assets
+                    </div>
+
+                    <Separator className="inline-block my-2" />
                   </CardHeader>
 
                   <CardContent className="grid grid-cols-1 gap-4">
@@ -470,9 +484,12 @@ const ClientProfilePage = () => {
 
                 {/* Team Information */}
                 <Card className="md:col-span-2 gap-2">
-                  <CardHeader className="flex gap-2 items-center">
-                    <Users className="h-5 w-5" />
-                    Team Information
+                  <CardHeader>
+                    <div className="flex gap-2 items-center">
+                      <Users className="h-5 w-5" />
+                      Team Information
+                    </div>
+                    <Separator className="inline-block my-2" />
                   </CardHeader>
 
                   <CardContent>
@@ -501,10 +518,13 @@ const ClientProfilePage = () => {
                 </Card>
 
                 {/* CEO Video */}
-                <Card className="md:col-span-2 gap-2">
-                  <CardHeader className="flex gap-2 items-center">
-                    <Video className="h-5 w-5" />
-                    CEO Introduction Video
+                <Card className="gap-2">
+                  <CardHeader>
+                    <div className="flex gap-2 items-center">
+                      <Video className="h-5 w-5" />
+                      CEO Introduction Video
+                    </div>
+                    <Separator className="inline-block my-2" />
                   </CardHeader>
 
                   <CardContent>
@@ -525,10 +545,13 @@ const ClientProfilePage = () => {
                 </Card>
 
                 {/* Testimonials Video */}
-                <Card className="md:col-span-2 gap-2">
-                  <CardHeader className="flex gap-2 items-center">
-                    <Video className="h-5 w-5" />
-                    Video Testimonials
+                <Card className="gap-2">
+                  <CardHeader>
+                    <div className="flex gap-2 items-center">
+                      <Video className="h-5 w-5" />
+                      Video Testimonials
+                    </div>
+                    <Separator className="inline-block my-2" />
                   </CardHeader>
 
                   <CardContent>
@@ -551,14 +574,14 @@ const ClientProfilePage = () => {
                 </Card>
               </TabsContent>
 
-              <TabsContent
-                value="ads-budget"
-                className="m-0 grid grid-cols-1 md:grid-cols-2 gap-4"
-              >
+              <TabsContent value="ads-budget" className="m-0 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Card className="md:col-span-2 gap-2">
-                  <CardHeader className="flex gap-2 items-center">
-                    <DollarSign className="h-5 w-5" />
-                    Advertising Budget
+                  <CardHeader>
+                    <div className="flex gap-2 items-center">
+                      <DollarSign className="h-5 w-5" />
+                      Advertising Budget
+                    </div>
+                    <Separator className="inline-block my-2" />
                   </CardHeader>
 
                   <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -594,9 +617,12 @@ const ClientProfilePage = () => {
                 </Card>
 
                 <Card className="md:col-span-2 gap-2">
-                  <CardHeader className="flex gap-2 items-center">
-                    <MapPin className="h-5 w-5" />
-                    SEO Locations
+                  <CardHeader>
+                    <div className="flex gap-2 items-center">
+                      <MapPin className="h-5 w-5" />
+                      SEO Locations
+                    </div>
+                    <Separator className="inline-block my-2" />
                   </CardHeader>
 
                   <CardContent>
@@ -617,9 +643,12 @@ const ClientProfilePage = () => {
                 </Card>
 
                 <Card className="md:col-span-2 gap-2">
-                  <CardHeader className="flex gap-2 items-center">
-                    <BriefcaseBusiness className="h-5 w-5" />
-                    Services Provided
+                  <CardHeader>
+                    <div className="flex gap-2 items-center">
+                      <BriefcaseBusiness className="h-5 w-5" />
+                      Services Provided
+                    </div>
+                    <Separator className="inline-block my-2" />
                   </CardHeader>
 
                   <CardContent>
@@ -643,9 +672,12 @@ const ClientProfilePage = () => {
                 className="m-0 grid grid-cols-1 md:grid-cols-2 gap-4"
               >
                 <Card className="md:col-span-2 gap-2">
-                  <CardHeader className="flex gap-2 items-center">
-                    <ToolCaseIcon className="h-5 w-5" />
-                    Tools Access
+                  <CardHeader>
+                    <div className="flex gap-2 items-center">
+                      <ToolCaseIcon className="h-5 w-5" />
+                      Tools Access
+                    </div>
+                    <Separator className="inline-block my-2" />
                   </CardHeader>
 
                   <CardContent>
@@ -658,7 +690,7 @@ const ClientProfilePage = () => {
                             className="flex items-center justify-between p-4 rounded-lg border bg-muted/50 hover:bg-muted transition-colors"
                           >
                             <div className="flex items-center gap-3">
-                              {tool.icon && (
+                               {tool.icon && (
                                 <Image
                                   src={tool.icon}
                                   alt={tool.title}
@@ -709,9 +741,12 @@ const ClientProfilePage = () => {
                 className="m-0 grid grid-cols-1 md:grid-cols-2 gap-4"
               >
                 <Card className="md:col-span-2 gap-2">
-                  <CardHeader className="flex gap-2 items-center">
-                    <Globe className="h-5 w-5" />
-                    Website Setup
+                  <CardHeader>
+                    <div className="flex gap-2 items-center">
+                      <Globe className="h-5 w-5" />
+                      Website Setup
+                    </div>
+                    <Separator className="inline-block my-2" />
                   </CardHeader>
 
                   <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -751,9 +786,12 @@ const ClientProfilePage = () => {
                 </Card>
 
                 <Card className="md:col-span-2 gap-2">
-                  <CardHeader className="flex gap-2 items-center">
-                    <MapPin className="h-5 w-5" />
-                    SEO Locations
+                  <CardHeader>
+                    <div className="flex gap-2 items-center">
+                      <MapPin className="h-5 w-5" />
+                      SEO Locations
+                    </div>
+                    <Separator className="inline-block my-2" />
                   </CardHeader>
 
                   <CardContent>
@@ -774,9 +812,12 @@ const ClientProfilePage = () => {
                 </Card>
 
                 <Card className="md:col-span-2 gap-2">
-                  <CardHeader className="flex gap-2 items-center">
-                    <BriefcaseBusiness className="h-5 w-5" />
-                    Business Clients Worked With
+                  <CardHeader>
+                    <div className="flex gap-2 items-center">
+                      <BriefcaseBusiness className="h-5 w-5" />
+                      Business Clients Worked With
+                    </div>
+                    <Separator className="inline-block my-2" />
                   </CardHeader>
 
                   <CardContent>
@@ -799,9 +840,12 @@ const ClientProfilePage = () => {
                 </Card>
 
                 <Card className="md:col-span-2 gap-2">
-                  <CardHeader className="flex gap-2 items-center">
-                    <LinkIcon className="h-5 w-5" />
-                    Legal Links
+                  <CardHeader>
+                    <div className="flex gap-2 items-center">
+                      <LinkIcon className="h-5 w-5" />
+                      Legal Links
+                    </div>
+                    <Separator className="inline-block my-2" />
                   </CardHeader>
 
                   <CardContent>
@@ -828,9 +872,12 @@ const ClientProfilePage = () => {
                 </Card>
 
                 <Card className="md:col-span-2 gap-2">
-                  <CardHeader className="flex gap-2 items-center">
-                    <FileText className="h-5 w-5" />
-                    Legal Files
+                  <CardHeader>
+                    <div className="flex gap-2 items-center">
+                      <FileText className="h-5 w-5" />
+                      Legal Files
+                    </div>
+                    <Separator className="inline-block my-2" />
                   </CardHeader>
 
                   <CardContent>
@@ -849,18 +896,14 @@ const ClientProfilePage = () => {
                               <p className="text-sm font-medium truncate">
                                 Legal Document {index + 1}
                               </p>
-                              <p className="text-xs text-muted-foreground truncate">
-                                PDF Document
-                              </p>
+                              <p className="text-xs text-muted-foreground truncate">PDF Document</p>
                             </div>
                             <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
                           </a>
                         ))}
                       </div>
                     ) : (
-                      <span className="text-sm text-muted-foreground">
-                        No legal files uploaded
-                      </span>
+                      <span className="text-sm text-muted-foreground">No legal files uploaded</span>
                     )}
                   </CardContent>
                 </Card>
