@@ -18,7 +18,7 @@ import { ToolsAccessFormValues } from "./types"
 import { toolsAccessSchema } from "./schema"
 import { AccessToolField } from "./components/accessToolField"
 
-const ACCESS_TOOLS = [
+export const ACCESS_TOOLS = [
   {
     key: "google_ads_access_granted",
     title: "Google Ads",

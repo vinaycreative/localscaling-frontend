@@ -8,6 +8,7 @@ import { ClientLeads } from "@/types/schema/clientLeadSchema"
 import Link from "next/link"
 import { useAuthStore } from "@/store/authStore"
 import { useLoggedInUser } from "@/hooks/useAuth"
+import { ExternalLink } from "lucide-react"
 
 export const ClinetData = () => {
   const { user } = useLoggedInUser()
@@ -38,12 +39,20 @@ export const ClinetData = () => {
       header: "Company name",
       sortable: true,
       cell: (row) => (
-        <Link
-          href={`/clients/payment?success=${row.id}`}
-          className="font-medium text-foreground hover:underline"
-        >
-          {row.company_name}
-        </Link>
+        <p className="flex items-center gap-2">
+          <Link
+            href={`/clients/payment?success=${row.id}`}
+            className="font-medium text-foreground hover:underline"
+          >
+            {row.company_name}
+          </Link>
+          <Link
+            href={`/clients/${row.id}/profile`}
+            className="font-medium hover:underline flex items-center justify-center"
+          >
+            <ExternalLink className="text-blue-600 inline-block h-4" />
+          </Link>
+        </p>
       ),
     },
     {
