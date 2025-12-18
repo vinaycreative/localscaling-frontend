@@ -26,6 +26,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Form, FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form"
 import FormLayout from "@/components/ui/form-layout"
 import { LocationsBudgetSchema } from "./schema"
+import { LocationsBudgetFormValues } from "./type"
 
 export const LocationsBudgetOnboardingForm = () => {
   const router = useRouter()
@@ -48,10 +49,10 @@ export const LocationsBudgetOnboardingForm = () => {
 
   // Load existing DB data
   useEffect(() => {
-    if (locationAndBudgetData?.data) {
-      const saved = locationAndBudgetData.data
+    if (locationAndBudgetData) {
+      const saved = locationAndBudgetData
       Object.entries(saved).forEach(([key, value]) => {
-        setValue(key as any, value)
+        setValue(key as keyof LocationsBudgetFormValues, value as string | string[])
       })
     }
   }, [locationAndBudgetData, setValue])

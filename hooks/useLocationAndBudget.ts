@@ -5,7 +5,7 @@ import {
 
 export const useLocationAndBudget = () => {
   const { data, isLoading, error } = useLocationAndBudgetQuery()
-  return { data, isLoading, error }
+  return { data: data.data, isLoading, error }
 }
 
 export const useCreateLocationAndBudget = () => {
