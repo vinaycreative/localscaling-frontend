@@ -18,6 +18,7 @@ import {
   Server,
   ToggleRight,
   Users,
+  Loader2,
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -25,11 +26,14 @@ import { Badge } from "../ui/badge"
 import { useLoggedInUser } from "@/hooks/useAuth"
 import type { RoleValue } from "@/constants/auth"
 import { Role } from "@/constants/auth"
+import { useSidebarInfo } from "@/hooks/useSidebarInfo"
+import { useEffect, useState } from "react"
+import { cn } from "@/lib/utils"
 
-const items = [
+const default_items = [
   {
     name: "Business Information",
-    count: 18,
+    count: 17,
     href: "/tasks/business-information",
   },
   { name: "Branding & Content", count: 8, href: "/tasks/branding-content" },
@@ -63,11 +67,35 @@ const NAV_ITEMS: readonly NavItem[] = [
   { label: "Finance", href: "/finance", icon: ChartPie, roles: [Role.admin] },
 ]
 
+type itemType = {
+  name: string
+  count: number
+  href: string
+}
+
 export function NavMain({ initialRole }: { initialRole?: RoleValue }) {
   const pathName = usePathname()
   const { user } = useLoggedInUser()
+  const [items, setItems] = useState<itemType[]>([...default_items])
+  const { data: sidebarInfo, isLoading: countLoading, error: countError } = useSidebarInfo()
   const role = user?.role
+
+  useEffect(() => {
+    if (sidebarInfo && !countLoading && !countError) {
+      setItems((prev) => {
+        const filteredData = prev?.map((el) => {
+          const key = el?.href.split("/tasks/").join("")
+          return { ...el, count: +sidebarInfo?.[key] }
+        })
+        return filteredData
+      })
+    } else {
+      setItems([...default_items])
+    }
+  }, [sidebarInfo, countLoading, countError])
+
   if (!role) return null
+
   return (
     <SidebarMenu>
       {NAV_ITEMS.filter((i) => i.roles.includes(role)).map((item) => (
@@ -101,7 +129,7 @@ export function NavMain({ initialRole }: { initialRole?: RoleValue }) {
             <CollapsibleContent>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {items.map((item) => (
+                  {items.map((item: itemType) => (
                     <SidebarMenuItem key={item.name}>
                       <Link
                         href={item.href}
@@ -110,9 +138,12 @@ export function NavMain({ initialRole }: { initialRole?: RoleValue }) {
                         {item.name}
                         <Badge
                           variant={"outline"}
-                          className="border-0 text-destructive/60 bg-destructive/10 rounded-lg"
+                          className={cn(
+                            "border-0 text-destructive/60 bg-destructive/10 rounded-lg",
+                            countLoading && "px-1"
+                          )}
                         >
-                          {item.count}
+                          {countLoading ? <Loader2 className="animate-spin" /> : item.count}
                         </Badge>
                       </Link>
                     </SidebarMenuItem>
