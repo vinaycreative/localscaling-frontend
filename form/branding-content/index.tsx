@@ -37,6 +37,7 @@ import { brandingContentSchema } from "./schema"
 import { BrandingContentFormValues, BrandingInfoPayload } from "./types"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
+import { useLoggedInUser } from "@/hooks/useAuth"
 
 const urlToFile = async (url: string, filename: string, mimeType: string): Promise<File> => {
   if (!url) return new File([], filename)
@@ -52,6 +53,7 @@ const urlToFile = async (url: string, filename: string, mimeType: string): Promi
 
 function BrandingContentForm() {
   const router = useRouter()
+  const { user } = useLoggedInUser()
 
   const {
     data: brandingInfoData,
@@ -165,14 +167,14 @@ function BrandingContentForm() {
       if (logo_file) {
         // Optimization: Skip upload if it's the same file content (simple check would be name/size/type match against saved)
         // For now, we upload to ensure consistency.
-        logoUrl = await uploadFileToStorage(logo_file, "branding-assets", "logos")
+        logoUrl = await uploadFileToStorage(logo_file, "logo", user?.id!)
       }
       // TEAM PHOTOS -> branding-assets/team
       let team_photos: File[] = values.team_photos || []
       let teamPhotoUrls: string[] = []
       if (team_photos && team_photos.length > 0) {
         const uploadPromises = team_photos.map((f) =>
-          uploadFileToStorage(f, "branding-assets", "team")
+          uploadFileToStorage(f, "team-photo", user?.id!)
         )
         teamPhotoUrls = await Promise.all(uploadPromises)
       }
@@ -180,13 +182,13 @@ function BrandingContentForm() {
       let ceo_video = values.ceo_video || null
       let ceoVideoUrl = null
       if (ceo_video) {
-        ceoVideoUrl = await uploadFileToStorage(ceo_video, "videos", "ceo-intro")
+        ceoVideoUrl = await uploadFileToStorage(ceo_video, "ceo-video", user?.id!)
       }
       // TESTIMONIALS -> videos/testimonials
       let videoTestimonial = values.video_testimonial || null
       let videoTestimonialUrl = null
       if (videoTestimonial) {
-        videoTestimonialUrl = await uploadFileToStorage(videoTestimonial, "videos", "testimonials")
+        videoTestimonialUrl = await uploadFileToStorage(videoTestimonial, "testimonial", user?.id!)
       }
       const payload: BrandingInfoPayload = {
         font_link: values.font_link,
