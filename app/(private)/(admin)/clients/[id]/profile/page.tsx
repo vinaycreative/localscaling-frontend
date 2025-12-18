@@ -69,7 +69,15 @@ const ClientProfilePage = () => {
     )
   }
 
-  if (!isLoading && user && businessInfo && brandInfo && websiteSetup && toolsAccess && adsBudget) {
+  if (
+    !isLoading &&
+    !user &&
+    !businessInfo &&
+    !brandInfo &&
+    !websiteSetup &&
+    !toolsAccess &&
+    !adsBudget
+  ) {
     return (
       <Page navURL="clients" title="Client Profile" description="client details">
         <div className="col-span-2 overflow-auto">
@@ -600,7 +608,10 @@ const ClientProfilePage = () => {
                 </Card>
               </TabsContent>
 
-              <TabsContent value="ads-budget" className="m-0 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <TabsContent
+                value="ads-budget"
+                className="m-0 grid grid-cols-1 md:grid-cols-2 gap-4"
+              >
                 <Card className="md:col-span-2 gap-2">
                   <CardHeader>
                     <div className="flex gap-2 items-center">
@@ -922,14 +933,18 @@ const ClientProfilePage = () => {
                               <p className="text-sm font-medium truncate">
                                 Legal Document {index + 1}
                               </p>
-                              <p className="text-xs text-muted-foreground truncate">PDF Document</p>
+                              <p className="text-xs text-muted-foreground truncate">
+                                PDF Document
+                              </p>
                             </div>
                             <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
                           </a>
                         ))}
                       </div>
                     ) : (
-                      <span className="text-sm text-muted-foreground">No legal files uploaded</span>
+                      <span className="text-sm text-muted-foreground">
+                        No legal files uploaded
+                      </span>
                     )}
                   </CardContent>
                 </Card>
