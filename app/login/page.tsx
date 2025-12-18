@@ -6,8 +6,9 @@ import { DefaultRedirectByRole } from "@/constants/auth"
 import { useMutation } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { toast } from "sonner"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { useAuth } from "@/hooks/useAuth"
+import { Label } from "@/components/ui/label"
 
 const roles = [
   { label: "Admin", email: "admin@example.com" },
@@ -60,9 +61,23 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="password"
             />
-            <p className="text-xs text-muted-foreground">
-              Test password is <span className="font-medium">password</span>
-            </p>
+            <RadioGroup
+              defaultValue={loginType}
+              value={loginType}
+              className="flex items-center gap-2 my-2"
+              onValueChange={(value) => {
+                setLoginType(value as "internal" | "client")
+              }}
+            >
+              <div className="flex items-center gap-3 cursor-pointer">
+                <RadioGroupItem value="internal" id="internal-internal" />
+                <Label htmlFor="internal-internal">Internal</Label>
+              </div>
+              <div className="flex items-center gap-3 cursor-pointer">
+                <RadioGroupItem value="client" id="client-client" />
+                <Label htmlFor="client-client">Client</Label>
+              </div>
+            </RadioGroup>
           </div>
           <Button type="submit" className="w-full" disabled={isLoginLoading}>
             {isLoginLoading ? "Signing in..." : "Sign in"}
