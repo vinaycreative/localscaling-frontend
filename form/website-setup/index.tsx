@@ -30,10 +30,11 @@ import { Form, FormField, FormItem, FormControl, FormMessage } from "@/component
 import { useCreateWebsiteSetup, useWebsiteSetup } from "@/hooks/useWebsiteSetup"
 import FormLayout from "@/components/ui/form-layout"
 import { WebsiteSetupSchema, WebsiteSetupForm } from "./schema"
+import { useLoggedInUser } from "@/hooks/useAuth"
 
 export default function WebsiteSetupOnboardingForm() {
   const router = useRouter()
-
+  const { user } = useLoggedInUser()
   const {
     data: websiteSetupData,
     isLoading: websiteSetupLoading,
@@ -187,7 +188,9 @@ export default function WebsiteSetupOnboardingForm() {
       const filesToUpload = (data.legal_files || []).filter((f): f is File => f instanceof File)
 
       if (filesToUpload.length > 0) {
-        const uploadPromises = filesToUpload.map((file) => uploadFileToStorage(file, "documents"))
+        const uploadPromises = filesToUpload.map((file) =>
+          uploadFileToStorage(file, `legal-${file.name}`, user?.id!)
+        )
         newFileUrls = await Promise.all(uploadPromises)
       }
 
