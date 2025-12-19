@@ -14,7 +14,7 @@ const roles = [
   { label: "Admin", email: "admin@example.com" },
   { label: "Support Head Admin", email: "support.head@example.com" },
   { label: "Support Admin", email: "support.admin@example.com" },
-  { label: "Client", email: "user@example.com" },
+  { label: "Client", email: "vinay@webbywolf.com" },
 ]
 
 export default function LoginPage() {
@@ -96,7 +96,12 @@ export default function LoginPage() {
                 onClick={() => {
                   setLoginType(r.label === "Client" ? "client" : "internal")
                   setEmail(r.email)
-                  setPassword("Dealer@1234")
+
+                  if (r.label === "Client") {
+                    setPassword("Password@123")
+                  } else {
+                    setPassword("Dealer@1234")
+                  }
                 }}
                 disabled={isLoginLoading}
                 className="justify-center"
