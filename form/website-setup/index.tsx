@@ -1,5 +1,4 @@
 "use client"
-import { WebsiteSetupPayload } from "@/api/website-setup"
 import LegalAssetUploader from "@/components/reusable/legal-asset-uploader"
 import LegalLinkInput from "@/components/reusable/legal-link-input"
 import { TagInput } from "@/components/reusable/tags/tag-input"
@@ -183,7 +182,7 @@ export default function WebsiteSetupOnboardingForm() {
       // Combine existing + new
       const allLegalFiles = [...existingLegalFileUrls, ...newFileUrls]
 
-      const payload: WebsiteSetupPayload = {
+      const payload: WebsiteSetupForm = {
         domain_provider: data.domain_provider,
         access_granted: data.access_granted,
         business_clients_worked: data.business_clients_worked,
