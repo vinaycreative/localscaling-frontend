@@ -27,6 +27,7 @@ import { Form, FormField, FormItem, FormControl, FormMessage } from "@/component
 import FormLayout from "@/components/ui/form-layout"
 import { LocationsBudgetSchema } from "./schema"
 import { LocationsBudgetFormValues } from "./type"
+import { showFormErrors } from "@/lib/errors"
 
 export const LocationsBudgetOnboardingForm = () => {
   const router = useRouter()
@@ -80,7 +81,12 @@ export const LocationsBudgetOnboardingForm = () => {
   }
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="overflow-scroll">
+      <form
+        onSubmit={form.handleSubmit(onSubmit, (errors) => {
+          showFormErrors(errors)
+        })}
+        className="overflow-scroll"
+      >
         <FormLayout
           footer={
             <Fragment>

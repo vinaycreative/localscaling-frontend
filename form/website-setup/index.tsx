@@ -24,6 +24,7 @@ import FormLayout from "@/components/ui/form-layout"
 import { WebsiteSetupSchema, WebsiteSetupForm } from "./schema"
 import { useLoggedInUser } from "@/hooks/useAuth"
 import LoadingState from "@/components/reusable/tags/loading-state"
+import { showFormErrors } from "@/lib/errors"
 
 export default function WebsiteSetupOnboardingForm() {
   const router = useRouter()
@@ -207,7 +208,12 @@ export default function WebsiteSetupOnboardingForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="overflow-scroll">
+      <form
+        onSubmit={form.handleSubmit(onSubmit, (errors) => {
+          showFormErrors(errors)
+        })}
+        className="overflow-scroll"
+      >
         <FormLayout
           footer={
             <Fragment>
