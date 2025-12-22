@@ -10,7 +10,7 @@ const GetBusinessInfoResponseSchema = z.union([
   ApiErrorResponseSchema,
 ])
 
-export type GetBusinessInfoResponse = z.infer<typeof GetBusinessInfoResponseSchema | {}>
+export type GetBusinessInfoResponse = z.infer<typeof GetBusinessInfoResponseSchema>
 
 export async function getBusinessInfo() :Promise<GetBusinessInfoResponse> {
   try {
