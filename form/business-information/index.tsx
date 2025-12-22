@@ -22,6 +22,7 @@ import { normalizedUrl } from "@/lib/utils"
 import FormLayout from "@/components/ui/form-layout"
 import { businessInformationFormSchema } from "./schema"
 import { BusinessInformationFormValues } from "./types"
+import { showFormErrors } from "@/lib/errors"
 
 const generateYearOptions = (startYear: number, endYear: number) => {
   const years = []
@@ -162,7 +163,12 @@ export default function BusinessInformationForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="overflow-scroll">
+      <form
+        onSubmit={form.handleSubmit(onSubmit, (errors) => {
+          showFormErrors(errors)
+        })}
+        className="overflow-scroll"
+      >
         <FormLayout
           className="grid-cols-2"
           footer={
