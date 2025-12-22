@@ -80,8 +80,8 @@ export default function WebsiteSetupOnboardingForm() {
     }
 
     // Handle nested data structure (data?.data?.data from hook)
-    const rawData = websiteSetupData as any
-    const actualData = rawData?.data?.data || rawData
+    const rawData = websiteSetupData as WebsiteSetupForm
+    const actualData = rawData || rawData
 
     if (!actualData || (typeof actualData === "object" && Object.keys(actualData).length === 0)) {
       console.log("⚠️ [DEBUG] No actual data found")
@@ -188,8 +188,8 @@ export default function WebsiteSetupOnboardingForm() {
       const filesToUpload = (data.legal_files || []).filter((f): f is File => f instanceof File)
 
       if (filesToUpload.length > 0) {
-        const uploadPromises = filesToUpload.map((file) =>
-          uploadFileToStorage(file, `legal-${file.name}`, user?.id!)
+        const uploadPromises = filesToUpload.map((file: File) =>
+          uploadFileToStorage(file, `legal-${file.name}`, user?.id ?? "")
         )
         newFileUrls = await Promise.all(uploadPromises)
       }
@@ -336,7 +336,7 @@ export default function WebsiteSetupOnboardingForm() {
                       label="Legal Asset Uploader"
                       multiple
                       maxFiles={5}
-                      value={field.value as any[]}
+                      value={field.value as File[]}
                       onChange={field.onChange}
                     />
                   </FormControl>
