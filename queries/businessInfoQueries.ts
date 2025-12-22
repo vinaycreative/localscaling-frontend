@@ -16,7 +16,7 @@ export const useCreateBusinessInfoMutation = () => {
     mutationFn: createBusinessInfo,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["business-info"] })
-      toast.success("Business Information saved successfully")
+      queryClient.invalidateQueries({ queryKey: ["sidebar-information"] })
     },
     onError: (error) => {
       toast.error(getApiErrorMessage(error))

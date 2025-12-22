@@ -1,7 +1,7 @@
 import {
   useCreateBusinessInfoMutation,
   useGetBusinessInfoQuery,
-} from "@/queries/business-info-queries"
+} from "@/queries/businessInfoQueries"
 
 export const useBusinessInfo = () => {
   const { data, isLoading, error } = useGetBusinessInfoQuery()
