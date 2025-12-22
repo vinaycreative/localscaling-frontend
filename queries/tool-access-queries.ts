@@ -16,6 +16,7 @@ export const useCreateToolsAccessMutation = () => {
     mutationFn: createToolsAccess,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [TOOLS_ACCESS] })
+      queryClient.invalidateQueries({ queryKey: ["sidebar-information"] })
       toast.success("Tools Access Configuration Saved Successfully.")
     },
     onError: (error) => {

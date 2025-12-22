@@ -16,6 +16,7 @@ export const useCreateLocationAndBudgetMutation = () => {
     mutationFn: createLocationAndBudget,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["location-and-budget"] })
+      queryClient.invalidateQueries({ queryKey: ["sidebar-information"] })
       toast.success("Location and budget saved successfully")
     },
     onError: (error) => {

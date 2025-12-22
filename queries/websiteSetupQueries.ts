@@ -16,6 +16,7 @@ export const useCreateWebsiteSetupMutation = () => {
     mutationFn: createWebsiteSetup,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["website-setup"] })
+      queryClient.invalidateQueries({ queryKey: ["sidebar-information"] })
       toast.success("Website setup saved successfully!")
     },
     onError: (error) => {

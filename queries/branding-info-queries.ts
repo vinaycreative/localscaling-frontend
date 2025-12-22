@@ -16,6 +16,7 @@ export const useCreateBrandingInfoMutation = () => {
     mutationFn: saveBrandingInfo,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [BRANDING_INFO_KEY] })
+      queryClient.invalidateQueries({ queryKey: ["sidebar-information"] })
       toast.success("Branding Information saved successfully")
     },
     onError: (error) => {
