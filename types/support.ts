@@ -27,6 +27,7 @@ export type TicketAttachment = {
 }
 
 export type TicketFilters = {
+  title?: string | null
   subject?: string | null
   category?: string[] | null
   priority?: string | null
