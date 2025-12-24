@@ -1,5 +1,8 @@
-import { createTicketSchema } from "@/schema/support"
+import { createTicketSchema } from "@/types/schema/support"
 import z from "zod"
+
+export type PriorityType = "low" | "medium" | "high"
+export type Status = "open" | "resolved"
 
 export type Ticket = {
   id: string
@@ -8,11 +11,11 @@ export type Ticket = {
   category: string
   created_by: string
   subject: string
-  priority: "low" | "medium" | "high"
-  status: "open" | "resolved"
+  priority: PriorityType
+  status: Status
   updated_at: string
   created_at: string
-  attachments?: TicketAttachment[] 
+  attachments?: TicketAttachment[]
 }
 
 export type TicketAttachment = {
