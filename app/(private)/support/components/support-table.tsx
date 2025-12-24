@@ -1,18 +1,6 @@
 "use client"
-
-import {
-  flexRender,
-  getCoreRowModel,
-  getSortedRowModel,
-  useReactTable,
-  ColumnDef,
-  SortingState,
-  RowSelectionState,
-  Column,
-  ColumnPinningState,
-} from "@tanstack/react-table"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Badge } from "@/components/ui/badge"
+import { PriorityBadge, StatusBadge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -21,21 +9,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import {
   MoreHorizontal,
   Paperclip,
-  ArrowUpDown,
   User,
   Layers2,
   MessagesSquare,
-  ChevronsUpDown,
   CheckCircle,
   XCircle,
   CornerRightUp,
@@ -45,7 +23,7 @@ import {
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { TicketDetailsModal } from "./view-details"
-import { CSSProperties, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import { useSidebar } from "@/components/ui/sidebar"
 import { Ticket } from "@/types/support"
 import { DataTable } from "@/components/data-table/data-table"
@@ -54,6 +32,7 @@ import { buildFilterQueryParams, parsedFilters } from "@/components/data-table/u
 import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs"
 import { useDataTable } from "@/hooks/use-data-table"
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
+import { ColumnDef } from "@tanstack/react-table"
 
 const data: Ticket[] = [
   {
@@ -269,7 +248,7 @@ export const getColumns = ({
       )
     },
     enableSorting: true,
-    size: 130,
+    size: 150,
   },
   {
     id: "subject",
@@ -286,6 +265,7 @@ export const getColumns = ({
     },
     enableSorting: true,
     enableColumnFilter: true,
+    size: 250,
   },
   {
     id: "category",
@@ -349,11 +329,23 @@ export const getColumns = ({
     enableColumnFilter: true,
   },
   {
+    accessorKey: "created_by",
+    header: ({ column }) => <DataTableColumnHeader column={column} label="Created By" />,
+    cell: ({ getValue }) => (
+      <span className="text-xs text-muted-foreground">{getValue<string>()}</span>
+    ),
+    enableSorting: true,
+    size: 160,
+  },
+  {
     id: "created_at",
     accessorKey: "created_at",
     header: ({ column }) => <DataTableColumnHeader column={column} label="Created At" />,
     cell: ({ getValue }) => (
-      <span className="text-xs text-muted-foreground">{getValue<string>()}</span>
+      <span className="text-xs text-muted-foreground">
+        <User />
+        {getValue<string>()}
+      </span>
     ),
     enableSorting: true,
     size: 110,
@@ -363,6 +355,7 @@ export const getColumns = ({
     },
     enableColumnFilter: true,
   },
+
   {
     accessorKey: "updated_at",
     header: ({ column }) => <DataTableColumnHeader column={column} label="Updated At" />,
@@ -458,42 +451,6 @@ export function SupportTable() {
         />
       )}
     </>
-  )
-}
-
-export function StatusBadge({ status }: { status: "open" | "resolved" }) {
-  const style =
-    status === "resolved"
-      ? "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200"
-      : "bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200"
-
-  return (
-    <Badge
-      variant="secondary"
-      className={`${style} rounded-full px-2.5 py-0.5 text-xs font-medium capitalize`}
-    >
-      {status}
-    </Badge>
-  )
-}
-
-export function PriorityBadge({ priority }: { priority: "low" | "medium" | "high" }) {
-  const style =
-    priority === "low"
-      ? "bg-blue-50 text-blue-500 ring-1 ring-inset ring-blue-500"
-      : priority === "high"
-        ? "bg-red-50 text-red-500 ring-1 ring-inset ring-red-500"
-        : priority === "medium"
-          ? "bg-amber-50 text-amber-500 ring-1 ring-inset ring-amber-500"
-          : ""
-
-  return (
-    <Badge
-      variant="secondary"
-      className={`${style} rounded-full px-2.5 py-0.5 text-xs font-medium capitalize`}
-    >
-      {priority}
-    </Badge>
   )
 }
 
