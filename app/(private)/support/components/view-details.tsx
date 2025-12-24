@@ -16,7 +16,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { Badge, PriorityBadge, StatusBadge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
 import {
   Select,
@@ -40,7 +40,6 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Ticket } from "@/types/support"
-import { PriorityBadge, StatusBadge } from "./support-table"
 
 export type TicketDetailsModalProps = {
   open: boolean
