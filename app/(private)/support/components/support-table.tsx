@@ -35,6 +35,7 @@ import { DataTableColumnHeader } from "@/components/data-table/data-table-column
 import { ColumnDef } from "@tanstack/react-table"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useGetTickets } from "@/hooks/useTickets"
+import { TICKET_CATEGORIES, TICKET_PRIORITIES } from "./create-ticket-modal"
 
 const data: Ticket[] = [
   {
@@ -253,6 +254,23 @@ export const getColumns = ({
     size: 150,
   },
   {
+    id: "title",
+    accessorKey: "title",
+    header: ({ column }) => <DataTableColumnHeader column={column} label="Title" />,
+    cell: ({ getValue }) => (
+      <span className="text-xs text-foreground/90 break-words whitespace-break-spaces">
+        {getValue<string>()}
+      </span>
+    ),
+    meta: {
+      label: "Title",
+      variant: "text",
+    },
+    enableSorting: true,
+    enableColumnFilter: true,
+    size: 250,
+  },
+  {
     id: "subject",
     accessorKey: "subject",
     header: ({ column }) => <DataTableColumnHeader column={column} label="Subject" />,
@@ -261,10 +279,10 @@ export const getColumns = ({
         {getValue<string>()}
       </span>
     ),
-    meta: {
-      label: "Subject",
-      variant: "text",
-    },
+    // meta: {
+    //   label: "Subject",
+    //   variant: "text",
+    // },
     enableSorting: true,
     enableColumnFilter: true,
     size: 250,
@@ -281,15 +299,7 @@ export const getColumns = ({
     meta: {
       label: "Category",
       variant: "multiSelect",
-      options: [
-        { label: "Website", value: "Website" },
-        { label: "CRM", value: "CRM" },
-        { label: "Billing", value: "Billing" },
-        { label: "System", value: "System" },
-        { label: "Mobile App", value: "Mobile App" },
-        { label: "Backend", value: "Backend" },
-        { label: "E-commerce", value: "E-commerce" },
-      ],
+      options: TICKET_CATEGORIES,
     },
     enableColumnFilter: true,
   },
@@ -305,11 +315,7 @@ export const getColumns = ({
     meta: {
       label: "Priority",
       variant: "select",
-      options: [
-        { label: "High", value: "high", icon: CornerRightUp },
-        { label: "Medium", value: "medium", icon: Minus },
-        { label: "Low", value: "low", icon: CornerRightDown },
-      ],
+      options: TICKET_PRIORITIES,
     },
     enableColumnFilter: true,
   },
