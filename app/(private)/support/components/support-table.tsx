@@ -66,6 +66,7 @@ const data: Ticket[] = [
     priority: "high",
     status: "open",
     updated_at: "5m ago",
+    created_at: "1m ago",
     attachments: [
       {
         id: "a1",
@@ -93,6 +94,7 @@ const data: Ticket[] = [
     priority: "high",
     status: "resolved",
     updated_at: "10m ago",
+    created_at: "1m ago",
   },
   {
     id: "GP-1044",
@@ -104,6 +106,7 @@ const data: Ticket[] = [
     priority: "medium",
     status: "open",
     updated_at: "30m ago",
+    created_at: "1m ago",
   },
   {
     id: "GP-1045",
@@ -115,6 +118,7 @@ const data: Ticket[] = [
     priority: "high",
     status: "open",
     updated_at: "1hr ago",
+    created_at: "1m ago",
   },
   {
     id: "GP-1046",
@@ -126,6 +130,7 @@ const data: Ticket[] = [
     priority: "medium",
     status: "resolved",
     updated_at: "2hr ago",
+    created_at: "1m ago",
     attachments: [
       {
         id: "a3",
@@ -145,6 +150,7 @@ const data: Ticket[] = [
     priority: "high",
     status: "open",
     updated_at: "3hr ago",
+    created_at: "1m ago",
     attachments: [
       {
         id: "a4",
@@ -164,6 +170,7 @@ const data: Ticket[] = [
     priority: "medium",
     status: "open",
     updated_at: "5hr ago",
+    created_at: "1m ago",
   },
   {
     id: "GP-1049",
@@ -175,6 +182,7 @@ const data: Ticket[] = [
     priority: "low",
     status: "resolved",
     updated_at: "8hr ago",
+    created_at: "1m ago",
   },
   {
     id: "GP-1050",
@@ -186,6 +194,7 @@ const data: Ticket[] = [
     priority: "high",
     status: "open",
     updated_at: "12hr ago",
+    created_at: "1m ago",
     attachments: [
       {
         id: "a5",
@@ -205,54 +214,9 @@ const data: Ticket[] = [
     priority: "low",
     status: "resolved",
     updated_at: "1d ago",
+    created_at: "1m ago",
   },
 ]
-
-const COL_WIDTHS = {
-  select: "w-[40px] max-w-[100px]",
-  id: "w-[120px] max-w-[150px]",
-  category: "w-[140px] max-w-[200px]",
-  priority: "w-[110px] max-w-[200px]",
-  status: "w-[120px] max-w-[220px]",
-  updated_at: "w-[110px] max-w-[210px]",
-  actions: "w-[60px] max-w-[160px]",
-} as const
-
-/** Returns the Tailwind width class for a header id, plus any extras you pass. */
-function colWidthClass(id?: string, extra?: string) {
-  // If id is one of our typed keys, use it; otherwise nothing.
-  const cls = (id && (COL_WIDTHS as Record<string, string>)[id]) ?? undefined
-  // If you use shadcn's cn util, use that instead of simple join.
-  return [cls, extra].filter(Boolean).join(" ")
-  // return cn(cls, extra) // if you have cn()
-}
-
-const demoTicket: Ticket = {
-  id: "GP-1040-15",
-  title: "CRM login issue",
-  subject: "CRM login issue",
-  description: "Cannot log into CRM. Error 401 after entering credentials.",
-  category: "Ads",
-  created_by: "Default User",
-  priority: "high",
-  status: "open",
-  updated_at: "1hr ago",
-}
-
-const getCommonPinningStyles = (column: Column<Ticket>): CSSProperties => {
-  const isPinned = column.getIsPinned()
-
-  return {
-    left: isPinned === "left" ? `${column.getStart("left")}px` : undefined,
-    right: isPinned === "right" ? `${column.getAfter("right")}px` : undefined,
-    opacity: isPinned ? 0.95 : 1,
-    position: isPinned ? "sticky" : "relative",
-    width: column.getSize(),
-    zIndex: isPinned ? 1 : 0,
-  }
-}
-
-// ─── Column Definitions ──────────────────────────────
 
 export const getColumns = ({
   setOpenTicket,
@@ -383,6 +347,21 @@ export const getColumns = ({
     enableColumnFilter: true,
   },
   {
+    id: "created_at",
+    accessorKey: "created_at",
+    header: ({ column }) => <DataTableColumnHeader column={column} label="Created At" />,
+    cell: ({ getValue }) => (
+      <span className="text-xs text-muted-foreground">{getValue<string>()}</span>
+    ),
+    enableSorting: true,
+    size: 110,
+    meta: {
+      label: "Created at",
+      variant: "date",
+    },
+    enableColumnFilter: true,
+  },
+  {
     accessorKey: "updated_at",
     header: ({ column }) => <DataTableColumnHeader column={column} label="Updated At" />,
     cell: ({ getValue }) => (
@@ -445,7 +424,6 @@ export function SupportTable() {
     pageCount: 1,
     getRowId: (row) => row.id,
     initialState: {
-      sorting: [{ id: "updated_at", desc: true }],
       columnPinning: {
         left: ["select", "id"],
         right: ["actions"],

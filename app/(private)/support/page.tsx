@@ -50,7 +50,7 @@ export default function SupportPage() {
         />
       </SiteHeader> */}
       <div className="overflow-scroll">
-        <div className="py-4">
+        <div className="py-0">
           <SupportTable />
         </div>
       </div>
