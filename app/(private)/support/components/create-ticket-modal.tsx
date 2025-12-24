@@ -128,11 +128,12 @@ export function CreateTicketModal({
         setSkipConfirm(true)
       }
       const payload: CreateTicketValues = { ...values, files: files }
-      await onSubmit(payload)
-      onOpenChange(false)
-      setFiles([])
-      setValue("files", [])
-      form.reset()
+      const res = await onSubmit(payload)
+      console.log("🚀 ~ actuallySubmit ~ res:", res)
+      // onOpenChange(false)
+      // setFiles([])
+      // setValue("files", [])
+      // form.reset()
     } finally {
       setSubmitting(false)
       setConfirmOpen(false)
