@@ -11,6 +11,7 @@ export type Ticket = {
   priority: "low" | "medium" | "high"
   status: "open" | "resolved"
   updated_at: string
+  created_at: string
   attachments?: TicketAttachment[] 
 }
 
