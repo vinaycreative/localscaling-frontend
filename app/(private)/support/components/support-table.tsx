@@ -33,6 +33,7 @@ import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs"
 import { useDataTable } from "@/hooks/use-data-table"
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
 import { ColumnDef } from "@tanstack/react-table"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 const data: Ticket[] = [
   {
@@ -331,8 +332,13 @@ export const getColumns = ({
   {
     accessorKey: "created_by",
     header: ({ column }) => <DataTableColumnHeader column={column} label="Created By" />,
-    cell: ({ getValue }) => (
-      <span className="text-xs text-muted-foreground">{getValue<string>()}</span>
+    cell: ({ getValue , cell }) => (
+      <span className="text-xs text-muted-foreground flex items-center gap-2">
+        <Avatar>
+        <AvatarFallback>{cell?.row?.original?.created_by?.[0]}</AvatarFallback>
+      </Avatar>
+        {getValue<string>()}
+      </span>
     ),
     enableSorting: true,
     size: 160,
@@ -342,10 +348,7 @@ export const getColumns = ({
     accessorKey: "created_at",
     header: ({ column }) => <DataTableColumnHeader column={column} label="Created At" />,
     cell: ({ getValue }) => (
-      <span className="text-xs text-muted-foreground">
-        <User />
-        {getValue<string>()}
-      </span>
+      <span className="text-xs text-muted-foreground">{getValue<string>()}</span>
     ),
     enableSorting: true,
     size: 110,
