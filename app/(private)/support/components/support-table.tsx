@@ -25,16 +25,16 @@ import { useRouter } from "next/navigation"
 import { TicketDetailsModal } from "./view-details"
 import { useMemo, useState } from "react"
 import { useSidebar } from "@/components/ui/sidebar"
-import { Ticket } from "@/types/support"
+import { CreateTicketValues, Ticket } from "@/types/support"
 import { DataTable } from "@/components/data-table/data-table"
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar"
 import { buildFilterQueryParams, parsedFilters } from "@/components/data-table/utils"
-import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs"
+import { parseAsArrayOf, parseAsInteger, parseAsString, useQueryState } from "nuqs"
 import { useDataTable } from "@/hooks/use-data-table"
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
 import { ColumnDef } from "@tanstack/react-table"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { useGetTickets } from "@/hooks/useTickets"
+import { useCreateTicket, useGetTickets } from "@/hooks/useTickets"
 import { TICKET_CATEGORIES, TICKET_PRIORITIES } from "./create-ticket-modal"
 
 const data: Ticket[] = [
@@ -387,14 +387,19 @@ export const getColumns = ({
 ]
 
 export function SupportTable() {
+  const [page] = useQueryState("page", parseAsInteger.withDefault(0))
+  const [pageSize] = useQueryState("pageSize", parseAsInteger.withDefault(10))
   const [subject] = useQueryState("subject", parseAsString.withDefault(""))
   const [category] = useQueryState("category", parseAsArrayOf(parseAsString).withDefault([]))
   const [priority] = useQueryState("priority", parseAsString.withDefault(""))
   const [status] = useQueryState("status", parseAsString.withDefault(""))
+  console.log("🚀 ~ SupportTable ~ status:", status)
   const [created_at] = useQueryState("created_at", parseAsString.withDefault(""))
 
   const { data: ticketsData } = useGetTickets({
     filters: {
+      page,
+      pageSize,
       subject,
       category,
       priority,
@@ -402,43 +407,32 @@ export function SupportTable() {
       created_at,
     },
   })
+  const { createTicket } = useCreateTicket()
   console.log("🚀 ~ SupportTable ~ ticketsData:", ticketsData)
-  console.log({
-    filters: {
-      subject,
-      category,
-      priority,
-      status,
-    },
-  })
-  const filteredData = useMemo(() => {
-    return data.filter((ticket) => {
-      const matchesSubject =
-        subject === "" || ticket.subject.toLowerCase().includes(subject.toLowerCase())
-
-      const matchesCategory = category.length === 0 || category.includes(ticket.category)
-
-      const matchesPriority = priority.length === 0 || priority.includes(ticket.priority)
-
-      const matchesStatus = status.length === 0 || status.includes(ticket.status)
-
-      return matchesSubject && matchesCategory && matchesPriority && matchesStatus
-    })
-  }, [subject, category, priority, status])
+  // console.log({
+  //   filters: {
+  //     subject,
+  //     category,
+  //     priority,
+  //     status,
+  //   },
+  // })
 
   const [openTicket, setOpenTicket] = useState(false) // to open the view details modal
   const [currentDetails, setCurrentDetails] = useState<Ticket | null>(null)
   const { open, isMobile } = useSidebar()
 
-  const handleSubmit = async (updated_at: Ticket) => {
+  const handleSubmit = async (values: CreateTicketValues) => {
+    try {
+      await createTicket(values)
+    } catch (error) {}
     // send to API or mutate state
-    console.log("Updated ticket:", updated_at)
   }
 
   const { table } = useDataTable({
-    data: filteredData,
+    data: ticketsData?.data || [],
     columns: getColumns({ setOpenTicket, setCurrentDetails }),
-    pageCount: 1,
+    pageCount: ticketsData?.data?.totalPages || 0,
     getRowId: (row) => row.id,
     initialState: {
       columnPinning: {
@@ -448,7 +442,7 @@ export function SupportTable() {
     },
   })
 
-  console.log("buildFilterQueryParams", String(buildFilterQueryParams(parsedFilters(table))))
+  // console.log("buildFilterQueryParams", String(buildFilterQueryParams(parsedFilters(table))))
 
   return (
     <>

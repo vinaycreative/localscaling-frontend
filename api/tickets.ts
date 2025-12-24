@@ -6,7 +6,7 @@ import { CreateTicketValues, TicketFilters } from "@/types/support"
 export async function getTickets({ filters }: { filters: TicketFilters }) {
   try {
     const res = await api.get("/client/tickets", {
-      params: cleanFilters(filters),
+      params: cleanFilters(filters as TicketFilters),
     })
     return res.data
   } catch (error) {

@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { createTicketSchema } from "@/types/schema/support"
 import { CreateTicketValues } from "@/types/support"
+import { useCreateTicket } from "@/hooks/useTickets"
 
 export default function SupportPage() {
   const [createTicket, setCreateTicket] = useState<boolean>(false)
@@ -20,6 +21,8 @@ export default function SupportPage() {
       priority: "low",
     },
   })
+
+  const { createTicket: createTicketForm } = useCreateTicket()
 
   return (
     <Page
@@ -46,7 +49,10 @@ export default function SupportPage() {
         form={form}
         open={createTicket}
         onOpenChange={setCreateTicket}
-        onSubmit={(values) => {
+        onSubmit={async (values: CreateTicketValues) => {
+          try {
+            await createTicketForm(values)
+          } catch (error) {}
           console.log("🚀 ~ SupportPage ~ values:", values)
         }}
       />

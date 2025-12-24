@@ -6,7 +6,7 @@ import { TicketFilters } from "@/types/support"
 
 export const useGetTicketsQuery = ({ filters }: { filters: TicketFilters }) => {
   return useQuery({
-    queryKey: ["tickets", JSON.stringify(filters)],
+    queryKey: ["tickets", filters],
     queryFn: () => {
       return getTickets({ filters })
     },

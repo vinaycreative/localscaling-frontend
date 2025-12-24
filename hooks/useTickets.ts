@@ -3,7 +3,7 @@ import { TicketFilters } from "@/types/support"
 
 export const useGetTickets = ({ filters }: { filters: TicketFilters }) => {
   const { data, isLoading, error } = useGetTicketsQuery({ filters })
-  return { data, isLoading, error }
+  return { data: data?.data, isLoading, error }
 }
 
 export const useCreateTicket = () => {
