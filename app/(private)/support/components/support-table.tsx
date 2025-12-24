@@ -36,15 +36,24 @@ import {
   Layers2,
   MessagesSquare,
   ChevronsUpDown,
+  CheckCircle,
+  XCircle,
+  CornerRightUp,
+  CornerRightDown,
+  Minus,
 } from "lucide-react"
 import Link from "next/link"
-import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
 import { TicketDetailsModal } from "./view-details"
-// import { Ticket } from "../types"
-import { CSSProperties, useState } from "react"
+import { CSSProperties, useMemo, useState } from "react"
 import { useSidebar } from "@/components/ui/sidebar"
 import { Ticket } from "@/types/support"
+import { DataTable } from "@/components/data-table/data-table"
+import { DataTableToolbar } from "@/components/data-table/data-table-toolbar"
+import { buildFilterQueryParams, parsedFilters } from "@/components/data-table/utils"
+import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs"
+import { useDataTable } from "@/hooks/use-data-table"
+import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
 
 const data: Ticket[] = [
   {
@@ -281,14 +290,7 @@ export const getColumns = ({
   },
   {
     accessorKey: "id",
-    header: ({ column }) => (
-      <button
-        className="inline-flex items-center gap-1"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Ticket ID <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />
-      </button>
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} label="Ticket Id" />,
     cell: ({ row }) => {
       const t = row.original
       return (
@@ -306,76 +308,83 @@ export const getColumns = ({
     size: 130,
   },
   {
+    id: "subject",
     accessorKey: "subject",
-    header: ({ column }) => (
-      <button
-        className="inline-flex items-center gap-1"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Subject <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />
-      </button>
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} label="Subject" />,
     cell: ({ getValue }) => (
       <span className="text-xs text-foreground/90 break-words whitespace-break-spaces">
         {getValue<string>()}
       </span>
     ),
+    meta: {
+      label: "Subject",
+      variant: "text",
+    },
     enableSorting: true,
+    enableColumnFilter: true,
   },
   {
+    id: "category",
     accessorKey: "category",
-    header: ({ column }) => (
-      <button
-        className="inline-flex items-center gap-1"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Category <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />
-      </button>
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} label="Category" />,
     cell: ({ getValue }) => (
       <span className="text-xs text-muted-foreground">{getValue<string>()}</span>
     ),
     enableSorting: true,
     size: 140,
+    meta: {
+      label: "Category",
+      variant: "multiSelect",
+      options: [
+        { label: "Website", value: "Website" },
+        { label: "CRM", value: "CRM" },
+        { label: "Billing", value: "Billing" },
+        { label: "System", value: "System" },
+        { label: "Mobile App", value: "Mobile App" },
+        { label: "Backend", value: "Backend" },
+        { label: "E-commerce", value: "E-commerce" },
+      ],
+    },
+    enableColumnFilter: true,
   },
   {
+    id: "priority",
     accessorKey: "priority",
-    header: ({ column }) => (
-      <button
-        className="inline-flex items-center gap-1"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Priority <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />
-      </button>
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} label="Priority" />,
     cell: ({ getValue }) => <span className="text-xs capitalize">{getValue<string>()}</span>,
     enableSorting: true,
     size: 110,
+    meta: {
+      label: "Priority",
+      variant: "select",
+      options: [
+        { label: "High", value: "high", icon: CornerRightUp },
+        { label: "Medium", value: "medium", icon: Minus },
+        { label: "Low", value: "low", icon: CornerRightDown },
+      ],
+    },
+    enableColumnFilter: true,
   },
   {
+    id: "status",
     accessorKey: "status",
-    header: ({ column }) => (
-      <button
-        className="inline-flex items-center gap-1"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Status <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />
-      </button>
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} label="Status" />,
     cell: ({ getValue }) => <StatusBadge status={getValue<"open" | "resolved">()} />,
     enableSorting: true,
     size: 120,
+    meta: {
+      label: "Status",
+      variant: "select",
+      options: [
+        { label: "Open", value: "open", icon: CheckCircle },
+        { label: "Resolved", value: "resolved", icon: XCircle },
+      ],
+    },
+    enableColumnFilter: true,
   },
   {
     accessorKey: "updated_at",
-    header: ({ column }) => (
-      <button
-        className="inline-flex items-center gap-1"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Updated <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />
-      </button>
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} label="Updated At" />,
     cell: ({ getValue }) => (
       <span className="text-xs text-muted-foreground">{getValue<string>()}</span>
     ),
@@ -394,6 +403,33 @@ export const getColumns = ({
 ]
 
 export function SupportTable() {
+  const [subject] = useQueryState("subject", parseAsString.withDefault(""))
+  const [category] = useQueryState("category", parseAsArrayOf(parseAsString).withDefault([]))
+  const [priority] = useQueryState("priority", parseAsArrayOf(parseAsString).withDefault([]))
+  const [status] = useQueryState("status", parseAsArrayOf(parseAsString).withDefault([]))
+  console.log({
+    filters: {
+      subject,
+      category,
+      priority,
+      status,
+    },
+  })
+  const filteredData = useMemo(() => {
+    return data.filter((ticket) => {
+      const matchesSubject =
+        subject === "" || ticket.subject.toLowerCase().includes(subject.toLowerCase())
+
+      const matchesCategory = category.length === 0 || category.includes(ticket.category)
+
+      const matchesPriority = priority.length === 0 || priority.includes(ticket.priority)
+
+      const matchesStatus = status.length === 0 || status.includes(ticket.status)
+
+      return matchesSubject && matchesCategory && matchesPriority && matchesStatus
+    })
+  }, [subject, category, priority, status])
+
   const [openTicket, setOpenTicket] = useState(false) // to open the view details modal
   const [currentDetails, setCurrentDetails] = useState<Ticket | null>(null)
   const { open, isMobile } = useSidebar()
@@ -403,99 +439,33 @@ export function SupportTable() {
     console.log("Updated ticket:", updated_at)
   }
 
-  const [sorting, setSorting] = useState<SortingState>([])
-  const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
-
-  const [columnPinning, setColumnPinning] = useState<ColumnPinningState>({
-    left: ["select", "id"],
-    right: ["actions"],
-  })
-
-  const table = useReactTable({
-    data,
+  const { table } = useDataTable({
+    data: filteredData,
     columns: getColumns({ setOpenTicket, setCurrentDetails }),
-    state: { sorting, rowSelection, columnPinning }, // ← add,
-    onSortingChange: setSorting,
-    onRowSelectionChange: setRowSelection,
-    onColumnPinningChange: setColumnPinning,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    // sizes help us keep near-pixel parity with the screenshot
-    columnResizeMode: "onChange",
-    enableSortingRemoval: false,
+    pageCount: 1,
+    getRowId: (row) => row.id,
+    initialState: {
+      sorting: [{ id: "updated_at", desc: true }],
+      columnPinning: {
+        left: ["select", "id"],
+        right: ["actions"],
+      },
+    },
   })
+
+  console.log("buildFilterQueryParams", String(buildFilterQueryParams(parsedFilters(table))))
 
   return (
     <>
       <div className="overflow-hidden rounded-lg border bg-card w-full">
-        <Table
-          className="text-xs table-fixed w-full"
-          containerClassName="min-h-[50vh] max-h-[70vh]"
-          // containerClassName={cn(
-          //   "max-w-[94vw] max-h-[70vh] overflow-y-scroll",
-          //   !open && isMobile ? "max-w-[98vw]" : "",
-          //   open && !isMobile ? "max-w-[62.6vw] lg:max-w-[88vw]" : ""
-          // )}
-        >
-          <TableHeader>
-            {table.getHeaderGroups().map((hg) => {
-              return (
-                <TableRow key={hg.id}>
-                  {hg.headers.map((header) => {
-                    const isPinnedColumn =
-                      columnPinning?.left?.includes(header.column.id) ||
-                      columnPinning?.right?.includes(header.column.id)
-                    return (
-                      <TableHead
-                        key={header.id}
-                        style={{
-                          width: header.getSize() || undefined,
-                          ...(isPinnedColumn ? getCommonPinningStyles(header.column) : {}),
-                          zIndex: isPinnedColumn ? 2 : 1,
-                        }}
-                        className={cn(
-                          colWidthClass(header.column.id),
-                          "text-muted-foreground font-semibold break-all sticky top-0 bg-card"
-                        )}
-                      >
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(header.column.columnDef.header, header.getContext())}
-                      </TableHead>
-                    )
-                  })}
-                </TableRow>
-              )
-            })}
-          </TableHeader>
-
-          <TableBody>
-            {table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && "selected"}
-                className="hover:bg-muted/40"
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell
-                    key={cell.id}
-                    className="break-words bg-card"
-                    style={{
-                      ...(columnPinning?.left?.includes(cell.column.id) ||
-                      columnPinning?.right?.includes(cell.column.id)
-                        ? getCommonPinningStyles(cell.column)
-                        : {}),
-                    }}
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <div className="data-table-container p-2">
+          <DataTable table={table}>
+            <DataTableToolbar table={table}></DataTableToolbar>
+          </DataTable>
+        </div>
       </div>
-      {currentDetails && (
+
+      {currentDetails && openTicket && (
         <TicketDetailsModal
           open={openTicket}
           onOpenChange={setOpenTicket}
@@ -566,11 +536,6 @@ function RowMenu({ row, setOpen, setCurrentDetails }: RowMenuProps) {
     setCurrentDetails(row)
   }
 
-  // const handleChangeAssignee = () => {
-  //   // maybe open a modal, etc.
-  //   console.log("Change assignee for", row.id)
-  // }
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -580,10 +545,6 @@ function RowMenu({ row, setOpen, setCurrentDetails }: RowMenuProps) {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-[180px]">
-        {/* <DropdownMenuItem onClick={handleChangeAssignee} className="text-xs">
-          <User className="mr-2 h-4 w-4" /> Change assignee
-        </DropdownMenuItem> */}
-
         <DropdownMenuItem onClick={handleViewDetails} className="text-xs">
           <Layers2 className="mr-2 h-4 w-4" /> View details
         </DropdownMenuItem>
