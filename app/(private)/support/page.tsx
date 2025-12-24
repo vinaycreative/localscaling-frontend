@@ -21,7 +21,6 @@ export default function SupportPage() {
     },
   })
 
-
   return (
     <Page
       rightButton={
@@ -50,7 +49,7 @@ export default function SupportPage() {
           }
         />
       </SiteHeader> */}
-      <div className="py-4 pt-0">
+      <div className="overflow-scroll">
         <div className="py-4">
           <SupportTable />
         </div>
