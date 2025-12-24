@@ -6,7 +6,7 @@ import { SupportTable } from "./components/support-table"
 import Page from "@/components/base/Page"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { createTicketSchema } from "@/schema/support"
+import { createTicketSchema } from "@/types/schema/support"
 import { CreateTicketValues } from "@/types/support"
 
 export default function SupportPage() {
