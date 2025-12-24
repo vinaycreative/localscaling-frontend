@@ -57,6 +57,7 @@ const data: Ticket[] = [
     priority: "high",
     status: "open",
     updated_at: "5m ago",
+    created_at: "5m ago",
     attachments: [
       {
         id: "a1",
@@ -84,6 +85,7 @@ const data: Ticket[] = [
     priority: "high",
     status: "resolved",
     updated_at: "10m ago",
+    created_at: "10m ago",
   },
   {
     id: "GP-1044",
@@ -95,6 +97,7 @@ const data: Ticket[] = [
     priority: "medium",
     status: "open",
     updated_at: "30m ago",
+    created_at: "30m ago",
   },
   {
     id: "GP-1045",
@@ -106,6 +109,7 @@ const data: Ticket[] = [
     priority: "high",
     status: "open",
     updated_at: "1hr ago",
+    created_at: "1hr ago",
   },
   {
     id: "GP-1046",
@@ -117,6 +121,7 @@ const data: Ticket[] = [
     priority: "medium",
     status: "resolved",
     updated_at: "2hr ago",
+    created_at: "2hr ago",
     attachments: [
       {
         id: "a3",
@@ -136,6 +141,7 @@ const data: Ticket[] = [
     priority: "high",
     status: "open",
     updated_at: "3hr ago",
+    created_at: "3hr ago",
     attachments: [
       {
         id: "a4",
@@ -155,6 +161,7 @@ const data: Ticket[] = [
     priority: "medium",
     status: "open",
     updated_at: "5hr ago",
+    created_at: "5hr ago",
   },
   {
     id: "GP-1049",
@@ -166,6 +173,7 @@ const data: Ticket[] = [
     priority: "low",
     status: "resolved",
     updated_at: "8hr ago",
+    created_at: "8hr ago",
   },
   {
     id: "GP-1050",
@@ -177,6 +185,7 @@ const data: Ticket[] = [
     priority: "high",
     status: "open",
     updated_at: "12hr ago",
+    created_at: "12hr ago",
     attachments: [
       {
         id: "a5",
@@ -196,6 +205,7 @@ const data: Ticket[] = [
     priority: "low",
     status: "resolved",
     updated_at: "1d ago",
+    created_at: "1d ago",
   },
 ]
 
@@ -228,6 +238,7 @@ const demoTicket: Ticket = {
   priority: "high",
   status: "open",
   updated_at: "1hr ago",
+  created_at: "1hr ago",
 }
 
 const getCommonPinningStyles = (column: Column<Ticket>): CSSProperties => {
