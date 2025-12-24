@@ -57,6 +57,22 @@ import {
 } from "@/components/ui/form"
 import { CreateTicketValues } from "@/types/support"
 
+export const TICKET_CATEGORIES = [
+  { label: "Website", value: "Website" },
+  { label: "CRM", value: "CRM" },
+  { label: "Billing", value: "Billing" },
+  { label: "System", value: "System" },
+  { label: "Mobile App", value: "Mobile App" },
+  { label: "Backend", value: "Backend" },
+  { label: "E-commerce", value: "E-commerce" },
+] as { label: string; value: string }[]
+
+export const TICKET_PRIORITIES = [
+  { label: "Low", value: "low" },
+  { label: "Medium", value: "medium" },
+  { label: "High", value: "high" },
+] as { label: string; value: "low" | "medium" | "high" }[]
+
 export interface CreateTicketModalProps<TValues extends FieldValues = CreateTicketValues> {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -74,18 +90,8 @@ export function CreateTicketModal({
   form,
   onOpenChange,
   onSubmit,
-  categories = [
-    { label: "Website", value: "website" },
-    { label: "Ads", value: "Ads" },
-    { label: "Billing", value: "billing" },
-    { label: "Account", value: "account" },
-    { label: "Other", value: "other" },
-  ],
-  priorities = [
-    { label: "Low", value: "low" },
-    { label: "Medium", value: "medium" },
-    { label: "High", value: "high" },
-  ],
+  categories = TICKET_CATEGORIES,
+  priorities = TICKET_PRIORITIES,
 }: CreateTicketModalProps) {
   const { watch, setValue } = form
   const [files, setFiles] = React.useState<File[]>(form?.getValues("files") || [])
