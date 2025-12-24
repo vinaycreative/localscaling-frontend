@@ -2,11 +2,14 @@ import { createTicket, getTickets } from "@/api/tickets"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { getApiErrorMessage } from "@/utils/formatAxiosError"
 import { toast } from "sonner"
+import { TicketFilters } from "@/types/support"
 
-export const useGetTicketsQuery = () => {
+export const useGetTicketsQuery = ({ filters }: { filters: TicketFilters }) => {
   return useQuery({
-    queryKey: ["tickets"],
-    queryFn: getTickets,
+    queryKey: ["tickets", JSON.stringify(filters)],
+    queryFn: () => {
+      return getTickets({ filters })
+    },
   })
 }
 

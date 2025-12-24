@@ -95,3 +95,17 @@ export function buildFilterQueryParams(filters: ParsedFilter[]): URLSearchParams
 
   return params
 }
+
+export function cleanFilters<T extends Record<string, any>>(
+  filters: T
+): Partial<T> {
+  return Object.fromEntries(
+    Object.entries(filters).filter(([, value]) => {
+      if (Array.isArray(value)) {
+        return value.length > 0
+      }
+
+      return value !== undefined && value !== null && value !== ""
+    })
+  )
+}

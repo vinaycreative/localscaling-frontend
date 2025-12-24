@@ -1,7 +1,8 @@
 import { useGetTicketsQuery, useCreateTicketMutation } from "@/queries/ticketQueries"
+import { TicketFilters } from "@/types/support"
 
-export const useGetTickets = () => {
-  const { data, isLoading, error } = useGetTicketsQuery()
+export const useGetTickets = ({ filters }: { filters: TicketFilters }) => {
+  const { data, isLoading, error } = useGetTicketsQuery({ filters })
   return { data, isLoading, error }
 }
 

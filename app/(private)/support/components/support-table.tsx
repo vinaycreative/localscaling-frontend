@@ -34,6 +34,7 @@ import { useDataTable } from "@/hooks/use-data-table"
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
 import { ColumnDef } from "@tanstack/react-table"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useGetTickets } from "@/hooks/useTickets"
 
 const data: Ticket[] = [
   {
@@ -332,11 +333,11 @@ export const getColumns = ({
   {
     accessorKey: "created_by",
     header: ({ column }) => <DataTableColumnHeader column={column} label="Created By" />,
-    cell: ({ getValue , cell }) => (
+    cell: ({ getValue, cell }) => (
       <span className="text-xs text-muted-foreground flex items-center gap-2">
         <Avatar>
-        <AvatarFallback>{cell?.row?.original?.created_by?.[0]}</AvatarFallback>
-      </Avatar>
+          <AvatarFallback>{cell?.row?.original?.created_by?.[0]}</AvatarFallback>
+        </Avatar>
         {getValue<string>()}
       </span>
     ),
@@ -382,8 +383,20 @@ export const getColumns = ({
 export function SupportTable() {
   const [subject] = useQueryState("subject", parseAsString.withDefault(""))
   const [category] = useQueryState("category", parseAsArrayOf(parseAsString).withDefault([]))
-  const [priority] = useQueryState("priority", parseAsArrayOf(parseAsString).withDefault([]))
-  const [status] = useQueryState("status", parseAsArrayOf(parseAsString).withDefault([]))
+  const [priority] = useQueryState("priority", parseAsString.withDefault(""))
+  const [status] = useQueryState("status", parseAsString.withDefault(""))
+  const [created_at] = useQueryState("created_at", parseAsString.withDefault(""))
+
+  const { data: ticketsData } = useGetTickets({
+    filters: {
+      subject,
+      category,
+      priority,
+      status,
+      created_at,
+    },
+  })
+  console.log("🚀 ~ SupportTable ~ ticketsData:", ticketsData)
   console.log({
     filters: {
       subject,

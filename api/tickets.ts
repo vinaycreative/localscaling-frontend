@@ -1,13 +1,16 @@
+import { cleanFilters } from "@/components/data-table/utils"
 import { api } from "@/lib/api"
 import { logError } from "@/lib/utils"
-import { CreateTicketValues } from "@/types/support"
+import { CreateTicketValues, TicketFilters } from "@/types/support"
 
-export async function getTickets() {
+export async function getTickets({ filters }: { filters: TicketFilters }) {
   try {
-    const res = await api.get("/client/tickets")
+    const res = await api.get("/client/tickets", {
+      params: cleanFilters(filters),
+    })
     return res.data
   } catch (error) {
-    console.error("Error fetching branding info", error)
+    console.error("Error fetching tickets", error)
     return null
   }
 }
