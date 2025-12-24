@@ -315,7 +315,9 @@ export const getColumns = ({
     id: "priority",
     accessorKey: "priority",
     header: ({ column }) => <DataTableColumnHeader column={column} label="Priority" />,
-    cell: ({ getValue }) => <span className="text-xs capitalize">{getValue<string>()}</span>,
+    cell: ({ getValue }) => (
+      <PriorityBadge priority={getValue<string>() as "high" | "medium" | "low"} />
+    ),
     enableSorting: true,
     size: 110,
     meta: {
@@ -478,11 +480,11 @@ export function StatusBadge({ status }: { status: "open" | "resolved" }) {
 export function PriorityBadge({ priority }: { priority: "low" | "medium" | "high" }) {
   const style =
     priority === "low"
-      ? "bg-yellow-50 text-yellow-700 ring-1 ring-inset ring-yellow-200"
+      ? "bg-blue-50 text-blue-500 ring-1 ring-inset ring-blue-500"
       : priority === "high"
-        ? "bg-red-100 text-red-900 ring-1 ring-inset ring-red-200"
+        ? "bg-red-50 text-red-500 ring-1 ring-inset ring-red-500"
         : priority === "medium"
-          ? "bg-red-50 text-red-500 ring-1 ring-inset ring-red-200"
+          ? "bg-amber-50 text-amber-500 ring-1 ring-inset ring-amber-500"
           : ""
 
   return (
