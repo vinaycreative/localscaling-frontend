@@ -37,18 +37,6 @@ export default function SupportPage() {
       title="Support"
       description="Create and track your support requests."
     >
-      {/* <SiteHeader>
-        <DynamicHeader
-          text={
-            <p className="text-sm">
-              <span className="hover:underline cursor-pointe">
-                Tasks Pending
-              </span>
-              <span className="text-red-500 ml-1">(3)</span>
-            </p>
-          }
-        />
-      </SiteHeader> */}
       <div className="overflow-scroll">
         <div className="py-0">
           <SupportTable />
