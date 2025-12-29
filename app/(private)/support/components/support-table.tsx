@@ -391,8 +391,8 @@ export function SupportTable() {
   const [pageSize] = useQueryState("pageSize", parseAsInteger.withDefault(10))
   const [subject] = useQueryState("subject", parseAsString.withDefault(""))
   const [category] = useQueryState("category", parseAsArrayOf(parseAsString).withDefault([]))
-  const [priority] = useQueryState("priority", parseAsString.withDefault(""))
-  const [status] = useQueryState("status", parseAsString.withDefault(""))
+  const [priority] = useQueryState("priority", parseAsArrayOf(parseAsString).withDefault([]))
+  const [status] = useQueryState("status", parseAsArrayOf(parseAsString).withDefault([]))
   const [created_at] = useQueryState("created_at", parseAsString.withDefault(""))
 
   const { data: ticketsData } = useGetTickets({
@@ -401,8 +401,8 @@ export function SupportTable() {
       pageSize,
       subject,
       category,
-      priority,
-      status,
+      priority: priority?.[0] ?? "",
+      status: status?.[0] ?? "",
       created_at,
     },
   })
