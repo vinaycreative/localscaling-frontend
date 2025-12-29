@@ -252,7 +252,7 @@ export const getColumns = ({
 
 export function SupportTable() {
   const [page] = useQueryState("page", parseAsInteger.withDefault(0))
-  const [pageSize] = useQueryState("pageSize", parseAsInteger.withDefault(10))
+  const [perPage] = useQueryState("perPage", parseAsInteger.withDefault(10))
   const [title] = useQueryState("title", parseAsString.withDefault(""))
   const [category] = useQueryState("category", parseAsArrayOf(parseAsString).withDefault([]))
   const [priority] = useQueryState("priority", parseAsArrayOf(parseAsString).withDefault([]))
@@ -263,7 +263,7 @@ export function SupportTable() {
     filters: {
       title: title ?? "",
       page,
-      pageSize,
+      perPage,
       category,
       priority: priority?.[0] ?? "",
       status: status?.[0] ?? "",
@@ -285,7 +285,7 @@ export function SupportTable() {
   const { table } = useDataTable({
     data: ticketsData?.data || [],
     columns: getColumns({ setOpenTicket, setCurrentDetails }),
-    pageCount: ticketsData?.data?.totalPages || 0,
+    pageCount: ticketsData?.totalPages || 0,
     getRowId: (row) => row.id,
     initialState: {
       columnPinning: {

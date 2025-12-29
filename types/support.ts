@@ -39,7 +39,7 @@ export type TicketAttachment = {
 
 export type TicketFilters = {
   page?: number
-  pageSize?: number
+  perPage?: number
   title?: string | null
   subject?: string | null
   category?: string[] | null
