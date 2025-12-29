@@ -259,7 +259,7 @@ export function SupportTable() {
   const [status] = useQueryState("status", parseAsArrayOf(parseAsString).withDefault([]))
   const [created_at] = useQueryState("created_at", parseAsString.withDefault(""))
 
-  const { data: ticketsData } = useGetTickets({
+  const { data: ticketsData, isLoading } = useGetTickets({
     filters: {
       title: title ?? "",
       page,
@@ -301,7 +301,7 @@ export function SupportTable() {
     <>
       <div className="overflow-hidden rounded-lg border bg-card w-full">
         <div className="data-table-container p-2">
-          <DataTable table={table}>
+          <DataTable table={table} isLoading={isLoading}>
             <DataTableToolbar table={table}></DataTableToolbar>
           </DataTable>
         </div>
