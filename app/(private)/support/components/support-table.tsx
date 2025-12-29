@@ -348,17 +348,17 @@ export const getColumns = ({
       </span>
     ),
     enableSorting: true,
-    size: 160,
+    size: 200,
   },
   {
     id: "created_at",
     accessorKey: "created_at",
     header: ({ column }) => <DataTableColumnHeader column={column} label="Created At" />,
     cell: ({ getValue }) => (
-      <span className="text-xs text-muted-foreground">{getValue<string>()}</span>
+      <span className="text-xs text-muted-foreground break-all">{getValue<string>()}</span>
     ),
     enableSorting: true,
-    size: 110,
+    size: 210,
     meta: {
       label: "Created at",
       variant: "date",
@@ -373,7 +373,7 @@ export const getColumns = ({
       <span className="text-xs text-muted-foreground">{getValue<string>()}</span>
     ),
     enableSorting: true,
-    size: 110,
+    size: 210,
   },
   {
     id: "actions",
@@ -393,7 +393,6 @@ export function SupportTable() {
   const [category] = useQueryState("category", parseAsArrayOf(parseAsString).withDefault([]))
   const [priority] = useQueryState("priority", parseAsString.withDefault(""))
   const [status] = useQueryState("status", parseAsString.withDefault(""))
-  console.log("🚀 ~ SupportTable ~ status:", status)
   const [created_at] = useQueryState("created_at", parseAsString.withDefault(""))
 
   const { data: ticketsData } = useGetTickets({
