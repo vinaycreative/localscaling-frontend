@@ -107,7 +107,9 @@ export function TicketDetailsModal({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-[700px] p-0">
           <DialogHeader className="px-6 pt-6">
-            <div className="text-xs font-medium text-muted-foreground">{ticket?.created_by}</div>
+            <div className="text-xs font-medium text-muted-foreground">
+              {ticket?.created_by?.first_name}
+            </div>
 
             <div className="flex flex-col md:flex-row items-start md:items-center gap-1 md:gap-2">
               <div className="text-muted-foreground shrink-0">#{ticket?.id}</div>
@@ -130,7 +132,7 @@ export function TicketDetailsModal({
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-xs">
                       <div>
                         <div className="text-muted-foreground mb-1">Client</div>
-                        <div className="font-medium">{ticket.created_by}</div>
+                        <div className="font-medium">{ticket?.created_by?.first_name}</div>
                       </div>
                       <div>
                         <div className="text-muted-foreground mb-1">Category</div>
