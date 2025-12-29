@@ -25,7 +25,7 @@ import { useRouter } from "next/navigation"
 import { TicketDetailsModal } from "./view-details"
 import { useMemo, useState } from "react"
 import { useSidebar } from "@/components/ui/sidebar"
-import { CreateTicketValues, Ticket } from "@/types/support"
+import { AssignedTo, CreatedBy, CreateTicketValues, Ticket } from "@/types/support"
 import { DataTable } from "@/components/data-table/data-table"
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar"
 import { buildFilterQueryParams, parsedFilters } from "@/components/data-table/utils"
@@ -36,169 +36,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useCreateTicket, useGetTickets } from "@/hooks/useTickets"
 import { TICKET_CATEGORIES, TICKET_PRIORITIES } from "./create-ticket-modal"
-
-const data: Ticket[] = [
-  {
-    id: "GP-1042",
-    title: "Webflow page not loading",
-    subject: "Webflow not loading",
-    description: "User reports that the Webflow dashboard page fails to load properly in Chrome.",
-    category: "Website",
-    created_by: "Alex Johnson",
-    priority: "high",
-    status: "open",
-    updated_at: "5m ago",
-    created_at: "1m ago",
-    attachments: [
-      {
-        id: "a1",
-        name: "design-requirements.pdf",
-        sizeKB: 478,
-        mime: "application/pdf",
-        url: "/uploads/design-requirements.pdf",
-      },
-      {
-        id: "a2",
-        name: "error-screenshot.png",
-        sizeKB: 320,
-        mime: "image/png",
-        url: "/uploads/error-screenshot.png",
-      },
-    ],
-  },
-  {
-    id: "GP-1043",
-    title: "CRM login issue",
-    subject: "CRM login issue",
-    description: "Multiple users are unable to log into the CRM portal using valid credentials.",
-    category: "CRM",
-    created_by: "Default User",
-    priority: "high",
-    status: "resolved",
-    updated_at: "10m ago",
-    created_at: "1m ago",
-  },
-  {
-    id: "GP-1044",
-    title: "Broken link on pricing page",
-    subject: "Pricing page link broken",
-    description: "The 'Contact Sales' link on the pricing page redirects to a 404 error.",
-    category: "Website",
-    created_by: "Emily Clark",
-    priority: "medium",
-    status: "open",
-    updated_at: "30m ago",
-    created_at: "1m ago",
-  },
-  {
-    id: "GP-1045",
-    title: "Email notifications not sent",
-    subject: "Notification service down",
-    description: "No automated emails are being sent for new support tickets.",
-    category: "System",
-    created_by: "James Miller",
-    priority: "high",
-    status: "open",
-    updated_at: "1hr ago",
-    created_at: "1m ago",
-  },
-  {
-    id: "GP-1046",
-    title: "Billing statement discrepancy",
-    subject: "Billing error in invoice",
-    description: "Customer reports an overcharge in the latest invoice for Pro Plan.",
-    category: "Billing",
-    created_by: "Olivia Davis",
-    priority: "medium",
-    status: "resolved",
-    updated_at: "2hr ago",
-    created_at: "1m ago",
-    attachments: [
-      {
-        id: "a3",
-        name: "invoice-screenshot.png",
-        sizeKB: 265,
-        mime: "image/png",
-      },
-    ],
-  },
-  {
-    id: "GP-1047",
-    title: "App crash on iOS 17",
-    subject: "iOS app crash",
-    description: "App crashes immediately after launch on iOS 17 devices.",
-    category: "Mobile App",
-    created_by: "Sophia Lee",
-    priority: "high",
-    status: "open",
-    updated_at: "3hr ago",
-    created_at: "1m ago",
-    attachments: [
-      {
-        id: "a4",
-        name: "crash-log.txt",
-        sizeKB: 112,
-        mime: "text/plain",
-      },
-    ],
-  },
-  {
-    id: "GP-1048",
-    title: "Slow loading dashboard",
-    subject: "Performance issue",
-    description: "Users are experiencing slow load times when accessing the analytics dashboard.",
-    category: "Backend",
-    created_by: "Ethan Brown",
-    priority: "medium",
-    status: "open",
-    updated_at: "5hr ago",
-    created_at: "1m ago",
-  },
-  {
-    id: "GP-1049",
-    title: "Password reset email delayed",
-    subject: "Email delivery delay",
-    description: "Password reset emails take over 10 minutes to reach the inbox.",
-    category: "System",
-    created_by: "Daniel Green",
-    priority: "low",
-    status: "resolved",
-    updated_at: "8hr ago",
-    created_at: "1m ago",
-  },
-  {
-    id: "GP-1050",
-    title: "Error 500 on checkout",
-    subject: "Checkout failure",
-    description: "Users encounter a 500 server error when trying to complete checkout.",
-    category: "E-commerce",
-    created_by: "Default User",
-    priority: "high",
-    status: "open",
-    updated_at: "12hr ago",
-    created_at: "1m ago",
-    attachments: [
-      {
-        id: "a5",
-        name: "server-log.txt",
-        sizeKB: 560,
-        mime: "text/plain",
-      },
-    ],
-  },
-  {
-    id: "GP-1051",
-    title: "Missing translations on homepage",
-    subject: "Localization issue",
-    description: "Some homepage strings are not translated when switching to German locale.",
-    category: "Website",
-    created_by: "Hannah Kim",
-    priority: "low",
-    status: "resolved",
-    updated_at: "1d ago",
-    created_at: "1m ago",
-  },
-]
+import { formatDate } from "@/lib/format"
 
 export const getColumns = ({
   setOpenTicket,
@@ -244,14 +82,14 @@ export const getColumns = ({
           {(t?.attachments || [])?.length > 0 && (
             <Paperclip className="h-4 w-4 text-muted-foreground shrink-0" />
           )}
-          <Link href="#" className="truncate hover:underline max-w-[100px] md:max-w-[150px]">
+          <Link href="#" className="truncate hover:underline w-full">
             {t.id}
           </Link>
         </div>
       )
     },
     enableSorting: true,
-    size: 150,
+    size: 300,
   },
   {
     id: "title",
@@ -270,23 +108,23 @@ export const getColumns = ({
     enableColumnFilter: true,
     size: 250,
   },
-  {
-    id: "subject",
-    accessorKey: "subject",
-    header: ({ column }) => <DataTableColumnHeader column={column} label="Subject" />,
-    cell: ({ getValue }) => (
-      <span className="text-xs text-foreground/90 break-words whitespace-break-spaces">
-        {getValue<string>()}
-      </span>
-    ),
-    // meta: {
-    //   label: "Subject",
-    //   variant: "text",
-    // },
-    enableSorting: true,
-    enableColumnFilter: true,
-    size: 250,
-  },
+  // {
+  //   id: "subject",
+  //   accessorKey: "subject",
+  //   header: ({ column }) => <DataTableColumnHeader column={column} label="Subject" />,
+  //   cell: ({ getValue }) => (
+  //     <span className="text-xs text-foreground/90 break-words whitespace-break-spaces">
+  //       {getValue<string>()}
+  //     </span>
+  //   ),
+  //   // meta: {
+  //   //   label: "Subject",
+  //   //   variant: "text",
+  //   // },
+  //   enableSorting: true,
+  //   enableColumnFilter: true,
+  //   size: 250,
+  // },
   {
     id: "category",
     accessorKey: "category",
@@ -339,14 +177,38 @@ export const getColumns = ({
   {
     accessorKey: "created_by",
     header: ({ column }) => <DataTableColumnHeader column={column} label="Created By" />,
-    cell: ({ getValue, cell }) => (
-      <span className="text-xs text-muted-foreground flex items-center gap-2">
-        <Avatar>
-          <AvatarFallback>{cell?.row?.original?.created_by?.[0]}</AvatarFallback>
-        </Avatar>
-        {getValue<string>()}
-      </span>
-    ),
+    cell: ({ getValue, cell }) => {
+      const createdBy = getValue<CreatedBy>()
+
+      return (
+        <span className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Avatar>
+            <AvatarFallback>{createdBy?.first_name?.[0] ?? "?"}</AvatarFallback>
+          </Avatar>
+
+          {createdBy?.first_name ?? "Unknown"}
+        </span>
+      )
+    },
+    enableSorting: true,
+    size: 200,
+  },
+  {
+    accessorKey: "assigned_to",
+    header: ({ column }) => <DataTableColumnHeader column={column} label="Assigned To" />,
+    cell: ({ getValue }) => {
+      const assignedTo = getValue<AssignedTo>()
+
+      return (
+        <span className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Avatar>
+            <AvatarFallback>{assignedTo?.first_name?.[0] ?? "?"}</AvatarFallback>
+          </Avatar>
+
+          {assignedTo?.first_name ?? "N/A"}
+        </span>
+      )
+    },
     enableSorting: true,
     size: 200,
   },
@@ -355,10 +217,12 @@ export const getColumns = ({
     accessorKey: "created_at",
     header: ({ column }) => <DataTableColumnHeader column={column} label="Created At" />,
     cell: ({ getValue }) => (
-      <span className="text-xs text-muted-foreground break-all">{getValue<string>()}</span>
+      <span className="text-xs text-muted-foreground break-all">
+        {formatDate(getValue<string>())}
+      </span>
     ),
     enableSorting: true,
-    size: 210,
+    size: 180,
     meta: {
       label: "Created at",
       variant: "date",
@@ -370,10 +234,10 @@ export const getColumns = ({
     accessorKey: "updated_at",
     header: ({ column }) => <DataTableColumnHeader column={column} label="Updated At" />,
     cell: ({ getValue }) => (
-      <span className="text-xs text-muted-foreground">{getValue<string>()}</span>
+      <span className="text-xs text-muted-foreground">{formatDate(getValue<string>())}</span>
     ),
     enableSorting: true,
-    size: 210,
+    size: 180,
   },
   {
     id: "actions",
@@ -389,7 +253,7 @@ export const getColumns = ({
 export function SupportTable() {
   const [page] = useQueryState("page", parseAsInteger.withDefault(0))
   const [pageSize] = useQueryState("pageSize", parseAsInteger.withDefault(10))
-  const [subject] = useQueryState("subject", parseAsString.withDefault(""))
+  const [title] = useQueryState("title", parseAsString.withDefault(""))
   const [category] = useQueryState("category", parseAsArrayOf(parseAsString).withDefault([]))
   const [priority] = useQueryState("priority", parseAsArrayOf(parseAsString).withDefault([]))
   const [status] = useQueryState("status", parseAsArrayOf(parseAsString).withDefault([]))
@@ -397,9 +261,9 @@ export function SupportTable() {
 
   const { data: ticketsData } = useGetTickets({
     filters: {
+      title: title ?? "",
       page,
       pageSize,
-      subject,
       category,
       priority: priority?.[0] ?? "",
       status: status?.[0] ?? "",
@@ -407,16 +271,6 @@ export function SupportTable() {
     },
   })
   const { createTicket } = useCreateTicket()
-  console.log("🚀 ~ SupportTable ~ ticketsData:", ticketsData)
-  // console.log({
-  //   filters: {
-  //     subject,
-  //     category,
-  //     priority,
-  //     status,
-  //   },
-  // })
-
   const [openTicket, setOpenTicket] = useState(false) // to open the view details modal
   const [currentDetails, setCurrentDetails] = useState<Ticket | null>(null)
   const { open, isMobile } = useSidebar()
