@@ -1,6 +1,6 @@
 "use client"
 import { Button } from "@/components/ui/button"
-import { useEffect, useState } from "react"
+import React, { useState } from "react"
 import { CreateTicketModal } from "./components/create-ticket-modal"
 import { SupportTable } from "./components/support-table"
 import Page from "@/components/base/Page"
@@ -9,6 +9,9 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { createTicketSchema } from "@/types/schema/support"
 import { CreateTicketValues } from "@/types/support"
 import { useCreateTicket } from "@/hooks/useTickets"
+import { toast } from "sonner"
+import { useLoggedInUser } from "@/hooks/useAuth"
+import { uploadFileToStorage } from "@/lib/storage"
 
 export default function SupportPage() {
   const [createTicket, setCreateTicket] = useState<boolean>(false)
@@ -17,12 +20,14 @@ export default function SupportPage() {
     defaultValues: {
       title: "",
       description: "",
-      category: "website",
+      category: "Website",
       priority: "low",
     },
   })
 
   const { createTicket: createTicketForm } = useCreateTicket()
+  const [files, setFiles] = React.useState<File[]>(form?.getValues("files") || [])
+  const { user } = useLoggedInUser()
 
   return (
     <Page
@@ -48,13 +53,37 @@ export default function SupportPage() {
       <CreateTicketModal
         form={form}
         open={createTicket}
-        onOpenChange={setCreateTicket}
+        onOpenChange={(val) => {
+          setFiles([])
+          form.setValue("files", [])
+          form.reset()
+          setCreateTicket(val)
+        }}
         onSubmit={async (values: CreateTicketValues) => {
           try {
-            await createTicketForm(values)
-          } catch (error) {}
-          console.log("🚀 ~ SupportPage ~ values:", values)
+            const attachments: File[] = files ?? []
+            let attachmentsUrls: string[] = []
+
+            if (attachments && attachments.length > 0) {
+              const uploadPromises = attachments.map((file: File) =>
+                uploadFileToStorage(file, file.name, user?.id ?? "")
+              )
+              attachmentsUrls = await Promise.all(uploadPromises)
+            }
+            const payload = { ...values, files: attachmentsUrls }
+
+            const res = await createTicketForm(payload)
+            if (!res.success) return
+            setCreateTicket(false)
+            setFiles([])
+            form.setValue("files", [])
+            form.reset()
+          } catch (error) {
+            toast.error("Error")
+          }
         }}
+        files={files}
+        setFiles={setFiles}
       />
     </Page>
   )

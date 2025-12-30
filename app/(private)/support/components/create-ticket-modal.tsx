@@ -81,6 +81,8 @@ export interface CreateTicketModalProps<TValues extends FieldValues = CreateTick
   categories?: { label: string; value: string }[]
   priorities?: { label: string; value: "low" | "medium" | "high" }[]
   maxImageResolutionHint?: string
+  files: File[]
+  setFiles: (files: File[]) => void
 }
 
 const LS_KEY_SKIP_CONFIRM = "create-ticket.skipConfirm"
@@ -92,9 +94,10 @@ export function CreateTicketModal({
   onSubmit,
   categories = TICKET_CATEGORIES,
   priorities = TICKET_PRIORITIES,
+  files,
+  setFiles,
 }: CreateTicketModalProps) {
   const { watch, setValue } = form
-  const [files, setFiles] = React.useState<File[]>(form?.getValues("files") || [])
   const [submitting, setSubmitting] = useState(false)
 
   // confirmation state

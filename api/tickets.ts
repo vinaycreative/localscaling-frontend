@@ -1,7 +1,7 @@
 import { cleanFilters } from "@/components/data-table/utils"
 import { api } from "@/lib/api"
 import { logError } from "@/lib/utils"
-import { CreateTicketValues, TicketFilters } from "@/types/support"
+import { CreateTicketPayload, TicketFilters } from "@/types/support"
 
 export async function getTickets({ filters }: { filters: TicketFilters }) {
   try {
@@ -15,7 +15,7 @@ export async function getTickets({ filters }: { filters: TicketFilters }) {
   }
 }
 
-export async function createTicket(data: CreateTicketValues) {
+export async function createTicket(data: CreateTicketPayload) {
   try {
     console.log("Saving Branding Data:", data)
     const res = await api.post("/client/tickets", { ...data })

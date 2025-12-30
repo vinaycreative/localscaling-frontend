@@ -49,3 +49,10 @@ export type TicketFilters = {
 }
 
 export type CreateTicketValues = z.infer<typeof createTicketSchema>
+export type CreateTicketPayload = {
+  title: string
+  category: string
+  priority: "low" | "medium" | "high"
+  description: string
+  files?: string[] | undefined
+}
