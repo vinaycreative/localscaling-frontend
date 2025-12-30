@@ -132,11 +132,6 @@ export function CreateTicketModal({
       }
       const payload: CreateTicketValues = { ...values, files: files }
       const res = await onSubmit(payload)
-      console.log("🚀 ~ actuallySubmit ~ res:", res)
-      // onOpenChange(false)
-      // setFiles([])
-      // setValue("files", [])
-      // form.reset()
     } finally {
       setSubmitting(false)
       setConfirmOpen(false)
@@ -146,21 +141,21 @@ export function CreateTicketModal({
 
   const onFileValidate = React.useCallback(
     (file: File): string | null => {
-      // // Validate max files
-      // if (files.length >= 2) {
-      //   return "You can only upload up to 2 files"
-      // }
+      // Validate max files
+      if (files.length >= 2) {
+        return "You can only upload up to 2 files"
+      }
 
-      // // Validate file type (only images)
-      // if (!file.type.startsWith("image/")) {
-      //   return "Only image files are allowed"
-      // }
+      // Validate file type (only images)
+      if (!file.type.startsWith("image/")) {
+        return "Only image files are allowed"
+      }
 
-      // // Validate file size (max 2MB)
-      // const MAX_SIZE = 2 * 1024 * 1024 // 2MB
-      // if (file.size > MAX_SIZE) {
-      //   return `File size must be less than ${MAX_SIZE / (1024 * 1024)}MB`
-      // }
+      // Validate file size (max 2MB)
+      const MAX_SIZE = 2 * 1024 * 1024 // 2MB
+      if (file.size > MAX_SIZE) {
+        return `File size must be less than ${MAX_SIZE / (1024 * 1024)}MB`
+      }
 
       return null
     },
@@ -232,10 +227,15 @@ export function CreateTicketModal({
         onOpenChange={(v) => {
           if (!submitting) onOpenChange(v)
         }}
+      
       >
-        <div className="px-6 pb-6 space-y-5">
-          <DialogContent className="sm:max-w-[590px] p-0 ">
-            <DialogHeader className="px-6 pt-6">
+        <div className="px-6 py-6 space-y-5">
+          <DialogContent
+            className="sm:max-w-[590px] p-0 gap-0"
+            onEscapeKeyDown={(e) => e.preventDefault()}
+            onInteractOutside={(e) => e.preventDefault()}
+          >
+            <DialogHeader className="p-4 border-b gap-1 pb-3">
               <DialogTitle>Create Ticket</DialogTitle>
               <DialogDescription>Tell us what’s going on so we can help quickly.</DialogDescription>
             </DialogHeader>
@@ -243,7 +243,7 @@ export function CreateTicketModal({
             <Form {...form}>
               <form onSubmit={form.handleSubmit(requestSubmit)}>
                 <ScrollArea className="h-[450px] w-full">
-                  <div className="px-6 py-6 space-y-5">
+                  <div className="px-4 py-4 space-y-5">
                     {/* Title */}
                     <FormField
                       control={form.control}
@@ -404,7 +404,7 @@ export function CreateTicketModal({
                   </div>
                 </ScrollArea>
 
-                <DialogFooter className="p-6 py-3 pb-6">
+                <DialogFooter className="p-3 border-t">
                   {/* Footer */}
                   <div className="flex items-center justify-end gap-2">
                     <Button
