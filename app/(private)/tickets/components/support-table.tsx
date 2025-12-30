@@ -25,7 +25,7 @@ import { useRouter } from "next/navigation"
 import { TicketDetailsModal } from "./view-details"
 import { useMemo, useState } from "react"
 import { useSidebar } from "@/components/ui/sidebar"
-import { AssignedTo, CreatedBy, CreateTicketValues, Ticket } from "@/types/support"
+import { AssignedTo, CreatedBy, CreateTicketPayload, CreateTicketValues, Ticket } from "@/types/support"
 import { DataTable } from "@/components/data-table/data-table"
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar"
 import { buildFilterQueryParams, parsedFilters } from "@/components/data-table/utils"
@@ -279,7 +279,7 @@ export function SupportTable() {
   const [currentDetails, setCurrentDetails] = useState<Ticket | null>(null)
   const { open, isMobile } = useSidebar()
 
-  const handleSubmit = async (values: CreateTicketValues) => {
+  const handleSubmit = async (values: CreateTicketPayload) => {
     try {
       await createTicket(values)
     } catch (error) {}
