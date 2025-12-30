@@ -11,35 +11,23 @@ import {
 import {
   MoreHorizontal,
   Paperclip,
-  User,
   Layers2,
   MessagesSquare,
   CheckCircle,
   XCircle,
-  CornerRightUp,
-  CornerRightDown,
-  Minus,
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { TicketDetailsModal } from "./view-details"
-import { useMemo, useState } from "react"
-import { useSidebar } from "@/components/ui/sidebar"
-import {
-  AssignedTo,
-  CreatedBy,
-  CreateTicketPayload,
-  CreateTicketValues,
-  Ticket,
-} from "@/types/support"
+import { useState } from "react"
+import { AssignedTo, CreatedBy, CreateTicketPayload, Ticket } from "@/types/support"
 import { DataTable } from "@/components/data-table/data-table"
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar"
-import { buildFilterQueryParams, parsedFilters } from "@/components/data-table/utils"
 import { parseAsArrayOf, parseAsInteger, parseAsString, useQueryState } from "nuqs"
 import { useDataTable } from "@/hooks/use-data-table"
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
 import { ColumnDef } from "@tanstack/react-table"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { useCreateTicket, useGetTickets } from "@/hooks/useTickets"
 import { TICKET_CATEGORIES, TICKET_PRIORITIES } from "./create-ticket-modal"
 import { formatDate } from "@/lib/format"
@@ -183,7 +171,7 @@ export const getColumns = ({
   {
     accessorKey: "created_by",
     header: ({ column }) => <DataTableColumnHeader column={column} label="Created By" />,
-    cell: ({ getValue, cell }) => {
+    cell: ({ getValue }) => {
       const createdBy = getValue<CreatedBy>()
 
       return (

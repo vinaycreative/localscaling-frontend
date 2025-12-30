@@ -25,7 +25,7 @@ export default function SupportPage() {
     },
   })
 
-  const { createTicket: createTicketForm , isPending } = useCreateTicket()
+  const { createTicket: createTicketForm } = useCreateTicket()
   const [files, setFiles] = React.useState<File[]>(form?.getValues("files") || [])
   const { user } = useLoggedInUser()
 

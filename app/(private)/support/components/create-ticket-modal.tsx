@@ -1,9 +1,7 @@
 // components/tickets/CreateTicketModal.tsx
 import * as React from "react"
 import { useState, useEffect } from "react"
-import { FieldValues, useForm, UseFormReturn } from "react-hook-form"
-import { z } from "zod"
-import { zodResolver } from "@hookform/resolvers/zod"
+import { FieldValues, UseFormReturn } from "react-hook-form"
 import {
   Dialog,
   DialogContent,
@@ -36,7 +34,7 @@ import {
   AlertDialogTitle,
   AlertDialogDescription,
 } from "@/components/ui/alert-dialog"
-import { Info, Trash2, File as FileIcon, CloudUpload } from "lucide-react"
+import { Info, Trash2, CloudUpload } from "lucide-react"
 import {
   FileUpload,
   FileUploadDropzone,
@@ -56,6 +54,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { CreateTicketValues } from "@/types/support"
+import { toast } from "sonner"
 
 export const TICKET_CATEGORIES = [
   { label: "Website", value: "Website" },
@@ -131,7 +130,7 @@ export function CreateTicketModal({
         setSkipConfirm(true)
       }
       const payload: CreateTicketValues = { ...values, files: files }
-      const res = await onSubmit(payload)
+      await onSubmit(payload)
     } finally {
       setSubmitting(false)
       setConfirmOpen(false)
@@ -215,9 +214,9 @@ export function CreateTicketModal({
   )
 
   const onFileReject = React.useCallback((file: File, message: string) => {
-    // toast(message, {
-    //   description: `"${file.name.length > 20 ? `${file.name.slice(0, 20)}...` : file.name}" has been rejected`,
-    // });
+    toast.error(message, {
+      description: `"${file.name.length > 20 ? `${file.name.slice(0, 20)}...` : file.name}" has been rejected`,
+    })
   }, [])
 
   return (
@@ -227,7 +226,6 @@ export function CreateTicketModal({
         onOpenChange={(v) => {
           if (!submitting) onOpenChange(v)
         }}
-      
       >
         <div className="px-6 py-6 space-y-5">
           <DialogContent
