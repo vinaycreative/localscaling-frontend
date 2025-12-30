@@ -257,7 +257,7 @@ export const getColumns = ({
 ]
 
 export function SupportTable() {
-  const [page] = useQueryState("page", parseAsInteger.withDefault(0))
+  const [page] = useQueryState("page", parseAsInteger.withDefault(1))
   const [perPage] = useQueryState("perPage", parseAsInteger.withDefault(10))
   const [title] = useQueryState("title", parseAsString.withDefault(""))
   const [category] = useQueryState("category", parseAsArrayOf(parseAsString).withDefault([]))
