@@ -55,6 +55,7 @@ import {
 } from "@/components/ui/form"
 import { CreateTicketValues } from "@/types/support"
 import { toast } from "sonner"
+import { cn } from "@/lib/utils"
 
 export const TICKET_CATEGORIES = [
   { label: "Website", value: "Website" },
@@ -227,9 +228,9 @@ export function CreateTicketModal({
           if (!submitting) onOpenChange(v)
         }}
       >
-        <div className="px-6 py-6 space-y-5">
+        <div className={cn(open && "px-6 py-6 space-y-5")}>
           <DialogContent
-            className="sm:max-w-[590px] p-0 gap-0"
+            className="sm:max-w-[590px] p-0 gap-0 border border-gray-500"
             onEscapeKeyDown={(e) => e.preventDefault()}
             onInteractOutside={(e) => e.preventDefault()}
           >
