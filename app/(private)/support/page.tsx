@@ -25,7 +25,7 @@ export default function SupportPage() {
     },
   })
 
-  const { createTicket: createTicketForm } = useCreateTicket()
+  const { createTicket: createTicketForm , isPending } = useCreateTicket()
   const [files, setFiles] = React.useState<File[]>(form?.getValues("files") || [])
   const { user } = useLoggedInUser()
 
@@ -74,6 +74,7 @@ export default function SupportPage() {
 
             const res = await createTicketForm(payload)
             if (!res.success) return
+            toast.success(res.message)
             setCreateTicket(false)
             setFiles([])
             form.setValue("files", [])
