@@ -1,8 +1,6 @@
 "use client"
-import { createWebsiteSetup, getWebsiteSetup, WebsiteSetupPayload } from "@/api/website-setup"
 import LegalAssetUploader from "@/components/reusable/legal-asset-uploader"
 import LegalLinkInput from "@/components/reusable/legal-link-input"
-import OnboardingVideo from "@/components/reusable/onboarding-video"
 import { TagInput } from "@/components/reusable/tags/tag-input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
@@ -13,39 +11,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-
 import { domainProviders } from "@/constants/website-setup"
 import { uploadFileToStorage } from "@/lib/storage"
-
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import React, { Fragment, useEffect, useState } from "react"
-import { toast } from "sonner"
-
-import { z } from "zod"
 import { useForm, Resolver } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-
 import { Form, FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form"
 import { useCreateWebsiteSetup, useWebsiteSetup } from "@/hooks/useWebsiteSetup"
 import FormLayout from "@/components/ui/form-layout"
 import { WebsiteSetupSchema, WebsiteSetupForm } from "./schema"
 import { useLoggedInUser } from "@/hooks/useAuth"
+import LoadingState from "@/components/reusable/tags/loading-state"
+import { showFormErrors } from "@/lib/errors"
 
 export default function WebsiteSetupOnboardingForm() {
   const router = useRouter()
   const { user } = useLoggedInUser()
-  const {
-    data: websiteSetupData,
-    isLoading: websiteSetupLoading,
-    error: websiteSetupError,
-  } = useWebsiteSetup()
+  const { data: websiteSetupData, isLoading: websiteSetupLoading } = useWebsiteSetup()
 
-  const {
-    createWebsiteSetup,
-    isPending: isSubmitting,
-    error: createwebsiteSetupError,
-  } = useCreateWebsiteSetup()
+  const { createWebsiteSetup, isPending: isSubmitting } = useCreateWebsiteSetup()
 
   const [existingLegalFileUrls, setExistingLegalFileUrls] = useState<string[]>([])
 
@@ -80,8 +66,8 @@ export default function WebsiteSetupOnboardingForm() {
     }
 
     // Handle nested data structure (data?.data?.data from hook)
-    const rawData = websiteSetupData as any
-    const actualData = rawData?.data?.data || rawData
+    const rawData = websiteSetupData as WebsiteSetupForm
+    const actualData = rawData || rawData
 
     if (!actualData || (typeof actualData === "object" && Object.keys(actualData).length === 0)) {
       console.log("⚠️ [DEBUG] No actual data found")
@@ -180,7 +166,7 @@ export default function WebsiteSetupOnboardingForm() {
   const onSubmit = async (values: WebsiteSetupForm) => {
     try {
       // be explicit about the return type
-      const data = form.getValues() as WebsiteSetupForm
+      const data = values
 
       // Upload new legal files (only File instances)
       let newFileUrls: string[] = []
@@ -188,8 +174,8 @@ export default function WebsiteSetupOnboardingForm() {
       const filesToUpload = (data.legal_files || []).filter((f): f is File => f instanceof File)
 
       if (filesToUpload.length > 0) {
-        const uploadPromises = filesToUpload.map((file) =>
-          uploadFileToStorage(file, `legal-${file.name}`, user?.id!)
+        const uploadPromises = filesToUpload.map((file: File) =>
+          uploadFileToStorage(file, `legal-${file.name}`, user?.id ?? "")
         )
         newFileUrls = await Promise.all(uploadPromises)
       }
@@ -197,7 +183,7 @@ export default function WebsiteSetupOnboardingForm() {
       // Combine existing + new
       const allLegalFiles = [...existingLegalFileUrls, ...newFileUrls]
 
-      const payload: WebsiteSetupPayload = {
+      const payload: WebsiteSetupForm = {
         domain_provider: data.domain_provider,
         access_granted: data.access_granted,
         business_clients_worked: data.business_clients_worked,
@@ -217,16 +203,17 @@ export default function WebsiteSetupOnboardingForm() {
   const handlePrev = () => router.push("/tasks/branding-content")
 
   if (websiteSetupLoading) {
-    return (
-      <div className="w-full h-full flex items-center justify-center min-h-[400px] bg-white rounded-lg p-4 border border-border">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    )
+    return <LoadingState />
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="overflow-scroll">
+      <form
+        onSubmit={form.handleSubmit(onSubmit, (errors) => {
+          showFormErrors(errors)
+        })}
+        className="overflow-scroll"
+      >
         <FormLayout
           footer={
             <Fragment>
@@ -336,7 +323,7 @@ export default function WebsiteSetupOnboardingForm() {
                       label="Legal Asset Uploader"
                       multiple
                       maxFiles={5}
-                      value={field.value as any[]}
+                      value={field.value as File[]}
                       onChange={field.onChange}
                     />
                   </FormControl>

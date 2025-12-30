@@ -22,6 +22,7 @@ import { normalizedUrl } from "@/lib/utils"
 import FormLayout from "@/components/ui/form-layout"
 import { businessInformationFormSchema } from "./schema"
 import { BusinessInformationFormValues } from "./types"
+import { showFormErrors } from "@/lib/errors"
 
 const generateYearOptions = (startYear: number, endYear: number) => {
   const years = []
@@ -37,6 +38,16 @@ const YEAR_OPTIONS = YEAR_OPTIONS_VALUES.map((year) => ({
   value: year.toString(),
   label: year.toString(),
 }))
+
+type SocialFieldName = "website" | "facebook" | "instagram" | "x" | "google_business_profile_link"
+
+const socialFields: readonly SocialFieldName[] = [
+  "website",
+  "facebook",
+  "instagram",
+  "x",
+  "google_business_profile_link",
+]
 
 export default function BusinessInformationForm() {
   const router = useRouter()
@@ -152,15 +163,16 @@ export default function BusinessInformationForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="overflow-scroll">
+      <form
+        onSubmit={form.handleSubmit(onSubmit, (errors) => {
+          showFormErrors(errors)
+        })}
+        className="overflow-scroll"
+      >
         <FormLayout
           className="grid-cols-2"
           footer={
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="rounded bg-primary text-white"
-            >
+            <Button type="submit" disabled={isSubmitting} className="rounded bg-primary text-white">
               {isSubmitting ? "Saving..." : isEmpty ? "Update" : "Next"}
               <ChevronRight className="ml-2 w-4 h-4" />
             </Button>
@@ -436,40 +448,34 @@ export default function BusinessInformationForm() {
 
           {/* Website & Social Media Section */}
           <SectionHeader icon={Globe} title="Website & Social Media" />
-          {["website", "facebook", "instagram", "x", "google_business_profile_link"].map(
-            (fieldName) => (
-              <FormField
-                key={fieldName}
-                control={form.control}
-                name={fieldName as any}
-                render={({ field }) => (
-                  <FormItem className="col-span-1">
-                    <FormControl>
-                      <CustomInput
-                        id={fieldName}
-                        type="text"
-                        value={field.value?.replace(/^https?:\/\//, "") ?? ""}
-                        required={fieldName === "website"}
-                        onChange={(event) => {
-                          field.onChange(normalizedUrl(event.target.value))
-                        }}
-                        label={fieldName
-                          .toLowerCase()
-                          .replace(/_/g, " ")
-                          .replace(/^\w/, (c) => c.toUpperCase())}
-                        placeholder={`Enter ${fieldName
-                          .toLowerCase()
-                          .replace(/_/g, " ")
-                          .replace(/^\w/, (c) => c.toUpperCase())}`}
-                        prefixText={"https://"}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )
-          )}
+          {socialFields.map((fieldName) => (
+            <FormField
+              key={fieldName}
+              control={form.control}
+              name={fieldName}
+              render={({ field }) => (
+                <FormItem className="col-span-1">
+                  <FormControl>
+                    <CustomInput
+                      id={fieldName}
+                      type="text"
+                      value={field.value?.replace(/^https?:\/\//, "") ?? ""}
+                      required={fieldName === "website"}
+                      onChange={(event) => {
+                        field.onChange(normalizedUrl(event.target.value))
+                      }}
+                      label={fieldName.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase())}
+                      placeholder={`Enter ${fieldName
+                        .replace(/_/g, " ")
+                        .replace(/^\w/, (c) => c.toUpperCase())}`}
+                      prefixText="https://"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          ))}
         </FormLayout>
       </form>
     </Form>

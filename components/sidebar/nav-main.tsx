@@ -44,9 +44,10 @@ const default_items = [
 type NavItem = {
   label: string
   href: string
-  icon: React.ComponentType<any>
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>
   roles: readonly string[]
 }
+
 
 const NAV_ITEMS: readonly NavItem[] = [
   {
@@ -90,7 +91,7 @@ export function NavMain({ initialRole }: { initialRole?: RoleValue }) {
         return filteredData
       })
     } else {
-      setItems([...default_items])
+      if (!items) setItems([...default_items])
     }
   }, [sidebarInfo, countLoading, countError])
 
@@ -136,15 +137,17 @@ export function NavMain({ initialRole }: { initialRole?: RoleValue }) {
                         className={`flex justify-between px-2 py-1 rounded hover:text-foreground hover:bg-muted transition-all duration-300 ${pathName.includes(item.href) ? "bg-muted text-foreground" : "text-muted-foreground"}`}
                       >
                         {item.name}
-                        <Badge
-                          variant={"outline"}
-                          className={cn(
-                            "border-0 text-destructive/60 bg-destructive/10 rounded-lg",
-                            countLoading && "px-1"
-                          )}
-                        >
-                          {countLoading ? <Loader2 className="animate-spin" /> : item.count}
-                        </Badge>
+                        {item.count > 0 && (
+                          <Badge
+                            variant={"outline"}
+                            className={cn(
+                              "border-0 text-destructive/60 bg-destructive/10 rounded-lg",
+                              countLoading && "px-1"
+                            )}
+                          >
+                            {countLoading ? <Loader2 className="animate-spin" /> : item.count}
+                          </Badge>
+                        )}
                       </Link>
                     </SidebarMenuItem>
                   ))}

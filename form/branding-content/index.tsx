@@ -20,7 +20,6 @@ import { useRouter } from "next/navigation"
 import { Fragment, useEffect, useState } from "react"
 import { toast } from "sonner"
 import { TeamMemberList } from "./components/member-entry-list"
-import z from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useBrandingInfo, useCreateBrandingInfo } from "@/hooks/use-branding-info"
@@ -38,6 +37,7 @@ import { BrandingContentFormValues, BrandingInfoPayload } from "./types"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { useLoggedInUser } from "@/hooks/useAuth"
+import { showFormErrors } from "@/lib/errors"
 
 const urlToFile = async (url: string, filename: string, mimeType: string): Promise<File> => {
   if (!url) return new File([], filename)
@@ -55,13 +55,9 @@ function BrandingContentForm() {
   const router = useRouter()
   const { user } = useLoggedInUser()
 
-  const {
-    data: brandingInfoData,
-    isLoading: brandingInfoLoading,
-    error: brandingInfoError,
-  } = useBrandingInfo()
+  const { data: brandingInfoData, isLoading: brandingInfoLoading } = useBrandingInfo()
 
-  const { createBrandingInfo, isPending, error: createBrandingInfoError } = useCreateBrandingInfo()
+  const { createBrandingInfo } = useCreateBrandingInfo()
 
   const isEmpty = Object.keys(brandingInfoData || {})?.length === 0
   console.log("🚀 ~ BrandingContentForm ~ brandingInfoData:", brandingInfoData)
@@ -162,33 +158,37 @@ function BrandingContentForm() {
 
     try {
       // LOGO -> branding-assets/logos
-      let logo_file = values.logo_file || null
+      const logo_file = values.logo_file || null
       let logoUrl = ""
       if (logo_file) {
         // Optimization: Skip upload if it's the same file content (simple check would be name/size/type match against saved)
         // For now, we upload to ensure consistency.
-        logoUrl = await uploadFileToStorage(logo_file, "logo", user?.id!)
+        logoUrl = await uploadFileToStorage(logo_file, "logo", user?.id ?? "")
       }
       // TEAM PHOTOS -> branding-assets/team
-      let team_photos: File[] = values.team_photos || []
+      const team_photos: File[] = values.team_photos || []
       let teamPhotoUrls: string[] = []
       if (team_photos && team_photos.length > 0) {
         const uploadPromises = team_photos.map((f) =>
-          uploadFileToStorage(f, "team-photo", user?.id!)
+          uploadFileToStorage(f, "team-photo", user?.id ?? "")
         )
         teamPhotoUrls = await Promise.all(uploadPromises)
       }
       // CEO VIDEO -> videos/ceo-intro
-      let ceo_video = values.ceo_video || null
+      const ceo_video = values.ceo_video || null
       let ceoVideoUrl = null
       if (ceo_video) {
-        ceoVideoUrl = await uploadFileToStorage(ceo_video, "ceo-video", user?.id!)
+        ceoVideoUrl = await uploadFileToStorage(ceo_video, "ceo-video", user?.id ?? "")
       }
       // TESTIMONIALS -> videos/testimonials
-      let videoTestimonial = values.video_testimonial || null
+      const videoTestimonial = values.video_testimonial || null
       let videoTestimonialUrl = null
       if (videoTestimonial) {
-        videoTestimonialUrl = await uploadFileToStorage(videoTestimonial, "testimonial", user?.id!)
+        videoTestimonialUrl = await uploadFileToStorage(
+          videoTestimonial,
+          "testimonial",
+          user?.id ?? ""
+        )
       }
       const payload: BrandingInfoPayload = {
         font_link: values.font_link,
@@ -200,23 +200,6 @@ function BrandingContentForm() {
         video_creation_option: values.video_creation_option,
         ceo_video_url: ceoVideoUrl,
         video_testimonial_url: videoTestimonialUrl,
-
-        // font_link: "https://sacasc.com",
-        // primary_brand_color: "#007BFF",
-        // secondary_brand_color: "#6C757D",
-        // logo_url: "",
-        // team_photo_urls: [],
-        // team_members: [
-        //   {
-        //     name: "savkn",
-        //     position: "casa",
-        //   },
-        // ],
-        // video_creation_option: "upload",
-        // ceo_video_url:
-        //   "https://fuzryaranbexqdqycfzl.supabase.co/storage/v1/object/public/videos/ceo-intro/Game-1765872505799.mp4",
-        // video_testimonial_url:
-        //   "https://fuzryaranbexqdqycfzl.supabase.co/storage/v1/object/public/videos/testimonials/Game-1765872526299.mp4",
       }
 
       await createBrandingInfo(payload)
@@ -234,19 +217,10 @@ function BrandingContentForm() {
     const isValid = await form.trigger()
 
     if (!isValid) {
-      toast.error("Please fill all required fields correctly", {
-        description: (
-          <div className="flex flex-col">
-            {Object.entries(form.formState.errors).map(([key, value]) => (
-              <div key={key}>
-                {key}: {(value as any)?.message}
-              </div>
-            ))}
-          </div>
-        ),
-      })
+      showFormErrors(errors)
       return
     }
+
     if (currentStep < totalSteps) {
       setCurrentStep((prevStep) => prevStep + 1)
     }

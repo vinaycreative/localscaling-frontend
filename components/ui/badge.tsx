@@ -9,14 +9,12 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default:
-          "border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
+        default: "border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
         secondary:
           "border-transparent bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
         destructive:
           "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
-        outline:
-          "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
+        outline: "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
       },
     },
     defaultVariants: {
@@ -30,17 +28,46 @@ function Badge({
   variant,
   asChild = false,
   ...props
-}: React.ComponentProps<"span"> &
-  VariantProps<typeof badgeVariants> & { asChild?: boolean }) {
+}: React.ComponentProps<"span"> & VariantProps<typeof badgeVariants> & { asChild?: boolean }) {
   const Comp = asChild ? Slot : "span"
 
+  return <Comp data-slot="badge" className={cn(badgeVariants({ variant }), className)} {...props} />
+}
+
+function StatusBadge({ status }: { status: "open" | "resolved" }) {
+  const style =
+    status === "resolved"
+      ? "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200"
+      : "bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200"
+
   return (
-    <Comp
-      data-slot="badge"
-      className={cn(badgeVariants({ variant }), className)}
-      {...props}
-    />
+    <Badge
+      variant="secondary"
+      className={`${style} rounded-full px-2.5 py-0.5 text-xs font-medium capitalize`}
+    >
+      {status}
+    </Badge>
   )
 }
 
-export { Badge, badgeVariants }
+function PriorityBadge({ priority }: { priority: "low" | "medium" | "high" }) {
+  const style =
+    priority === "low"
+      ? "bg-blue-50 text-blue-500 ring-1 ring-inset ring-blue-500"
+      : priority === "high"
+        ? "bg-red-50 text-red-500 ring-1 ring-inset ring-red-500"
+        : priority === "medium"
+          ? "bg-amber-50 text-amber-500 ring-1 ring-inset ring-amber-500"
+          : ""
+
+  return (
+    <Badge
+      variant="secondary"
+      className={`${style} rounded-full px-2.5 py-0.5 text-xs font-medium capitalize`}
+    >
+      {priority}
+    </Badge>
+  )
+}
+
+export { Badge, badgeVariants, StatusBadge, PriorityBadge }
