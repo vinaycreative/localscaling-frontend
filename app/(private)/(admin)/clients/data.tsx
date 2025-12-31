@@ -1,133 +1,122 @@
 "use client"
-import { useState } from "react"
 import { useGetClientLeads } from "@/hooks/useClientLead"
-import { DataTable, ColumnDef } from "@/components/reusable/data-table"
-import Image from "next/image"
-import moment from "moment"
 import { ClientLeads } from "@/types/schema/clientLeadSchema"
 import Link from "next/link"
-import { useAuthStore } from "@/store/authStore"
 import { useLoggedInUser } from "@/hooks/useAuth"
 import { ExternalLink } from "lucide-react"
+import { DataTable } from "@/components/data-table/data-table"
+import { DataTableToolbar } from "@/components/data-table/data-table-toolbar"
+import { ColumnDef } from "@tanstack/react-table"
+import { useDataTable } from "@/hooks/use-data-table"
+import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
+import { formatDate } from "@/lib/format"
+import { parseAsInteger, parseAsString, useQueryState } from "nuqs"
+
+type Lead = ClientLeads["data"][number]
+
+const columns: ColumnDef<Lead>[] = [
+  {
+    id: "company_name",
+    accessorKey: "company_name",
+    header: ({ column }) => <DataTableColumnHeader column={column} label="Company Name" />,
+    enableSorting: true,
+    enableColumnFilter: true,
+    meta: {
+      label: "Company Name",
+      variant: "text",
+    },
+    cell: ({ row }) => (
+      <p className="flex items-center gap-2">
+        <Link
+          href={`/clients/payment?success=${row.original.id}`}
+          className="font-medium text-foreground hover:underline"
+        >
+          {row.original.company_name}
+        </Link>
+
+        <Link
+          href={`/clients/${row.original.id}/profile`}
+          className="font-medium hover:underline flex items-center justify-center"
+        >
+          <ExternalLink className="text-blue-600 inline-block h-4" />
+        </Link>
+      </p>
+    ),
+  },
+  {
+    accessorKey: "name",
+    header: ({ column }) => <DataTableColumnHeader column={column} label="Client Name" />,
+    enableSorting: true,
+    enableColumnFilter: true,
+    cell: ({ row }) => <span className="text-xs text-muted-foreground">{row.original.name}</span>,
+  },
+  {
+    accessorKey: "monthly_payment_excluding_taxes",
+    header: ({ column }) => <DataTableColumnHeader column={column} label="Monthly Payment" />,
+    enableSorting: true,
+    enableColumnFilter: true,
+    cell: ({ row }) => (
+      <span className={`text-xs text-muted-foreground`}>
+        {row.original.monthly_payment_excluding_taxes}
+      </span>
+    ),
+  },
+  {
+    accessorKey: "status",
+    header: ({ column }) => <DataTableColumnHeader column={column} label="Status" />,
+    enableSorting: true,
+    enableColumnFilter: true,
+    cell: ({ row }) => (
+      <span className="text-xs text-muted-foreground">
+        {row.original.status === "pending" ? "Started" : "Completed"}
+      </span>
+    ),
+  },
+  {
+    accessorKey: "created_at",
+    header: ({ column }) => <DataTableColumnHeader column={column} label="Created At" />,
+    enableSorting: true,
+    enableColumnFilter: true,
+    cell: ({ row }) => (
+      <span className="text-xs text-muted-foreground">{formatDate(row.original.created_at)}</span>
+    ),
+  },
+]
 
 export const ClinetData = () => {
   const { user } = useLoggedInUser()
-  const { data, isLoading, error } = useGetClientLeads(user?.type as "internal" | "client")
-  const [selectedClients, setSelectedClients] = useState<(string | number)[]>([])
 
-  const getPaymentColor = (status: string) => {
-    switch (status) {
-      case "paid":
-        return "text-green-600"
-      default:
-        return "text-muted-foreground"
-    }
-  }
+  const [page] = useQueryState("page", parseAsInteger.withDefault(1))
+  const [perPage] = useQueryState("perPage", parseAsInteger.withDefault(10))
+  const [company_name] = useQueryState("company_name", parseAsString.withDefault(""))
+  const { data, isLoading } = useGetClientLeads(user?.type as "internal" | "client", {
+    page,
+    perPage,
+    company_name,
+  })
 
-  const getOnboardingColor = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "text-green-600"
-      default:
-        return "text-muted-foreground"
-    }
-  }
-
-  const columns: ColumnDef<ClientLeads["data"][number]>[] = [
-    {
-      accessorKey: "company_name",
-      header: "Company name",
-      sortable: true,
-      cell: (row) => (
-        <p className="flex items-center gap-2">
-          <Link
-            href={`/clients/payment?success=${row.id}`}
-            className="font-medium text-foreground hover:underline"
-          >
-            {row.company_name}
-          </Link>
-          <Link
-            href={`/clients/${row.id}/profile`}
-            className="font-medium hover:underline flex items-center justify-center"
-          >
-            <ExternalLink className="text-blue-600 inline-block h-4" />
-          </Link>
-        </p>
-      ),
+  const { table } = useDataTable({
+    data: data?.data || [],
+    columns: columns,
+    pageCount: data?.totalPages,
+    getRowId: (row) => row.id,
+    initialState: {
+      columnPinning: {
+        left: ["company_name"],
+      },
     },
-    {
-      accessorKey: "name",
-      header: "Client name",
-      sortable: true,
-      cell: (row) => <span className="font-medium text-foreground">{row.name}</span>,
-    },
-    {
-      accessorKey: "monthly_payment_excluding_taxes",
-      header: "Payment",
-      sortable: true,
-      cell: (row) => (
-        <span
-          className={`text-muted-foreground ${getPaymentColor(row.monthly_payment_excluding_taxes)}`}
-        >
-          {row.monthly_payment_excluding_taxes}
-        </span>
-      ),
-    },
-    {
-      accessorKey: "status",
-      header: "Onboarding",
-      sortable: true,
-      cell: (row) => (
-        <span className="text-muted-foreground">
-          {row.status === "pending" ? "Started" : "Completed"}
-        </span>
-      ),
-    },
-    {
-      accessorKey: "created_at",
-      header: "Last update",
-      sortable: true,
-      cell: (row) => (
-        <span className="text-muted-foreground">
-          {row.created_at ? moment(row.created_at).format("lll") : "-"}
-        </span>
-      ),
-    },
-  ]
-
-  if (isLoading) {
-    return (
-      <div className="flex flex-col gap-4 py-4 flex-1 h-full items-center justify-center">
-        <p className="text-muted-foreground">Loading...</p>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-col gap-4 py-4 flex-1 h-full items-center justify-center">
-        <p className="text-destructive">Error loading client leads</p>
-      </div>
-    )
-  }
-
-  if (!data || data.length === 0) {
-    return (
-      <div className="flex flex-col gap-4 py-4 flex-1 h-full items-center justify-center">
-        <p className="text-muted-foreground">No client leads found</p>
-      </div>
-    )
-  }
+  })
 
   return (
-    <div className="flex flex-col gap-4 py-4 flex-1 h-full">
-      <DataTable
-        data={data}
-        columns={columns}
-        enableSelection={true}
-        onSelectionChange={(selectedIds) => setSelectedClients(selectedIds)}
-        getRowId={(row) => (row.id || `client-${row.name}-${row.company_name}`) as string | number}
-      />
+    <div className="w-full h-full overflow-scroll">
+      {JSON.stringify(isLoading)}
+      <div className="overflow-hidden rounded-lg border bg-card w-full">
+        <div className="data-table-container p-2">
+          <DataTable table={table} isLoading={isLoading}>
+            <DataTableToolbar table={table}></DataTableToolbar>
+          </DataTable>
+        </div>
+      </div>
     </div>
   )
 }
