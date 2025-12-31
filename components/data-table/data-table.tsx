@@ -12,6 +12,7 @@ import {
 import { getCommonPinningStyles } from "@/lib/data-table"
 import { cn } from "@/lib/utils"
 import { Skeleton } from "../ui/skeleton"
+import { NoData } from "@/components/no-data"
 
 interface DataTableProps<TData> extends React.ComponentProps<"div"> {
   table: TanstackTable<TData>
@@ -27,12 +28,16 @@ export function DataTable<TData>({
   isLoading = false,
   ...props
 }: DataTableProps<TData>) {
+  const isEmpty = table.getRowModel().rows?.length === 0
   return (
     <div className={cn("flex w-full flex-col gap-2.5", className)} {...props}>
       {children}
       <Table
         className="text-xs table-fixed w-full"
-        containerClassName="relative min-h-[64vh] max-h-[64vh] overflow-scroll rounded-md border w-full"
+        containerClassName={cn(
+          "relative min-h-[64vh] max-h-[64vh] rounded-md border w-full",
+          isEmpty && "overflow-hidden overflow-x-hidden"
+        )}
       >
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -87,8 +92,16 @@ export function DataTable<TData>({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={table.getAllColumns().length} className="h-24 text-center">
-                  No results.
+                <TableCell>
+                  <></>
+                  <div className="grid gap-1 place-items-center min-h-[54dvh] w-[86dvw] md:w-[77dvw]">
+                    <div className="h-fit flex flex-col items-center justify-center gap-2">
+                      <NoData />
+                      <h4 className="scroll-m-20 text-2xl font-medium tracking-tight text-muted-foreground">
+                        No Data Found.
+                      </h4>
+                    </div>
+                  </div>
                 </TableCell>
               </TableRow>
             )}
