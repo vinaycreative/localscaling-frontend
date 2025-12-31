@@ -290,13 +290,9 @@ export function SupportTable() {
 
   return (
     <>
-      <div className="overflow-hidden rounded-lg border bg-card w-full">
-        <div className="data-table-container p-2">
-          <DataTable table={table} isLoading={isLoading}>
-            <DataTableToolbar table={table}></DataTableToolbar>
-          </DataTable>
-        </div>
-      </div>
+      <DataTable table={table} isLoading={isLoading}>
+        <DataTableToolbar table={table}></DataTableToolbar>
+      </DataTable>
 
       {currentDetails && openTicket && (
         <TicketDetailsModal
