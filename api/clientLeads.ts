@@ -1,10 +1,7 @@
 import { cleanFilters } from "@/components/data-table/utils"
 import { api } from "@/lib/api"
 import { GetClientsFilters } from "@/types/clients"
-import {
-  CreateClientsResponseSchema,
-  GetClientsResponseSchema,
-} from "@/types/schema/clientLeadSchema"
+import { CreateClientsResponseSchema } from "@/types/schema/clientLeadSchema"
 
 export const createClientLead = async (data: unknown) => {
   const response = await api.post("/admin/clients", data)
