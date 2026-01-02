@@ -1,13 +1,10 @@
 "use client"
 
 import Page from "@/components/base/Page"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useGetClientLeads } from "@/hooks/useClientLead"
-import { MoreVertical } from "lucide-react"
-import { useState } from "react"
-import { ClientLeads, getClientsSchema } from "@/types/schema/clientLeadSchema"
-import { useAuthStore } from "@/store/authStore"
+import { ExternalLink, MoreVertical } from "lucide-react"
+import { getClientsSchema } from "@/types/schema/clientLeadSchema"
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
 import Link from "next/link"
 import { ColumnDef } from "@tanstack/react-table"
@@ -15,89 +12,87 @@ import { DataTable } from "@/components/data-table/data-table"
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar"
 import { useDataTable } from "@/hooks/use-data-table"
 import z from "zod"
+import { useLoggedInUser } from "@/hooks/useAuth"
+import { formatDate } from "@/lib/format"
 
 type Client = z.infer<typeof getClientsSchema>
 
-const columns: ColumnDef<ClientLeads["data"][number]>[] = [
+const columns: ColumnDef<Client>[] = [
   {
-    accessorKey: "name",
-    header: ({ column }) => <DataTableColumnHeader column={column} label="Ticket Id" />,
-    cell: ({ getValue }) => {
-      return (
-        <span className="text-xs text-foreground/90 break-words whitespace-break-spaces">
-          {getValue<string>()}
-        </span>
-      )
-    },
+    id: "company_name",
+    accessorKey: "company_name",
+    header: ({ column }) => <DataTableColumnHeader column={column} label="Company Name" />,
     enableSorting: true,
-    size: 300,
+    enableColumnFilter: true,
+    meta: {
+      label: "Company Name",
+      variant: "text",
+    },
+    cell: ({ row }) => (
+      <p className="flex items-center gap-2">
+        <Link
+          href={`/clients/payment?success=${row.original.id}`}
+          className="font-medium text-foreground hover:underline"
+        >
+          {row.original.company_name}
+        </Link>
+
+        <Link
+          href={`/clients/${row.original.id}/profile`}
+          className="font-medium hover:underline flex items-center justify-center"
+        >
+          <ExternalLink className="text-blue-600 inline-block h-4" />
+        </Link>
+      </p>
+    ),
   },
   {
-    accessorKey: "company_name",
-    header: "Company name",
+    accessorKey: "name",
+    header: ({ column }) => <DataTableColumnHeader column={column} label="Client Name" />,
     enableSorting: true,
-    cell: ({ getValue }) => {
-      return (
-        <span className="text-xs text-foreground/90 break-words whitespace-break-spaces">
-          {getValue<string>()}
-        </span>
-      )
-    },
+    enableColumnFilter: true,
+    cell: ({ row }) => <span className="text-xs text-muted-foreground">{row.original.name}</span>,
   },
   {
     accessorKey: "monthly_payment_excluding_taxes",
-    header: "Payment",
+    header: ({ column }) => <DataTableColumnHeader column={column} label="Monthly Payment" />,
     enableSorting: true,
-    cell: ({ getValue }) => {
-      return (
-        <span className="text-xs text-foreground/90 break-words whitespace-break-spaces">
-          {getValue<string>()}
-        </span>
-      )
-    },
-  },
-  {
-    accessorKey: "payment_status",
-    header: "Payment Status",
-    enableSorting: true,
-    cell: ({ getValue }) => {
-      return (
-        <span className="text-xs text-foreground/90 break-words whitespace-break-spaces">
-          {getValue<string>()}
-        </span>
-      )
-    },
+    enableColumnFilter: true,
+    cell: ({ row }) => (
+      <span className={`text-xs text-muted-foreground`}>
+        {row.original.monthly_payment_excluding_taxes}
+      </span>
+    ),
   },
   {
     accessorKey: "status",
-    header: "Status",
+    header: ({ column }) => <DataTableColumnHeader column={column} label="Status" />,
     enableSorting: true,
-    cell: ({ getValue }) => {
-      return (
-        <span className="text-xs text-foreground/90 break-words whitespace-break-spaces">
-          {getValue<string>()}
-        </span>
-      )
-    },
+    enableColumnFilter: true,
+    cell: ({ row }) => (
+      <span className="text-xs text-muted-foreground">
+        {row.original.status === "pending" ? "Started" : "Completed"}
+      </span>
+    ),
   },
-
   {
     accessorKey: "created_at",
-    header: "Last update",
+    header: ({ column }) => <DataTableColumnHeader column={column} label="Created At" />,
     enableSorting: true,
-    cell: ({ getValue }) => {
-      return (
-        <span className="text-xs text-foreground/90 break-words whitespace-break-spaces">
-          {getValue<string>()}
-        </span>
-      )
-    },
+    enableColumnFilter: true,
+    cell: ({ row }) => (
+      <span className="text-xs text-muted-foreground">{formatDate(row.original.created_at)}</span>
+    ),
   },
 ]
 
 function Dashboard() {
-  const { user } = useAuthStore()
-  const { data, isLoading } = useGetClientLeads(user?.type as "internal" | "client")
+  const { user } = useLoggedInUser()
+  const { data, isLoading } = useGetClientLeads(user?.type as "internal" | "client", {
+    page: 1,
+    perPage: 10,
+  })
+
   const clients = data?.data ?? []
   const { activeProjects, pendingClientActions, pendingTasks } = clients.reduce(
     (
@@ -125,7 +120,7 @@ function Dashboard() {
   const { table } = useDataTable({
     data: clients,
     columns: columns,
-    pageCount: 1,
+    pageCount: data?.totalPages,
     getRowId: (row) => row.id,
     initialState: {
       columnPinning: {
@@ -168,21 +163,14 @@ function Dashboard() {
                 Overview of project progress, client assets, and setup status.
               </p>
             </div>
-            <div className="flex gap-2">
-              <Button
-                variant={"outline"}
-                className="text-muted-foreground hover:text-foreground cursor-pointer"
-              >
-                View all
-              </Button>
-              <button className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
-                <MoreVertical className="w-5 h-5" />
-              </button>
+          </div>
+          <div className="overflow-hidden rounded-lg border bg-card w-full">
+            <div className="data-table-container p-2">
+              <DataTable table={table} isLoading={isLoading}>
+                <DataTableToolbar table={table}></DataTableToolbar>
+              </DataTable>
             </div>
           </div>
-          <DataTable table={table} isLoading={isLoading}>
-            <DataTableToolbar table={table}></DataTableToolbar>
-          </DataTable>
         </div>
       </div>
     </Page>
