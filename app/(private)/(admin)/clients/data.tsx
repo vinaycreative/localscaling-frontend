@@ -109,7 +109,6 @@ export const ClinetData = () => {
 
   return (
     <div className="w-full h-full overflow-scroll">
-      {JSON.stringify(isLoading)}
       <div className="overflow-hidden rounded-lg border bg-card w-full">
         <div className="data-table-container p-2">
           <DataTable table={table} isLoading={isLoading}>
