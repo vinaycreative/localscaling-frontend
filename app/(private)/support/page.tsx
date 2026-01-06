@@ -50,42 +50,44 @@ export default function SupportPage() {
           <SupportTable />
         </div>
       </div>
-      <CreateTicketModal
-        form={form}
-        open={createTicket}
-        onOpenChange={(val) => {
-          setFiles([])
-          form.setValue("files", [])
-          form.reset()
-          setCreateTicket(val)
-        }}
-        onSubmit={async (values: CreateTicketValues) => {
-          try {
-            const attachments: File[] = files ?? []
-            let attachmentsUrls: string[] = []
-
-            if (attachments && attachments.length > 0) {
-              const uploadPromises = attachments.map((file: File) =>
-                uploadFileToStorage(file, file.name, user?.id ?? "")
-              )
-              attachmentsUrls = await Promise.all(uploadPromises)
-            }
-            const payload = { ...values, files: attachmentsUrls }
-
-            const res = await createTicketForm(payload)
-            if (!res.success) return
-            toast.success(res.message)
-            setCreateTicket(false)
+      {createTicket && (
+        <CreateTicketModal
+          form={form}
+          open={createTicket}
+          onOpenChange={(val) => {
             setFiles([])
             form.setValue("files", [])
             form.reset()
-          } catch (error) {
-            toast.error("Error")
-          }
-        }}
-        files={files}
-        setFiles={setFiles}
-      />
+            setCreateTicket(val)
+          }}
+          onSubmit={async (values: CreateTicketValues) => {
+            try {
+              const attachments: File[] = files ?? []
+              let attachmentsUrls: string[] = []
+
+              if (attachments && attachments.length > 0) {
+                const uploadPromises = attachments.map((file: File) =>
+                  uploadFileToStorage(file, file.name, user?.id ?? "")
+                )
+                attachmentsUrls = await Promise.all(uploadPromises)
+              }
+              const payload = { ...values, files: attachmentsUrls }
+
+              const res = await createTicketForm(payload)
+              if (!res.success) return
+              toast.success(res.message)
+              setCreateTicket(false)
+              setFiles([])
+              form.setValue("files", [])
+              form.reset()
+            } catch (error) {
+              toast.error("Error")
+            }
+          }}
+          files={files}
+          setFiles={setFiles}
+        />
+      )}
     </Page>
   )
 }

@@ -2,6 +2,7 @@ import { createClientLead, getClientLeads, successPayment } from "@/api/clientLe
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+import { GetClientsFilters } from "@/types/clients"
 
 export const useCreateClientLeadMutation = () => {
   const queryClient = useQueryClient()
@@ -19,11 +20,16 @@ export const useCreateClientLeadMutation = () => {
   })
 }
 
-export const useGetClientLeadsQuery = (type: "internal" | "client") => {
+export const useGetClientLeadsQuery = (
+  type: "internal" | "client",
+  filters?: GetClientsFilters
+) => {
   const isInternal = type === "internal"
   return useQuery({
-    queryKey: ["client-leads"],
-    queryFn: getClientLeads,
+    queryKey: ["client-leads", filters],
+    queryFn: () => {
+      return getClientLeads(type, filters)
+    },
     enabled: isInternal,
   })
 }

@@ -23,6 +23,20 @@ const badgeVariants = cva(
   }
 )
 
+type BadgeTypes = "low" | "medium" | "high" | "open" | "resolved" | "default"
+
+const badgeClassNames = (value: BadgeTypes): string => {
+  const variants: Record<BadgeTypes, string> = {
+    low: "bg-blue-50 text-blue-500 ring-1 ring-inset ring-blue-500",
+    medium: "bg-amber-50 text-amber-500 ring-1 ring-inset ring-amber-500",
+    high: "bg-red-50 text-red-500 ring-1 ring-inset ring-red-500",
+    open: "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200",
+    resolved: "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200",
+    default: "border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
+  }
+  return variants[value] ?? variants.default
+}
+
 function Badge({
   className,
   variant,
@@ -70,4 +84,4 @@ function PriorityBadge({ priority }: { priority: "low" | "medium" | "high" }) {
   )
 }
 
-export { Badge, badgeVariants, StatusBadge, PriorityBadge }
+export { Badge, badgeVariants, StatusBadge, PriorityBadge, badgeClassNames, type BadgeTypes }
