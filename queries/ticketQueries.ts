@@ -4,12 +4,19 @@ import { getApiErrorMessage } from "@/utils/formatAxiosError"
 import { toast } from "sonner"
 import { TicketFilters } from "@/types/support"
 
-export const useGetTicketsQuery = ({ filters }: { filters: TicketFilters }) => {
+export const useGetTicketsQuery = ({
+  filters,
+  type,
+}: {
+  filters: TicketFilters
+  type: "client" | "internal" | undefined
+}) => {
   return useQuery({
     queryKey: ["tickets", filters],
     queryFn: () => {
-      return getTickets({ filters })
+      return getTickets({ filters, type })
     },
+   
   })
 }
 

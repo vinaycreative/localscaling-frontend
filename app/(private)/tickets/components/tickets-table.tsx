@@ -1,6 +1,6 @@
 "use client"
 import { Checkbox } from "@/components/ui/checkbox"
-import { PriorityBadge, StatusBadge } from "@/components/ui/badge"
+import { Badge, BadgeTypes, PriorityBadge, StatusBadge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -47,6 +47,7 @@ import { DataTableAdvancedToolbar } from "@/components/data-table/data-table-adv
 import { DataTableFilterList } from "@/components/data-table/data-table-filter-list"
 import { DataTableSortList } from "@/components/data-table/data-table-sort-list"
 import { TICKET_CATEGORIES, TICKET_PRIORITIES } from "../../support/components/create-ticket-modal"
+import { STATUS } from "@/constants/select-options"
 
 export const getColumns = ({
   setOpenTicket,
@@ -171,16 +172,17 @@ export const getColumns = ({
     id: "status",
     accessorKey: "status",
     header: ({ column }) => <DataTableColumnHeader column={column} label="Status" />,
-    cell: ({ getValue }) => <StatusBadge status={getValue<"open" | "resolved">()} />,
+    cell: ({ getValue }) => (
+      <Badge className="capitalize" variant={getValue<string>() as BadgeTypes}>
+        {getValue<string>()}
+      </Badge>
+    ),
     enableSorting: true,
     size: 120,
     meta: {
       label: "Status",
       variant: "select",
-      options: [
-        { label: "Open", value: "open", icon: CheckCircle },
-        { label: "Resolved", value: "resolved", icon: XCircle },
-      ],
+      options: STATUS,
     },
     enableColumnFilter: true,
   },

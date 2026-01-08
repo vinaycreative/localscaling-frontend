@@ -27,6 +27,7 @@ export type Ticket = {
   updated_at: string
   created_at: string
   attachments?: TicketAttachment[]
+  files?: string[]
 }
 
 export type TicketAttachment = {

@@ -11,11 +11,28 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default: "border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
+        null: "border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
+        undefined: "border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
         secondary:
           "border-transparent bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
         destructive:
           "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline: "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
+        // Priorities
+        low: "bg-blue-50 text-blue-500 ring-1 ring-inset ring-blue-500 rounded-full px-2.5 py-0.5",
+        medium:
+          "bg-amber-50 text-amber-500 ring-1 ring-inset ring-amber-500 rounded-full px-2.5 py-0.5",
+        high: "bg-red-50 text-red-500 ring-1 ring-inset ring-red-500 rounded-full px-2.5 py-0.5",
+        // Status
+        open: "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200 rounded-full px-2.5 py-0.5",
+        pending:
+          "bg-yellow-50 text-yellow-600 ring-1 ring-inset ring-yellow-200 rounded-full px-2.5 py-0.5",
+        in_progress:
+          "bg-blue-50 text-blue-600 ring-1 ring-inset ring-blue-200 rounded-full px-2.5 py-0.5",
+        closed:
+          "bg-gray-50 text-gray-600 ring-1 ring-inset ring-gray-200 rounded-full px-2.5 py-0.5",
+        cancelled:
+          "bg-red-50 text-red-600 ring-1 ring-inset ring-red-200 rounded-full px-2.5 py-0.5",
       },
     },
     defaultVariants: {
@@ -33,7 +50,7 @@ const badgeClassNames = (value: BadgeTypes): string => {
     medium: "bg-amber-50 text-amber-500 ring-1 ring-inset ring-amber-500",
     high: "bg-red-50 text-red-500 ring-1 ring-inset ring-red-500",
     // Status
-    open: "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200",
+    open: "bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200",
     pending: "bg-yellow-50 text-yellow-600 ring-1 ring-inset ring-yellow-200",
     in_progress: "bg-blue-50 text-blue-600 ring-1 ring-inset ring-blue-200",
     closed: "bg-gray-50 text-gray-600 ring-1 ring-inset ring-gray-200",
