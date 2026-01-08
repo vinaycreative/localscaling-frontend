@@ -12,11 +12,11 @@ export const useGetTicketsQuery = ({
   type: "client" | "internal" | undefined
 }) => {
   return useQuery({
-    queryKey: ["tickets", filters],
+    queryKey: ["tickets", filters, type],
     queryFn: () => {
       return getTickets({ filters, type })
     },
-   
+    enabled: type ? true : false,
   })
 }
 
