@@ -3,9 +3,16 @@ import { api } from "@/lib/api"
 import { logError } from "@/lib/utils"
 import { CreateTicketPayload, TicketFilters } from "@/types/support"
 
-export async function getTickets({ filters }: { filters: TicketFilters }) {
+export async function getTickets({
+  filters,
+  type,
+}: {
+  filters: TicketFilters
+  type: "client" | "internal" | undefined
+}) {
   try {
-    const res = await api.get("/client/tickets", {
+    const route = type === "internal" && type ? "admin" : "client"
+    const res = await api.get(`/${route}/tickets`, {
       params: cleanFilters(filters as TicketFilters),
     })
     return res.data

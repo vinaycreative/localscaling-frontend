@@ -25,7 +25,13 @@ import { useRouter } from "next/navigation"
 import { TicketDetailsModal } from "./view-details"
 import { useMemo, useState } from "react"
 import { useSidebar } from "@/components/ui/sidebar"
-import { AssignedTo, CreatedBy, CreateTicketPayload, CreateTicketValues, Ticket } from "@/types/support"
+import {
+  AssignedTo,
+  CreatedBy,
+  CreateTicketPayload,
+  CreateTicketValues,
+  Ticket,
+} from "@/types/support"
 import { DataTable } from "@/components/data-table/data-table"
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar"
 import { buildFilterQueryParams, parsedFilters } from "@/components/data-table/utils"
@@ -181,7 +187,7 @@ export const getColumns = ({
   {
     accessorKey: "created_by",
     header: ({ column }) => <DataTableColumnHeader column={column} label="Created By" />,
-    cell: ({ getValue, cell }) => {
+    cell: ({ getValue }) => {
       const createdBy = getValue<CreatedBy>()
 
       return (
@@ -254,8 +260,8 @@ export const getColumns = ({
   },
 ]
 
-export function SupportTable() {
-  const [page] = useQueryState("page", parseAsInteger.withDefault(0))
+export function TicketsTable() {
+  const [page] = useQueryState("page", parseAsInteger.withDefault(1))
   const [perPage] = useQueryState("perPage", parseAsInteger.withDefault(10))
   const [title] = useQueryState("title", parseAsString.withDefault(""))
   const [category] = useQueryState("category", parseAsArrayOf(parseAsString).withDefault([]))
@@ -277,7 +283,6 @@ export function SupportTable() {
   const { createTicket } = useCreateTicket()
   const [openTicket, setOpenTicket] = useState(false) // to open the view details modal
   const [currentDetails, setCurrentDetails] = useState<Ticket | null>(null)
-  const { open, isMobile } = useSidebar()
 
   const handleSubmit = async (values: CreateTicketPayload) => {
     try {
@@ -305,10 +310,13 @@ export function SupportTable() {
     <>
       <div className="overflow-hidden rounded-lg border bg-card w-full">
         <div className="data-table-container p-2">
-          <DataTableAdvancedToolbar table={table}>
+          <DataTable table={table} isLoading={isLoading}>
+            <DataTableToolbar table={table}></DataTableToolbar>
+          </DataTable>
+          {/* <DataTableAdvancedToolbar table={table}>
             <DataTableFilterList table={table} />
             <DataTableSortList table={table} />
-          </DataTableAdvancedToolbar>
+          </DataTableAdvancedToolbar> */}
         </div>
       </div>
 
@@ -357,7 +365,7 @@ function RowMenu({ row, setOpen, setCurrentDetails }: RowMenuProps) {
 
       <DropdownMenuContent align="end" className="w-[180px]">
         <DropdownMenuItem onClick={handleViewDetails} className="text-xs">
-          <Layers2 className="mr-2 h-4 w-4" /> View details
+          <Layers2 className="mr-2 h-4 w-4" /> Edit & View details
         </DropdownMenuItem>
 
         <DropdownMenuItem onClick={handleChatClick} className="text-xs">
