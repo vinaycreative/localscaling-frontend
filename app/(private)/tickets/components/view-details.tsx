@@ -42,7 +42,7 @@ export type TicketDetailsModalProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
   ticket: Ticket
-  assignees?: { id: string; label: string }[]
+  assignees?: { value: string; label: string }[]
   onSubmit: (updated: Ticket) => Promise<void> | void
 }
 
@@ -57,7 +57,7 @@ export function TicketDetailsModal({
   open,
   onOpenChange,
   ticket,
-  assignees = [{ id: "default", label: "Default User" }],
+  assignees,
   onSubmit,
 }: TicketDetailsModalProps) {
   const form = useForm<z.infer<typeof Schema>>({
@@ -96,6 +96,7 @@ export function TicketDetailsModal({
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)}>
               <ScrollArea className="h-[400px] w-full">
+                {JSON.stringify(form?.getValues())}
                 <div className="px-6 py-6 pt-0 space-y-5">
                   <div className="flex flex-col md:flex-row items-start md:items-center gap-1 md:gap-2">
                     {/* let this one actually truncate inside a flex container */}
@@ -131,8 +132,8 @@ export function TicketDetailsModal({
                     </div>
                   </div>
                   <div>
-                    <div className="text-muted-foreground mb-1">Description</div>
-                    <p>{ticket.description}</p>
+                    <div className="text-sm leading-none font-medium mb-1.5">Description</div>
+                    <p className="text-foreground text-xs">{ticket.description}</p>
                   </div>
                   {/* <FormField
                     control={form.control}
@@ -157,15 +158,17 @@ export function TicketDetailsModal({
                     name="assigneeId"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-xs">Assigned to</FormLabel>
+                        <FormLabel className="text-xs">
+                          Assigned to {JSON.stringify(field.value)}
+                        </FormLabel>
                         <FormControl>
                           <Select value={field.value} onValueChange={field.onChange}>
                             <SelectTrigger className="w-full">
                               <SelectValue placeholder="Select assignee" />
                             </SelectTrigger>
                             <SelectContent>
-                              {assignees.map((a) => (
-                                <SelectItem key={a.id} value={a.id}>
+                              {assignees?.map((a) => (
+                                <SelectItem key={a.label} value={a.value}>
                                   {a.label}
                                 </SelectItem>
                               ))}

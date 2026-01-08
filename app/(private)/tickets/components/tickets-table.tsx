@@ -25,6 +25,8 @@ import { formatDate } from "@/lib/format"
 import { CATEGORIES, PRIORITIES } from "@/constants/select-options"
 import { STATUS } from "@/constants/select-options"
 import { useState } from "react"
+import { useGetAssignees } from "@/hooks/useAssignees"
+import { AuthUser } from "@/lib/auth/schema"
 
 export const getColumns = ({
   setOpenTicket,
@@ -250,6 +252,7 @@ export function TicketsTable() {
   const [status] = useQueryState("status", parseAsArrayOf(parseAsString).withDefault([]))
   const [created_at] = useQueryState("created_at", parseAsString.withDefault(""))
 
+  const { data: assignees } = useGetAssignees()
   const { data: ticketsData, isLoading } = useGetTickets({
     filters: {
       title: title ?? "",
@@ -306,10 +309,10 @@ export function TicketsTable() {
           open={openTicket}
           onOpenChange={setOpenTicket}
           ticket={currentDetails}
-          assignees={[
-            { id: "default", label: "Default User" },
-            { id: "u2", label: "Alex Rivera" },
-          ]}
+          assignees={assignees?.map((asigne: AuthUser) => ({
+            label: `${asigne?.first_name ?? "Not Available"} ${asigne?.last_name ?? ""}`,
+            value: asigne?.id,
+          }))}
           onSubmit={handleSubmit}
         />
       )}
