@@ -3,6 +3,7 @@ import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
+import { PRIORITIES_TYPE, STATUS_TYPE } from "@/constants/select-options"
 
 const badgeVariants = cva(
   "inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden",
@@ -23,15 +24,20 @@ const badgeVariants = cva(
   }
 )
 
-type BadgeTypes = "low" | "medium" | "high" | "open" | "resolved" | "default"
+type BadgeTypes = PRIORITIES_TYPE | STATUS_TYPE | "default"
 
 const badgeClassNames = (value: BadgeTypes): string => {
   const variants: Record<BadgeTypes, string> = {
+    // Priorities
     low: "bg-blue-50 text-blue-500 ring-1 ring-inset ring-blue-500",
     medium: "bg-amber-50 text-amber-500 ring-1 ring-inset ring-amber-500",
     high: "bg-red-50 text-red-500 ring-1 ring-inset ring-red-500",
+    // Status
     open: "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200",
-    resolved: "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200",
+    pending: "bg-yellow-50 text-yellow-600 ring-1 ring-inset ring-yellow-200",
+    in_progress: "bg-blue-50 text-blue-600 ring-1 ring-inset ring-blue-200",
+    closed: "bg-gray-50 text-gray-600 ring-1 ring-inset ring-gray-200",
+    cancelled: "bg-red-50 text-red-600 ring-1 ring-inset ring-red-200",
     default: "border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
   }
   return variants[value] ?? variants.default
