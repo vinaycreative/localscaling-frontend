@@ -29,7 +29,7 @@ import { DataTableColumnHeader } from "@/components/data-table/data-table-column
 import { ColumnDef } from "@tanstack/react-table"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { useCreateTicket, useGetTickets } from "@/hooks/useTickets"
-import { TICKET_CATEGORIES, TICKET_PRIORITIES } from "./create-ticket-modal"
+import { CATEGORIES, PRIORITIES } from "@/constants/select-options"
 import { formatDate } from "@/lib/format"
 
 export const getColumns = ({
@@ -131,7 +131,7 @@ export const getColumns = ({
     meta: {
       label: "Category",
       variant: "multiSelect",
-      options: TICKET_CATEGORIES,
+      options: CATEGORIES,
     },
     enableColumnFilter: true,
   },
@@ -147,7 +147,7 @@ export const getColumns = ({
     meta: {
       label: "Priority",
       variant: "select",
-      options: TICKET_PRIORITIES,
+      options: PRIORITIES,
     },
     enableColumnFilter: true,
   },
