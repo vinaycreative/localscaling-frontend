@@ -1,7 +1,7 @@
 import { cleanFilters } from "@/components/data-table/utils"
 import { api } from "@/lib/api"
 import { logError } from "@/lib/utils"
-import { CreateTicketPayload, TicketFilters } from "@/types/support"
+import { CreateTicketPayload, TicketFilters, UpdateTicketPayload } from "@/types/support"
 
 export async function getTickets({
   filters,
@@ -27,6 +27,18 @@ export async function createTicket(data: CreateTicketPayload) {
     console.log("Saving Branding Data:", data)
     const res = await api.post("/client/tickets", { ...data })
     return res.data
+  } catch (error) {
+    logError(error)
+    throw new Error("Failed to save branding information")
+  }
+}
+
+export async function updateTicket(payload: UpdateTicketPayload) {
+  try {
+    const { id, ...rest } = payload
+    console.log("🚀 ~ updateTicket ~ rest:", rest)
+    const { data } = await api.put(`/admin/tickets/${id}`, rest)
+    return data
   } catch (error) {
     logError(error)
     throw new Error("Failed to save branding information")
