@@ -15,8 +15,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Badge, BadgeTypes, PriorityBadge, StatusBadge } from "@/components/ui/badge"
-import { Textarea } from "@/components/ui/textarea"
+import { Badge, BadgeTypes } from "@/components/ui/badge"
 import {
   Select,
   SelectTrigger,
@@ -96,7 +95,6 @@ export function TicketDetailsModal({
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)}>
               <ScrollArea className="h-[400px] w-full">
-                {JSON.stringify(form?.getValues())}
                 <div className="px-6 py-6 pt-0 space-y-5">
                   <div className="flex flex-col md:flex-row items-start md:items-center gap-1 md:gap-2">
                     {/* let this one actually truncate inside a flex container */}
@@ -158,9 +156,7 @@ export function TicketDetailsModal({
                     name="assigneeId"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-xs">
-                          Assigned to {JSON.stringify(field.value)}
-                        </FormLabel>
+                        <FormLabel className="text-xs">Assigned to</FormLabel>
                         <FormControl>
                           <Select value={field.value} onValueChange={field.onChange}>
                             <SelectTrigger className="w-full">
@@ -183,11 +179,16 @@ export function TicketDetailsModal({
                   <div className="space-y-2">
                     <FormLabel className="text-xs">Attachments</FormLabel>
 
-                    <div className="space-y-2">
+                    <div className="grid grid-cols-3 gap-2 space-y-2">
                       {ticket?.files?.length ? (
-                        ticket?.files.map((f) => (
-                          <Image src={f} key={f} alt={f} width={100} height={100} />
-                        ))
+                        ticket?.files.map((f) => {
+                          const isImageUrl = (url: string) => {
+                            return /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(url)
+                          }
+                          return isImageUrl(f) && f.startsWith("https") ? (
+                            <Image src={f} key={f} alt="attachment" width={200} height={200} />
+                          ) : null
+                        })
                       ) : (
                         <p className="text-xs text-muted-foreground">No attachments</p>
                       )}

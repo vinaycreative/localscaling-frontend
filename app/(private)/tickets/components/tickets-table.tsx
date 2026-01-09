@@ -1,6 +1,6 @@
 "use client"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Badge, BadgeTypes, PriorityBadge } from "@/components/ui/badge"
+import { Badge, BadgeTypes } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -271,7 +271,9 @@ export function TicketsTable() {
   const handleSubmit = async (values: CreateTicketPayload) => {
     try {
       await createTicket(values)
-    } catch (error) {}
+    } catch (error) {
+      console.log("🚀 ~ handleSubmit ~ error:", error)
+    }
     // send to API or mutate state
   }
 
@@ -310,7 +312,7 @@ export function TicketsTable() {
           onOpenChange={setOpenTicket}
           ticket={currentDetails}
           assignees={assignees?.map((asigne: AuthUser) => ({
-            label: `${asigne?.first_name ?? "Not Available"} ${asigne?.last_name ?? ""}`,
+            label: `${asigne?.first_name ?? "Not Available"} ${asigne?.last_name ?? ""} - (${asigne?.email})`,
             value: asigne?.id,
           }))}
           onSubmit={handleSubmit}
@@ -349,11 +351,11 @@ function RowMenu({ row, setOpen, setCurrentDetails }: RowMenuProps) {
 
       <DropdownMenuContent align="end" className="w-[180px]">
         <DropdownMenuItem onClick={handleViewDetails} className="text-xs">
-          <Layers2 className="mr-2 h-4 w-4" /> Edit & View details
+          <Layers2 className="mr-1 h-4 w-4" /> Edit & View details
         </DropdownMenuItem>
 
         <DropdownMenuItem onClick={handleChatClick} className="text-xs">
-          <MessagesSquare className="mr-2 h-4 w-4" /> Chat
+          <MessagesSquare className="mr-1 h-4 w-4" /> Chat
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -271,7 +271,9 @@ export function SupportTable() {
   const handleSubmit = async (values: CreateTicketPayload) => {
     try {
       await createTicket(values)
-    } catch (error) {}
+    } catch (error) {
+      console.log("🚀 ~ handleSubmit ~ error:", error)
+    }
     // send to API or mutate state
   }
 
