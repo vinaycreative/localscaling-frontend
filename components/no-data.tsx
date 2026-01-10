@@ -7,7 +7,7 @@ export const NoData = (props: SVGProps<SVGSVGElement>) => {
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 647.63626 632.17383"
       {...props}
-      className={cn("w-50 h-50", props.className)}
+      className={cn("w-30 h-30", props.className)}
       role="img"
       {...props}
     >

@@ -146,8 +146,8 @@ export default function BusinessInformationForm() {
 
   if (businessInfoLoading) {
     return (
-      <div className="w-full h-full flex items-center justify-center min-h-[400px] bg-white rounded-lg p-4 border border-border">
-        <Loader2 className="w-8 h-8 animate-spin textcus-primary" />
+      <div className="w-full h-full flex items-center justify-center pt-4 bg-white rounded-lg border border-gray-300">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     )
   }
@@ -172,7 +172,11 @@ export default function BusinessInformationForm() {
         <FormLayout
           className="grid-cols-2"
           footer={
-            <Button type="submit" disabled={isSubmitting} className="rounded bg-primary text-white">
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="rounded bg-primary text-white"
+            >
               {isSubmitting ? "Saving..." : isEmpty ? "Update" : "Next"}
               <ChevronRight className="ml-2 w-4 h-4" />
             </Button>

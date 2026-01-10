@@ -1,6 +1,6 @@
 "use client"
 import { Checkbox } from "@/components/ui/checkbox"
-import { PriorityBadge, StatusBadge } from "@/components/ui/badge"
+import { Badge, BadgeTypes } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -8,39 +8,25 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {
-  MoreHorizontal,
-  Paperclip,
-  User,
-  Layers2,
-  MessagesSquare,
-  CheckCircle,
-  XCircle,
-  CornerRightUp,
-  CornerRightDown,
-  Minus,
-} from "lucide-react"
+import { MoreHorizontal, Paperclip, Layers2, MessagesSquare } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { TicketDetailsModal } from "./view-details"
-import { useMemo, useState } from "react"
-import { useSidebar } from "@/components/ui/sidebar"
-import { AssignedTo, CreatedBy, CreateTicketPayload, CreateTicketValues, Ticket } from "@/types/support"
+import { AssignedTo, CreatedBy, CreateTicketPayload, Ticket } from "@/types/support"
 import { DataTable } from "@/components/data-table/data-table"
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar"
-import { buildFilterQueryParams, parsedFilters } from "@/components/data-table/utils"
 import { parseAsArrayOf, parseAsInteger, parseAsString, useQueryState } from "nuqs"
 import { useDataTable } from "@/hooks/use-data-table"
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
 import { ColumnDef } from "@tanstack/react-table"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { useCreateTicket, useGetTickets } from "@/hooks/useTickets"
-// import { TICKET_CATEGORIES, TICKET_PRIORITIES } from "./create-ticket-modal"
 import { formatDate } from "@/lib/format"
-import { DataTableAdvancedToolbar } from "@/components/data-table/data-table-advanced-toolbar"
-import { DataTableFilterList } from "@/components/data-table/data-table-filter-list"
-import { DataTableSortList } from "@/components/data-table/data-table-sort-list"
-import { TICKET_CATEGORIES, TICKET_PRIORITIES } from "../../support/components/create-ticket-modal"
+import { CATEGORIES, PRIORITIES } from "@/constants/select-options"
+import { STATUS } from "@/constants/select-options"
+import { useState } from "react"
+import { useGetAssignees } from "@/hooks/useAssignees"
+import { AuthUser } from "@/lib/auth/schema"
 
 export const getColumns = ({
   setOpenTicket,
@@ -141,7 +127,7 @@ export const getColumns = ({
     meta: {
       label: "Category",
       variant: "multiSelect",
-      options: TICKET_CATEGORIES,
+      options: CATEGORIES,
     },
     enableColumnFilter: true,
   },
@@ -150,14 +136,16 @@ export const getColumns = ({
     accessorKey: "priority",
     header: ({ column }) => <DataTableColumnHeader column={column} label="Priority" />,
     cell: ({ getValue }) => (
-      <PriorityBadge priority={getValue<string>() as "high" | "medium" | "low"} />
+      <Badge className="capitalize" variant={getValue<string>() as BadgeTypes}>
+        {getValue<string>()}
+      </Badge>
     ),
     enableSorting: true,
     size: 110,
     meta: {
       label: "Priority",
       variant: "select",
-      options: TICKET_PRIORITIES,
+      options: PRIORITIES,
     },
     enableColumnFilter: true,
   },
@@ -165,23 +153,24 @@ export const getColumns = ({
     id: "status",
     accessorKey: "status",
     header: ({ column }) => <DataTableColumnHeader column={column} label="Status" />,
-    cell: ({ getValue }) => <StatusBadge status={getValue<"open" | "resolved">()} />,
+    cell: ({ getValue }) => (
+      <Badge className="capitalize" variant={getValue<string>() as BadgeTypes}>
+        {getValue<string>()}
+      </Badge>
+    ),
     enableSorting: true,
     size: 120,
     meta: {
       label: "Status",
       variant: "select",
-      options: [
-        { label: "Open", value: "open", icon: CheckCircle },
-        { label: "Resolved", value: "resolved", icon: XCircle },
-      ],
+      options: STATUS,
     },
     enableColumnFilter: true,
   },
   {
     accessorKey: "created_by",
     header: ({ column }) => <DataTableColumnHeader column={column} label="Created By" />,
-    cell: ({ getValue, cell }) => {
+    cell: ({ getValue }) => {
       const createdBy = getValue<CreatedBy>()
 
       return (
@@ -254,8 +243,8 @@ export const getColumns = ({
   },
 ]
 
-export function SupportTable() {
-  const [page] = useQueryState("page", parseAsInteger.withDefault(0))
+export function TicketsTable() {
+  const [page] = useQueryState("page", parseAsInteger.withDefault(1))
   const [perPage] = useQueryState("perPage", parseAsInteger.withDefault(10))
   const [title] = useQueryState("title", parseAsString.withDefault(""))
   const [category] = useQueryState("category", parseAsArrayOf(parseAsString).withDefault([]))
@@ -263,6 +252,7 @@ export function SupportTable() {
   const [status] = useQueryState("status", parseAsArrayOf(parseAsString).withDefault([]))
   const [created_at] = useQueryState("created_at", parseAsString.withDefault(""))
 
+  const { data: assignees } = useGetAssignees()
   const { data: ticketsData, isLoading } = useGetTickets({
     filters: {
       title: title ?? "",
@@ -277,12 +267,13 @@ export function SupportTable() {
   const { createTicket } = useCreateTicket()
   const [openTicket, setOpenTicket] = useState(false) // to open the view details modal
   const [currentDetails, setCurrentDetails] = useState<Ticket | null>(null)
-  const { open, isMobile } = useSidebar()
 
   const handleSubmit = async (values: CreateTicketPayload) => {
     try {
       await createTicket(values)
-    } catch (error) {}
+    } catch (error) {
+      console.log("🚀 ~ handleSubmit ~ error:", error)
+    }
     // send to API or mutate state
   }
 
@@ -305,10 +296,13 @@ export function SupportTable() {
     <>
       <div className="overflow-hidden rounded-lg border bg-card w-full">
         <div className="data-table-container p-2">
-          <DataTableAdvancedToolbar table={table}>
+          <DataTable table={table} isLoading={isLoading}>
+            <DataTableToolbar table={table}></DataTableToolbar>
+          </DataTable>
+          {/* <DataTableAdvancedToolbar table={table}>
             <DataTableFilterList table={table} />
             <DataTableSortList table={table} />
-          </DataTableAdvancedToolbar>
+          </DataTableAdvancedToolbar> */}
         </div>
       </div>
 
@@ -317,10 +311,10 @@ export function SupportTable() {
           open={openTicket}
           onOpenChange={setOpenTicket}
           ticket={currentDetails}
-          assignees={[
-            { id: "default", label: "Default User" },
-            { id: "u2", label: "Alex Rivera" },
-          ]}
+          assignees={assignees?.map((asigne: AuthUser) => ({
+            label: `${asigne?.first_name ?? "Not Available"} ${asigne?.last_name ?? ""} - (${asigne?.email})`,
+            value: asigne?.id,
+          }))}
           onSubmit={handleSubmit}
         />
       )}
@@ -357,11 +351,11 @@ function RowMenu({ row, setOpen, setCurrentDetails }: RowMenuProps) {
 
       <DropdownMenuContent align="end" className="w-[180px]">
         <DropdownMenuItem onClick={handleViewDetails} className="text-xs">
-          <Layers2 className="mr-2 h-4 w-4" /> View details
+          <Layers2 className="mr-1 h-4 w-4" /> Edit & View details
         </DropdownMenuItem>
 
         <DropdownMenuItem onClick={handleChatClick} className="text-xs">
-          <MessagesSquare className="mr-2 h-4 w-4" /> Chat
+          <MessagesSquare className="mr-1 h-4 w-4" /> Chat
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

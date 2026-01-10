@@ -97,7 +97,7 @@ export function DataTable<TData>({
                   <div className="grid gap-1 place-items-center min-h-[54dvh] w-[86dvw] md:w-[77dvw]">
                     <div className="h-fit flex flex-col items-center justify-center gap-2">
                       <NoData />
-                      <h4 className="scroll-m-20 text-2xl font-medium tracking-tight text-muted-foreground">
+                      <h4 className="scroll-m-20 text-xl font-medium tracking-tight text-muted-foreground">
                         No Data Found.
                       </h4>
                     </div>

@@ -238,7 +238,7 @@ function BrandingContentForm() {
 
   if (brandingInfoLoading) {
     return (
-      <div className="w-full h-full flex items-center justify-center min-h-[400px]">
+      <div className="w-full h-full flex items-center justify-center pt-4 bg-white rounded-lg border border-gray-300">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     )

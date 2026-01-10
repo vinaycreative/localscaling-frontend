@@ -56,22 +56,7 @@ import {
 import { CreateTicketValues } from "@/types/support"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
-
-export const TICKET_CATEGORIES = [
-  { label: "Website", value: "Website" },
-  { label: "CRM", value: "CRM" },
-  { label: "Billing", value: "Billing" },
-  { label: "System", value: "System" },
-  { label: "Mobile App", value: "Mobile App" },
-  { label: "Backend", value: "Backend" },
-  { label: "E-commerce", value: "E-commerce" },
-] as { label: string; value: string }[]
-
-export const TICKET_PRIORITIES = [
-  { label: "Low", value: "low" },
-  { label: "Medium", value: "medium" },
-  { label: "High", value: "high" },
-] as { label: string; value: "low" | "medium" | "high" }[]
+import { CATEGORIES, PRIORITIES } from "@/constants/select-options"
 
 export interface CreateTicketModalProps<TValues extends FieldValues = CreateTicketValues> {
   open: boolean
@@ -92,8 +77,8 @@ export function CreateTicketModal({
   form,
   onOpenChange,
   onSubmit,
-  categories = TICKET_CATEGORIES,
-  priorities = TICKET_PRIORITIES,
+  categories = CATEGORIES,
+  priorities = PRIORITIES,
   files,
   setFiles,
 }: CreateTicketModalProps) {

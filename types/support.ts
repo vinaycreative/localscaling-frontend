@@ -1,15 +1,18 @@
+import { PRIORITIES_TYPE, STATUS_TYPE } from "@/constants/select-options"
 import { createTicketSchema } from "@/types/schema/support"
 import z from "zod"
 
-export type PriorityType = "low" | "medium" | "high"
-export type Status = "open" | "resolved"
+export type PriorityType = PRIORITIES_TYPE
+export type Status = STATUS_TYPE
 
 export type CreatedBy = {
+  id: string
   first_name: string
   last_name: string
 }
 
 export type AssignedTo = {
+  id: string
   first_name: string
   last_name: string
 }
@@ -27,6 +30,7 @@ export type Ticket = {
   updated_at: string
   created_at: string
   attachments?: TicketAttachment[]
+  files?: string[]
 }
 
 export type TicketAttachment = {
@@ -55,4 +59,19 @@ export type CreateTicketPayload = {
   priority: "low" | "medium" | "high"
   description: string
   files?: string[] | undefined
+}
+export type UpdateTicketPayload = {
+  id: string
+  title: string
+  description: string
+  category: string
+  created_by: string
+  assigned_to: string
+  subject: string
+  priority: PriorityType
+  status: Status
+  updated_at: string
+  created_at: string
+  attachments?: TicketAttachment[]
+  files?: string[]
 }

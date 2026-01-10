@@ -92,3 +92,9 @@ export const getGoogleAnalytics4Properties = async (id: string) => {
   const res = await api.get(`/client/integrations/google/ga4/${id}/properties`)
   return res.data.data
 }
+
+// disconnect
+export const disconnectGoogleIntegration = async (integrationId: string) => {
+  const res = await api.post(`/client/integrations/google/disconnect/${integrationId}`)
+  return res.data
+}

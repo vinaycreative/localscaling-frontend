@@ -3,6 +3,7 @@ import {
   getGoogleAnalytics4Properties,
   getIntegrations,
   verifyGa4Connect,
+  disconnectGoogleIntegration,
 } from "@/api/integrations"
 import { toast } from "sonner"
 import { getApiErrorMessage } from "@/utils/formatAxiosError"
@@ -29,6 +30,18 @@ export const useVerifyGa4ConnectMutation = () => {
       verifyGa4Connect(payload.integrationId, payload.propertyId, payload.propertyName),
     onSuccess: () => {
       toast.success("GA4 connection verified successfully")
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error))
+    },
+  })
+}
+
+export const useDisconnectGoogleIntegrationMutation = () => {
+  return useMutation({
+    mutationFn: (integrationId: string) => disconnectGoogleIntegration(integrationId),
+    onSuccess: () => {
+      toast.success("Google integration disconnected successfully")
     },
     onError: (error) => {
       toast.error(getApiErrorMessage(error))
