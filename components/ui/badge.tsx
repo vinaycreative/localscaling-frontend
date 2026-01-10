@@ -12,7 +12,8 @@ const badgeVariants = cva(
       variant: {
         default: "border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
         null: "border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
-        undefined: "border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
+        undefined:
+          "border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
         secondary:
           "border-transparent bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
         destructive:
@@ -68,12 +69,18 @@ function Badge({
 }: React.ComponentProps<"span"> & VariantProps<typeof badgeVariants> & { asChild?: boolean }) {
   const Comp = asChild ? Slot : "span"
 
-  return <Comp data-slot="badge" className={cn(badgeVariants({ variant }), className)} {...props} />
+  return (
+    <Comp data-slot="badge" className={cn(badgeVariants({ variant }), className)} {...props} />
+  )
 }
 
-function StatusBadge({ status }: { status: "open" | "resolved" }) {
+function StatusBadge({
+  status,
+}: {
+  status: "open" | "pending" | "in_progress" | "closed" | "cancelled"
+}) {
   const style =
-    status === "resolved"
+    status === "open"
       ? "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200"
       : "bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200"
 
