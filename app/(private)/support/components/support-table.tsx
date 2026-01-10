@@ -155,7 +155,11 @@ export const getColumns = ({
     id: "status",
     accessorKey: "status",
     header: ({ column }) => <DataTableColumnHeader column={column} label="Status" />,
-    cell: ({ getValue }) => <StatusBadge status={getValue<"open" | "resolved">()} />,
+    cell: ({ getValue }) => (
+      <StatusBadge
+        status={getValue<"open" | "pending" | "in_progress" | "closed" | "cancelled">()}
+      />
+    ),
     enableSorting: true,
     size: 120,
     meta: {
