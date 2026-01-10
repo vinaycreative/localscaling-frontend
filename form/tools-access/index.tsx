@@ -16,6 +16,7 @@ import {
   Clock,
   ExternalLink,
   XCircle,
+  TriangleAlert,
 } from "lucide-react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
@@ -418,13 +419,13 @@ function ToolsAccessForm() {
                         )}
                       </div>
                       <div className="flex items-center gap-2">
-                        {integration.tool === "ga4" && (
+                        {integration.tool !== "google_ads" && (
                           <Button
                             variant="outline"
                             size="sm"
                             className="gap-2"
                             onClick={() => setIsPropertyModalOpen(true)}
-                            disabled={!ga4IntegrationId || !isConnected}
+                            disabled={!ga4IntegrationId}
                           >
                             Select Properties
                           </Button>
@@ -443,8 +444,8 @@ function ToolsAccessForm() {
                             </>
                           ) : isPending ? (
                             <>
-                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                              Connecting...
+                              <TriangleAlert className="w-3.5 h-3.5" />
+                              Pending
                             </>
                           ) : (
                             <>
