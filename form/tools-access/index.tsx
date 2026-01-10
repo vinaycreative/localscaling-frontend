@@ -15,6 +15,7 @@ import {
   CheckCircle2,
   Clock,
   ExternalLink,
+  XCircle,
 } from "lucide-react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
@@ -25,11 +26,16 @@ import { ToolsAccessFormValues } from "./types"
 import { toolsAccessSchema } from "./schema"
 import { AccessToolField } from "./components/accessToolField"
 import { Ga4ConnectButton } from "@/components/integrations/Ga4ConnectButton"
-import { useIntegrations, useVerifyGa4ConnectMutation } from "@/queries/integrationsQueries"
+import {
+  useDisconnectGoogleIntegrationMutation,
+  useIntegrations,
+  useVerifyGa4ConnectMutation,
+} from "@/queries/integrationsQueries"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { formatDate } from "@/lib/format"
 import { Ga4PropertySelectModal } from "@/components/integrations/Ga4PropertySelectModal"
+import { useQueryClient } from "@tanstack/react-query"
 
 export const ACCESS_TOOLS = [
   {
@@ -100,6 +106,12 @@ const getStatusBadge = (status: string) => {
         label: "Pending",
         className: "bg-amber-50 text-amber-700 border-amber-200",
       }
+    case "revoked":
+      return {
+        variant: "destructive" as const,
+        label: "Revoked",
+        className: "bg-rose-50 text-rose-700 border-rose-200",
+      }
     case "disconnected":
     case "inactive":
       return {
@@ -118,6 +130,7 @@ const getStatusBadge = (status: string) => {
 
 function ToolsAccessForm() {
   const router = useRouter()
+  const queryClient = useQueryClient()
 
   const {
     data: toolsAccessData,
@@ -128,6 +141,10 @@ function ToolsAccessForm() {
   const { data: integrationsData, isLoading: integrationsLoading } = useIntegrations()
   const { mutateAsync: verifyGa4ConnectMutation, isPending: verifyGa4ConnectPending } =
     useVerifyGa4ConnectMutation()
+  const {
+    mutateAsync: disconnectGoogleIntegration,
+    isPending: disconnectGoogleIntegrationPending,
+  } = useDisconnectGoogleIntegrationMutation()
 
   // Find GA4 integration
   const ga4Integration = integrationsData?.find((integration: any) => integration.tool === "ga4")
@@ -135,6 +152,7 @@ function ToolsAccessForm() {
 
   // Modal state
   const [isPropertyModalOpen, setIsPropertyModalOpen] = useState(false)
+  const [disconnectingId, setDisconnectingId] = useState<string | null>(null)
 
   // Handle connection click
   const handleConnect = (tool: string, provider: string) => {
@@ -170,6 +188,26 @@ function ToolsAccessForm() {
 
     if (connectUrl) {
       window.location.href = connectUrl
+    }
+  }
+
+  const handleDisconnect = async (integrationId?: string, toolName?: string) => {
+    if (!integrationId) return
+
+    const toolConfig = getToolConfig(toolName || "")
+    const confirmed = window.confirm(
+      `Disconnect ${toolConfig.title}? You can reconnect anytime from here.`
+    )
+    if (!confirmed) return
+
+    try {
+      setDisconnectingId(integrationId)
+      await disconnectGoogleIntegration(integrationId)
+      await queryClient.invalidateQueries({ queryKey: ["integrations"] })
+    } catch (error) {
+      // handled by mutation toast
+    } finally {
+      setDisconnectingId(null)
     }
   }
 
@@ -223,7 +261,7 @@ function ToolsAccessForm() {
 
   if (toolsAccessLoading) {
     return (
-      <div className="w-full h-full flex items-center justify-center min-h-[400px]">
+      <div className="w-full h-full flex items-center justify-center pt-4 bg-white rounded-lg border border-gray-300">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     )
@@ -295,11 +333,15 @@ function ToolsAccessForm() {
             {integrationsData.map((integration: any) => {
               const toolConfig = getToolConfig(integration.tool)
               const statusInfo = getStatusBadge(integration.status)
-              const isConnected =
-                integration.integration_id ||
-                integration.status?.toLowerCase() === "connected" ||
-                integration.status?.toLowerCase() === "active"
-              const isPending = integration.status?.toLowerCase() === "pending"
+              const statusLower = integration.status?.toLowerCase()
+              const isConnected = statusLower
+                ? statusLower === "connected" || statusLower === "active"
+                : !!integration.integration_id
+              const isPending = statusLower === "pending"
+              const isRevoked = statusLower === "revoked"
+              const isDisconnecting =
+                disconnectGoogleIntegrationPending &&
+                disconnectingId === integration.integration_id
 
               return (
                 <Card
@@ -307,7 +349,7 @@ function ToolsAccessForm() {
                   className="hover:shadow-md transition-shadow"
                 >
                   <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
+                    <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3">
                         {integration.tool && (
                           <div className="relative w-10 h-10 rounded-lg bg-gray-50 flex items-center justify-center overflow-hidden">
@@ -329,6 +371,11 @@ function ToolsAccessForm() {
                               {integration.external_account_name}
                             </CardDescription>
                           )}
+                          {integration.provider && (
+                            <p className="text-[11px] text-muted-foreground">
+                              Provider: {integration.provider}
+                            </p>
+                          )}
                         </div>
                       </div>
                       <Badge
@@ -342,9 +389,9 @@ function ToolsAccessForm() {
                     </div>
                   </CardHeader>
                   <CardContent className="pt-0">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
                       <div className="flex flex-col gap-1">
-                        {integration.connected_at && (
+                        {integration.connected_at && isConnected && (
                           <p className="text-xs text-muted-foreground">
                             Connected{" "}
                             {formatDate(integration.connected_at, {
@@ -359,42 +406,77 @@ function ToolsAccessForm() {
                             Connection in progress...
                           </p>
                         )}
-                      </div>
-                      {integration.tool === "ga4" && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="gap-2"
-                          onClick={() => setIsPropertyModalOpen(true)}
-                          disabled={!ga4IntegrationId}
-                        >
-                          Select Properties
-                        </Button>
-                      )}
-                      <Button
-                        variant={isConnected ? "outline" : "default"}
-                        size="sm"
-                        onClick={() => handleConnect(integration.tool, integration.provider)}
-                        disabled={isPending}
-                        className="gap-2"
-                      >
-                        {isConnected ? (
-                          <>
-                            <ExternalLink className="w-3.5 h-3.5" />
-                            Reconnect
-                          </>
-                        ) : isPending ? (
-                          <>
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                            Connecting...
-                          </>
-                        ) : (
-                          <>
-                            <ExternalLink className="w-3.5 h-3.5" />
-                            Connect
-                          </>
+                        {/* {isRevoked && (
+                          <p className="text-xs text-rose-700">
+                            Access was revoked. Reconnect to restore sync.
+                          </p>
+                        )} */}
+                        {!isConnected && !isPending && !isRevoked && (
+                          <p className="text-xs text-muted-foreground">
+                            Not connected yet. Connect to enable automations.
+                          </p>
                         )}
-                      </Button>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {integration.tool === "ga4" && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="gap-2"
+                            onClick={() => setIsPropertyModalOpen(true)}
+                            disabled={!ga4IntegrationId || !isConnected}
+                          >
+                            Select Properties
+                          </Button>
+                        )}
+                        <Button
+                          variant={isConnected ? "outline" : "default"}
+                          size="sm"
+                          onClick={() => handleConnect(integration.tool, integration.provider)}
+                          disabled={isPending || isDisconnecting}
+                          className="gap-2"
+                        >
+                          {isConnected ? (
+                            <>
+                              <ExternalLink className="w-3.5 h-3.5" />
+                              Reconnect
+                            </>
+                          ) : isPending ? (
+                            <>
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              Connecting...
+                            </>
+                          ) : (
+                            <>
+                              <ExternalLink className="w-3.5 h-3.5" />
+                              Connect
+                            </>
+                          )}
+                        </Button>
+                        {isConnected && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() =>
+                              handleDisconnect(integration.integration_id, integration.tool)
+                            }
+                            disabled={isDisconnecting}
+                            className="gap-2 text-destructive hover:text-destructive"
+                          >
+                            {isDisconnecting ? (
+                              <>
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                Disconnecting...
+                              </>
+                            ) : (
+                              <>
+                                <XCircle className="w-3.5 h-3.5" />
+                                Disconnect
+                              </>
+                            )}
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
