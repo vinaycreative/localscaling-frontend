@@ -24,6 +24,7 @@ import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { ToolsAccessFormValues } from "./types"
 import { toolsAccessSchema } from "./schema"
+import Link from "next/link"
 import { AccessToolField } from "./components/accessToolField"
 import { Ga4ConnectButton } from "@/components/integrations/Ga4ConnectButton"
 import {
@@ -155,35 +156,46 @@ function ToolsAccessForm() {
   const [disconnectingId, setDisconnectingId] = useState<string | null>(null)
 
   // Handle connection click
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || ""
   const handleConnect = (tool: string, provider: string) => {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || ""
     const normalizedTool = tool?.toLowerCase().trim()
+    const normalizedProvider = provider?.toLowerCase().trim()
     let connectUrl = ""
 
-    if (provider?.toLowerCase() === "google") {
-      switch (normalizedTool) {
-        case "ga4":
-        case "google_analytics":
-          connectUrl = `${baseUrl}/client/integrations/google/ga4/connect`
-          break
-        case "gtm":
-          connectUrl = `${baseUrl}/client/integrations/google/gtm/connect`
-          break
-        case "ads":
-        case "google_ads":
-          connectUrl = `${baseUrl}/client/integrations/google/google-ads/connect`
-          break
-        case "search-console":
-        case "search_console":
-          connectUrl = `${baseUrl}/client/integrations/google/search-console/connect`
-          break
-        default:
+    switch (normalizedProvider) {
+      case "google":
+        switch (normalizedTool) {
+          case "ga4":
+          case "google_analytics":
+            connectUrl = `${baseUrl}/client/integrations/google/ga4/connect`
+            break
+          case "gtm":
+            connectUrl = `${baseUrl}/client/integrations/google/gtm/connect`
+            break
+          case "ads":
+          case "google_ads":
+            connectUrl = `${baseUrl}/client/integrations/google/google-ads/connect`
+            break
+          case "search-console":
+          case "search_console":
+            connectUrl = `${baseUrl}/client/integrations/google/search-console/connect`
+            break
+          default:
+            toast.error(`Connection URL not configured for tool: ${tool}`)
+            return
+        }
+        break
+      case "webflow":
+        if (normalizedTool === "webflow") {
+          connectUrl = `${baseUrl}/client/integrations/webflow/connect`
+        } else {
           toast.error(`Connection URL not configured for tool: ${tool}`)
           return
-      }
-    } else {
-      toast.error(`Provider "${provider}" not supported`)
-      return
+        }
+        break
+      default:
+        toast.error(`Provider "${provider}" not supported`)
+        return
     }
 
     if (connectUrl) {
@@ -274,55 +286,6 @@ function ToolsAccessForm() {
         title="4. Tools Access"
         subTitle="Enable analytics and performance tracking."
       />
-      {/* <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="overflow-scroll">
-          <FormLayout
-            footer={
-              <Fragment>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="rounded bg-transparent cursor-pointer group"
-                  onClick={handlePrev}
-                  disabled={isSubmitting}
-                >
-                  <ChevronLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-all duration-300" />
-                  Previous
-                </Button>
-
-                <Button
-                  disabled={isSubmitting}
-                  type="submit"
-                  className="rounded bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer group"
-                >
-                  Next
-                  <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-all duration-300" />
-                </Button>
-              </Fragment>
-            }
-          >
-            {ACCESS_TOOLS.map((tool) => (
-              <FormField
-                key={tool.key as keyof ToolsAccessFormValues}
-                control={form.control}
-                name={tool.key as keyof ToolsAccessFormValues}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <AccessToolField
-                        field={field}
-                        title={tool.title}
-                        iconSrc={tool.icon}
-                        buttonText={tool.buttonText}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            ))}
-          </FormLayout>
-        </form>
-      </Form> */}
       <div className="bg-white p-6 rounded-lg border border-gray-300">
         {integrationsLoading ? (
           <div className="flex items-center justify-center py-12">
@@ -378,14 +341,14 @@ function ToolsAccessForm() {
                           )}
                         </div>
                       </div>
-                      <Badge
-                        variant={statusInfo.variant}
-                        className={`${statusInfo.className} text-xs font-medium py-1.5`}
-                      >
-                        {isPending && <Clock className="w-3 h-3 mr-1" />}
-                        {!isPending && isConnected && <CheckCircle2 className="w-3 h-3 mr-1" />}
-                        {statusInfo.label}
-                      </Badge>
+                      {statusInfo.label !== "not_connected" && (
+                        <Badge
+                          variant={statusInfo.variant}
+                          className={`${statusInfo.className} text-xs font-medium py-1.5`}
+                        >
+                          {statusInfo.label}
+                        </Badge>
+                      )}
                     </div>
                   </CardHeader>
                   <CardContent className="pt-0">
@@ -418,7 +381,7 @@ function ToolsAccessForm() {
                         )}
                       </div>
                       <div className="flex items-center gap-2">
-                        {integration.tool === "ga4" && (
+                        {/* {integration.tool === "ga4" && (
                           <Button
                             variant="outline"
                             size="sm"
@@ -428,23 +391,18 @@ function ToolsAccessForm() {
                           >
                             Select Properties
                           </Button>
-                        )}
+                        )} */}
                         <Button
                           variant={isConnected ? "outline" : "default"}
                           size="sm"
                           onClick={() => handleConnect(integration.tool, integration.provider)}
-                          disabled={isPending || isDisconnecting}
+                          disabled={isDisconnecting}
                           className="gap-2"
                         >
                           {isConnected ? (
                             <>
                               <ExternalLink className="w-3.5 h-3.5" />
                               Reconnect
-                            </>
-                          ) : isPending ? (
-                            <>
-                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                              Connecting...
                             </>
                           ) : (
                             <>
