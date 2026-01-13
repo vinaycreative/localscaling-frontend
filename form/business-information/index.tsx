@@ -132,6 +132,9 @@ export default function BusinessInformationForm() {
 
       // Reset form with loaded data
       form.reset(formFields)
+      setTimeout(() => {
+        form.setValue("start_year", data.start_year)
+      }, 0)
     }
   }, [businessInfoData, form])
 
