@@ -43,5 +43,11 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next|favicon.ico|assets).*)"],
+  // Exclude Next internals + static files from auth middleware.
+  // Without this, requests for public assets (e.g. /webflow.png) can get redirected,
+  // and `next/image` will fail with "requested resource isn't a valid image".
+  matcher: [
+    "/((?!_next|favicon.ico|assets|.*\\.(?:png|jpg|jpeg|gif|webp|svg|ico|css|js|map|txt|xml)$).*)",
+  ],
 }
+
