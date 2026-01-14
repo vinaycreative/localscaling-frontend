@@ -16,6 +16,7 @@ import {
   Clock,
   ExternalLink,
   XCircle,
+  TriangleAlert,
 } from "lucide-react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
@@ -387,7 +388,7 @@ function ToolsAccessForm() {
                             size="sm"
                             className="gap-2"
                             onClick={() => setIsPropertyModalOpen(true)}
-                            disabled={!ga4IntegrationId || !isConnected}
+                            disabled={!ga4IntegrationId}
                           >
                             Select Properties
                           </Button>
