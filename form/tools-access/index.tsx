@@ -64,7 +64,7 @@ export const ACCESS_TOOLS = [
   {
     key: "google_search_console_access_granted",
     title: "Google Search Console",
-    icon: null,
+    icon: "/google-search.png",
     buttonText: "Grant Google Search Console access",
     toolKey: "search-console",
   },
@@ -318,14 +318,16 @@ function ToolsAccessForm() {
                         {integration.tool && (
                           <div className="relative w-10 h-10 rounded-lg bg-gray-50 flex items-center justify-center overflow-hidden">
                             <Image
-                              src={`/assets/${integration.tool}.png`}
+                              src={
+                                integration.tool === "ga4" ? "/google-analytics.png" : integration.tool === "google_ads" ? "/google-ads.png" : integration.tool === "google_search_console" ? "/google-search.png" : integration.tool === "gtm" ? "/google-tag.png" : integration.tool === "search_console" ? "/google-search.png" : integration.tool === "webflow" ? "/webflow.png" : "/placeholder.svg"                          
+                              }
                               alt={integration.tool}
                               width={32}
                               height={32}
                               className="object-contain"
-                            />
+                            />    
                           </div>
-                        )}
+                        )}               
                         <div>
                           <CardTitle className="text-base font-semibold">
                             {toolConfig.title}
