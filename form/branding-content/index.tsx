@@ -5,7 +5,7 @@ import { CustomInput } from "@/components/reusable/custom-input"
 import OnboardingVideo from "@/components/reusable/onboarding-video"
 import { VideoUpload } from "@/components/reusable/video-upload"
 import { Button } from "@/components/ui/button"
-import { uploadFileToStorage } from "@/lib/storage"
+import { uploadFileToStorage, urlToFile } from "@/lib/storage"
 import {
   ChevronLeft,
   ChevronRight,
@@ -38,18 +38,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress"
 import { useLoggedInUser } from "@/hooks/useAuth"
 import { showFormErrors } from "@/lib/errors"
-
-const urlToFile = async (url: string, filename: string, mimeType: string): Promise<File> => {
-  if (!url) return new File([], filename)
-  try {
-    const res = await fetch(url)
-    const blob = await res.blob()
-    return new File([blob], filename, { type: mimeType })
-  } catch (e) {
-    console.error("Error converting URL to File:", e)
-    return new File([], filename)
-  }
-}
 
 function BrandingContentForm() {
   const router = useRouter()
@@ -93,17 +81,14 @@ function BrandingContentForm() {
         const dbData = brandingInfoData
         let logo_file = null
         if (dbData.logo_url) {
-          logo_file = await urlToFile(dbData.logo_url, "logo.png", "image/png")
-          console.log("🚀 ~ loadData ~ logo_file:", logo_file)
+          logo_file = await urlToFile(dbData.logo_url)
           setValue("logo_file", logo_file)
         }
 
         let team_photos: File[] = []
         if (dbData.team_photo_urls && Array.isArray(dbData.team_photo_urls)) {
           team_photos = await Promise.all(
-            dbData.team_photo_urls.map((url: string, index: number) =>
-              urlToFile(url, `team-${index}.jpg`, "image/jpeg")
-            )
+            dbData.team_photo_urls.map((url: string, index: number) => urlToFile(url))
           )
           console.log("🚀 ~ loadData ~ team_photos:", team_photos)
           setValue("team_photos", team_photos)
@@ -111,18 +96,14 @@ function BrandingContentForm() {
 
         let ceo_video = null
         if (dbData.ceo_video_url) {
-          ceo_video = await urlToFile(dbData.ceo_video_url, "ceo-intro.mp4", "video/mp4")
+          ceo_video = await urlToFile(dbData.ceo_video_url)
           console.log("🚀 ~ loadData ~ ceo_video:", ceo_video)
           setValue("ceo_video", ceo_video)
         }
 
         let videoTestimonial = null
         if (dbData.video_testimonial_url) {
-          videoTestimonial = await urlToFile(
-            dbData.video_testimonial_url,
-            "testimonial.mp4",
-            "video/mp4"
-          )
+          videoTestimonial = await urlToFile(dbData.video_testimonial_url)
           console.log("🚀 ~ loadData ~ videoTestimonial:", videoTestimonial)
           setValue("video_testimonial", videoTestimonial)
         }
@@ -169,8 +150,8 @@ function BrandingContentForm() {
       const team_photos: File[] = values.team_photos || []
       let teamPhotoUrls: string[] = []
       if (team_photos && team_photos.length > 0) {
-        const uploadPromises = team_photos.map((f) =>
-          uploadFileToStorage(f, "team-photo", user?.id ?? "")
+        const uploadPromises = team_photos.map((f, i) =>
+          uploadFileToStorage(f, "team-photo-" + i, user?.id ?? "")
         )
         teamPhotoUrls = await Promise.all(uploadPromises)
       }
@@ -181,6 +162,7 @@ function BrandingContentForm() {
         ceoVideoUrl = await uploadFileToStorage(ceo_video, "ceo-video", user?.id ?? "")
       }
       // TESTIMONIALS -> videos/testimonials
+
       const videoTestimonial = values.video_testimonial || null
       let videoTestimonialUrl = null
       if (videoTestimonial) {
@@ -238,7 +220,7 @@ function BrandingContentForm() {
 
   if (brandingInfoLoading) {
     return (
-      <div className="w-full h-full flex items-center justify-center pt-4 bg-white rounded-lg border border-gray-300">
+      <div className="w-full h-full flex items-center justify-center min-h-[400px]">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     )
