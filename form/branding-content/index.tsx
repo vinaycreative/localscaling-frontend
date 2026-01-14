@@ -17,7 +17,7 @@ import {
   Type,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { Fragment, useEffect, useState } from "react"
+import { Fragment, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { TeamMemberList } from "./components/member-entry-list"
 import { useForm } from "react-hook-form"
@@ -74,65 +74,77 @@ function BrandingContentForm() {
     setValue,
   } = form
 
+  // Prevent refetches from overwriting user edits after initial hydration.
+  const hasHydratedRef = useRef(false)
+
   useEffect(() => {
-    const loadData = async () => {
-      console.log("🚀 ~ loadData ~ isEmpty:", isEmpty)
-      if (!isEmpty) {
-        const dbData = brandingInfoData
-        let logo_file = null
-        if (dbData.logo_url) {
-          logo_file = await urlToFile(dbData.logo_url)
-          setValue("logo_file", logo_file)
-        }
+    // Only hydrate once per mount (avoid overwriting user changes on background refetches).
+    if (hasHydratedRef.current) return
 
-        let team_photos: File[] = []
-        if (dbData.team_photo_urls && Array.isArray(dbData.team_photo_urls)) {
-          team_photos = await Promise.all(
-            dbData.team_photo_urls.map((url: string, index: number) => urlToFile(url))
-          )
-          console.log("🚀 ~ loadData ~ team_photos:", team_photos)
-          setValue("team_photos", team_photos)
-        }
+    const empty = Object.keys(brandingInfoData || {}).length === 0
+    if (empty) return
 
-        let ceo_video = null
-        if (dbData.ceo_video_url) {
-          ceo_video = await urlToFile(dbData.ceo_video_url)
-          console.log("🚀 ~ loadData ~ ceo_video:", ceo_video)
-          setValue("ceo_video", ceo_video)
-        }
+    hasHydratedRef.current = true
 
-        let videoTestimonial = null
-        if (dbData.video_testimonial_url) {
-          videoTestimonial = await urlToFile(dbData.video_testimonial_url)
-          console.log("🚀 ~ loadData ~ videoTestimonial:", videoTestimonial)
-          setValue("video_testimonial", videoTestimonial)
-        }
+    let cancelled = false
+    const dbData = brandingInfoData
 
-        ;(Object.keys(brandingInfoData) as Array<keyof BrandingContentFormValues>)
-          .filter(
-            (el) =>
-              ![
-                "id",
-                "team_photo_urls",
-                "ceo_video_url",
-                "video_testimonial_url",
-                "logo_url",
-              ].includes(el)
-          )
-          .forEach((key) => {
-            const value = brandingInfoData?.[key]
-
-            if (value !== undefined) {
-              setValue(key, value)
-            }
-          })
+    // 1) Hydrate non-file fields immediately (fast + reliable)
+    form.reset(
+      {
+        font_link: dbData.font_link ?? "",
+        primary_brand_color: dbData.primary_brand_color ?? "#007BFF",
+        secondary_brand_color: dbData.secondary_brand_color ?? "#6C757D",
+        team_members:
+          Array.isArray(dbData.team_members) && dbData.team_members.length > 0
+            ? dbData.team_members
+            : [{ name: "", position: "" }],
+        video_creation_option: dbData.video_creation_option ?? "upload",
+        // file-backed fields are hydrated async below
+        logo_file: null,
+        team_photos: null,
+        ceo_video: null,
+        video_testimonial: null,
+      },
+      {
+        keepDefaultValues: true,
       }
-    }
+    )
 
-    if (brandingInfoData) {
-      loadData()
+    // 2) Hydrate file fields in parallel (doesn't block the rest of the form)
+    ;(async () => {
+      const [logoFile, ceoVideo, testimonialVideo, teamPhotosSettled] = await Promise.all([
+        dbData.logo_url ? urlToFile(dbData.logo_url) : null,
+        dbData.ceo_video_url ? urlToFile(dbData.ceo_video_url) : null,
+        dbData.video_testimonial_url ? urlToFile(dbData.video_testimonial_url) : null,
+        Array.isArray(dbData.team_photo_urls)
+          ? Promise.allSettled(dbData.team_photo_urls.map((url: string) => urlToFile(url)))
+          : Promise.resolve([] as PromiseSettledResult<File>[]),
+      ])
+
+      if (cancelled) return
+
+      if (logoFile) setValue("logo_file", logoFile, { shouldDirty: false })
+      if (ceoVideo) setValue("ceo_video", ceoVideo, { shouldDirty: false })
+      if (testimonialVideo)
+        setValue("video_testimonial", testimonialVideo, { shouldDirty: false })
+
+      const teamPhotos =
+        teamPhotosSettled.length > 0
+          ? teamPhotosSettled
+              .filter((r): r is PromiseFulfilledResult<File> => r.status === "fulfilled")
+              .map((r) => r.value)
+          : []
+      setValue("team_photos", teamPhotos, { shouldDirty: false })
+    })().catch((e) => {
+      // Non-blocking: even if files fail, the rest of the form stays hydrated.
+      console.error("Failed to hydrate branding files:", e)
+    })
+
+    return () => {
+      cancelled = true
     }
-  }, [brandingInfoData])
+  }, [brandingInfoData, form, setValue])
 
   const onSubmit = async (values: BrandingContentFormValues) => {
     console.log("🚀 ~ onSubmit ~ values:", values)
