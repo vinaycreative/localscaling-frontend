@@ -29,7 +29,6 @@ const data = {
   ],
 }
 
-
 export default function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const { user } = useLoggedInUser()
 
@@ -39,7 +38,7 @@ export default function AppSidebar(props: React.ComponentProps<typeof Sidebar>) 
     <Sidebar {...props} variant="floating" className="bg-muted shadow-none">
       <SidebarHeader className="h-16 bg-background rounded-t-md">
         <div className="flex h-full w-full items-center justify-start px-2">
-          <Image src="/logo.svg" alt="Logo" width={100} height={50} className="w-40" />
+          <Image src="./assets/logo.svg" alt="Logo" width={100} height={50} className="w-40" />
         </div>
       </SidebarHeader>
       <SidebarContent className="bg-background">
