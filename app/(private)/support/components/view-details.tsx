@@ -142,7 +142,16 @@ export function TicketDetailsModal({
                       </div>
                       <div>
                         <div className="text-muted-foreground mb-1">Status</div>
-                        <StatusBadge status={ticket.status as "open" | "resolved"} />
+                        <StatusBadge
+                          status={
+                            ticket.status as
+                              | "open"
+                              | "pending"
+                              | "in_progress"
+                              | "closed"
+                              | "cancelled"
+                          }
+                        />
                       </div>
                       <div>
                         <div className="text-muted-foreground mb-1">Priority</div>
