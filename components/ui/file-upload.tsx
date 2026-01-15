@@ -1460,13 +1460,13 @@ function FileUploadDropzoneChildren({
         </p>
         {typeof acceptLabel === "string" ? (
           <p className="text-xs text-muted-foreground uppercase">
-            {acceptLabel}
-            <span className="text-xs text-muted-foreground capitalize">{` (${maxFiles} files allowed)`}</span>
+            {acceptLabel}{" "}
+            <span className="text-xs text-muted-foreground capitalize">{`(Max ${maxFiles} files allowed)`}</span>
           </p>
         ) : (
           <React.Fragment>
-            {acceptLabel}
-            <span className="text-xs text-muted-foreground capitalize">{` (${maxFiles} files allowed)`}</span>
+            {acceptLabel}{" "}
+            <span className="text-xs text-muted-foreground capitalize">{`(Max ${maxFiles} files allowed)`}</span>
           </React.Fragment>
         )}
       </div>
