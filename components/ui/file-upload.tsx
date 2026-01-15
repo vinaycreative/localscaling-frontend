@@ -3,7 +3,6 @@
 // https://www.diceui.com/docs/components/file-upload
 import { Slot } from "@radix-ui/react-slot";
 import {
-  CheckCircle,
   CircleCheck,
   FileArchiveIcon,
   FileAudioIcon,
@@ -12,9 +11,12 @@ import {
   FileIcon,
   FileTextIcon,
   FileVideoIcon,
+  ImageUp,
+  Video,
 } from "lucide-react";
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { Button } from "./button";
 
 const ROOT_NAME = "FileUpload";
 const DROPZONE_NAME = "FileUploadDropzone";
@@ -1364,9 +1366,7 @@ function FileUploadItemProgress(props: FileUploadItemProgressProps) {
               }}
             />
           </ItemProgressPrimitive>
-          <p className="text-xs text-muted-foreground">
-            {`${itemContext.fileState.progress}%`}
-          </p>
+          <p className="text-xs text-muted-foreground">{`${itemContext.fileState.progress}%`}</p>
         </div>
       );
   }
@@ -1462,7 +1462,102 @@ function FileUploadClear(props: FileUploadClearProps) {
   );
 }
 
+interface FileUploadDropzoneChildrenProps extends React.ComponentProps<"div"> {
+  icon?: string | React.ReactNode;
+  /** Main text: "Click to upload" part */
+  actionText?: React.ReactNode;
+  /** Secondary text: "or drag and drop" part */
+  helperText?: React.ReactNode;
+  acceptLabel?: string | React.ReactNode;
+  /** Override the whole sublabel line if you want */
+  subLabel?: React.ReactNode;
+  /** Button label */
+  buttonText?: React.ReactNode;
+  /** Button props override */
+  buttonProps?: Omit<React.ComponentProps<typeof Button>, "children">;
+  /** Wrapper class for the icon box */
+  iconBoxClassName?: string;
+  /** If you want to render children below (extra content) */
+  footer?: React.ReactNode;
+}
+
+function FileUploadDropzoneChildren({
+  className,
+  icon="image",
+  actionText = "Click to upload",
+  helperText = "or drag and drop",
+  acceptLabel = "MP4, MOV, WebM or AVI" as string,
+  subLabel,
+  buttonText = "Browse files",
+  buttonProps,
+  iconBoxClassName,
+  footer,
+  ...props
+}: FileUploadDropzoneChildrenProps) {
+  const { children, ...dropzoneProps } = props;
+
+  const IconNode = icon ? (
+    React.isValidElement(icon) ? (
+      icon
+    ) : icon === "image" ? (
+      <ImageUp />
+    ) : icon === "video" ? (
+      <Video />
+    ) : (
+      <FileIcon />
+    )
+  ) : null;
+
+  return (
+    <div
+      className={cn("flex flex-col items-center gap-2 text-center", className)}
+      {...props}
+    >
+      <div
+        className={cn(
+          "mx-auto flex h-12 w-12 items-center justify-center rounded bg-muted text-muted-foreground",
+          iconBoxClassName
+        )}
+        aria-hidden="true"
+      >
+        {IconNode}
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <p className="text-sm text-muted-foreground">
+          <span className="cursor-pointer text-primary">{actionText}</span>{" "}
+          {helperText}
+        </p>
+        {typeof acceptLabel === "string" ? (
+          <p className="text-xs text-muted-foreground uppercase">
+            {acceptLabel}
+          </p>
+        ) : (
+          <React.Fragment>{acceptLabel}</React.Fragment>
+        )}
+      </div>
+
+      <FileUploadTrigger asChild>
+        <Button
+          variant="outline"
+          size="sm"
+          className={cn(
+            "mt-2 cursor-pointer rounded-xs bg-transparent font-normal transition-all duration-300 hover:bg-muted/20",
+            buttonProps?.className
+          )}
+          {...buttonProps}
+        >
+          {buttonText}
+        </Button>
+      </FileUploadTrigger>
+
+      {footer}
+    </div>
+  );
+}
+
 export {
+  FileUploadDropzoneChildren as DropzoneChildren,
   FileUploadRoot as FileUpload,
   FileUploadDropzone,
   FileUploadTrigger,
