@@ -12,6 +12,7 @@ import {
   FileTextIcon,
   FileVideoIcon,
   ImageUp,
+  Loader2,
   Video,
 } from "lucide-react"
 import * as React from "react"
@@ -1412,6 +1413,7 @@ interface FileUploadDropzoneChildrenProps extends React.ComponentProps<"div"> {
   iconBoxClassName?: string
   /** If you want to render children below (extra content) */
   footer?: React.ReactNode
+  isDefaultFilesLoading?: boolean
 }
 
 function FileUploadDropzoneChildren({
@@ -1425,6 +1427,7 @@ function FileUploadDropzoneChildren({
   buttonText = "Browse files",
   buttonProps,
   iconBoxClassName,
+  isDefaultFilesLoading = false,
   footer,
   ...props
 }: FileUploadDropzoneChildrenProps) {
@@ -1451,7 +1454,7 @@ function FileUploadDropzoneChildren({
         )}
         aria-hidden="true"
       >
-        {IconNode}
+        {isDefaultFilesLoading ? <Loader2 className="animate-spin" /> : IconNode}
       </div>
 
       <div className="flex flex-col gap-1">
@@ -1479,9 +1482,10 @@ function FileUploadDropzoneChildren({
             "mt-2 cursor-pointer rounded-xs bg-transparent font-normal transition-all duration-300 hover:bg-muted/20",
             buttonProps?.className
           )}
+          disabled={isDefaultFilesLoading}
           {...buttonProps}
         >
-          {buttonText}
+          {isDefaultFilesLoading ? <Loader2 className="animate-spin" /> : buttonText}
         </Button>
       </FileUploadTrigger>
 
