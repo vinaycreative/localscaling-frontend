@@ -383,13 +383,17 @@ function FileUploadRoot(props: FileUploadRootProps) {
 
   React.useEffect(() => {
     if (isControlled) {
-      store.dispatch({ type: "SET_FILES", files: value });
+      // Normalize value to array (handle null/undefined)
+      const normalizedValue = value || [];
+      store.dispatch({ type: "SET_FILES", files: normalizedValue });
     } else if (
       defaultValue &&
       defaultValue.length > 0 &&
       !store.getState().files.size
     ) {
-      store.dispatch({ type: "SET_FILES", files: defaultValue });
+      // Normalize defaultValue to array (handle null/undefined)
+      const normalizedDefault = defaultValue || [];
+      store.dispatch({ type: "SET_FILES", files: normalizedDefault });
     }
   }, [value, defaultValue, isControlled, store]);
 
@@ -1359,12 +1363,10 @@ function FileUploadItemProgress(props: FileUploadItemProgressProps) {
                 transform: `translateX(-${100 - itemContext.fileState.progress}%)`,
               }}
             />
-            <div className="bg-green-900">ksjcjbsj</div>
-            <p className="bg-red-900 border flex-1">
-              {`${itemContext.fileState.progress}%`} 100
-            </p>
           </ItemProgressPrimitive>
-          <p className="text-xs"> {`${itemContext.fileState.progress}%`}</p>
+          <p className="text-xs text-muted-foreground">
+            {`${itemContext.fileState.progress}%`}
+          </p>
         </div>
       );
   }
