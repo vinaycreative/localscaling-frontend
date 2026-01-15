@@ -15,9 +15,12 @@ import {
   Users,
   Image as ImageIcon,
   Type,
+  Upload,
+  X,
+  ImageUp,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { Fragment, useEffect, useRef, useState } from "react"
+import { Fragment, useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { TeamMemberList } from "./components/member-entry-list"
 import { useForm } from "react-hook-form"
@@ -38,6 +41,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress"
 import { useLoggedInUser } from "@/hooks/useAuth"
 import { showFormErrors } from "@/lib/errors"
+import {
+  FileUpload,
+  FileUploadDropzone,
+  FileUploadItem,
+  FileUploadItemDelete,
+  FileUploadItemMetadata,
+  FileUploadItemPreview,
+  FileUploadList,
+  FileUploadTrigger,
+} from "@/components/ui/file-upload"
+import { cn } from "@/lib/utils"
 
 function BrandingContentForm() {
   const router = useRouter()
@@ -73,6 +87,10 @@ function BrandingContentForm() {
     watch,
     setValue,
   } = form
+  const logo_file = watch("logo_file")
+  const onFileReject = useCallback((file: File, message: string) => {
+    toast.error(`Error : ${message}`)
+  }, [])
 
   // Prevent refetches from overwriting user edits after initial hydration.
   const hasHydratedRef = useRef(false)
@@ -126,8 +144,7 @@ function BrandingContentForm() {
 
       if (logoFile) setValue("logo_file", logoFile, { shouldDirty: false })
       if (ceoVideo) setValue("ceo_video", ceoVideo, { shouldDirty: false })
-      if (testimonialVideo)
-        setValue("video_testimonial", testimonialVideo, { shouldDirty: false })
+      if (testimonialVideo) setValue("video_testimonial", testimonialVideo, { shouldDirty: false })
 
       const teamPhotos =
         teamPhotosSettled.length > 0
@@ -411,14 +428,91 @@ function BrandingContentForm() {
                         <FormItem>
                           <FormLabel>Company Logo</FormLabel>
                           <FormControl>
-                            <BrandAssetUploader
+                            {/* <BrandAssetUploader
                               label=""
                               field={field?.name}
                               multiple={false}
                               value={field.value as File}
                               onChange={field.onChange}
                               maxFiles={1}
-                            />
+                            /> */}
+                            <FileUpload
+                              maxFiles={1}
+                              maxSize={5 * 1024 * 1024}
+                              className="w-full"
+                              value={
+                                field.value
+                                  ? [...(Array.isArray(field.value) ? field.value : [field.value])]
+                                  : []
+                              }
+                              defaultValue={
+                                field.value
+                                  ? [...(Array.isArray(field.value) ? field.value : [field.value])]
+                                  : []
+                              }
+                              onValueChange={(val) => {
+                                field.onChange(val ?? null)
+                              }}
+                              accept="image/*"
+                              onFileReject={onFileReject}
+                              multiple={false}
+                            >
+                              <FileUploadDropzone>
+                                <div className="flex flex-col items-center gap-2 text-center">
+                                  <div
+                                    className={cn(
+                                      "mx-auto h-12 w-12 rounded flex items-center justify-center",
+                                      "bg-muted text-muted-foreground"
+                                    )}
+                                    aria-hidden="true"
+                                  >
+                                    <ImageUp />
+                                  </div>
+                                  <div className="flex flex-col gap-1">
+                                    <p className="text-sm text-muted-foreground">
+                                      <span className="text-primary cursor-pointer">
+                                        Click to upload
+                                      </span>{" "}
+                                      or drag and drop
+                                    </p>
+                                    <p className="text-xs text-muted-foreground">
+                                      {" "}
+                                      SVG, PNG or JPG
+                                    </p>
+                                  </div>
+
+                                  <FileUploadTrigger asChild>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="mt-2 cursor-pointer rounded-xs bg-transparent font-normal hover:bg-muted/20 transition-all duration-300"
+                                    >
+                                      Browse files
+                                    </Button>
+                                  </FileUploadTrigger>
+                                </div>
+                              </FileUploadDropzone>
+                              <FileUploadList className="">
+                                {logo_file
+                                  ? [...(Array.isArray(logo_file) ? logo_file : [logo_file])].map(
+                                      (file: File, index: number): React.ReactNode => (
+                                        <FileUploadItem key={index} value={file}>
+                                          <FileUploadItemPreview />
+                                          <FileUploadItemMetadata />
+                                          <FileUploadItemDelete
+                                            asChild
+                                            className="absolute top-2 right-2"
+                                          >
+                                            <Button variant="ghost" size="icon" className="size-7">
+                                              <X />
+                                            </Button>
+                                          </FileUploadItemDelete>
+                                        </FileUploadItem>
+                                      )
+                                    )
+                                  : null}
+                              </FileUploadList>
+                            </FileUpload>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
