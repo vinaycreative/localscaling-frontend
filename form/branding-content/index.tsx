@@ -1,9 +1,7 @@
 "use client"
-import BrandAssetUploader from "@/components/reusable/brand-asset-uploader"
 import ColorPickerInput from "@/components/reusable/color-picker"
 import { CustomInput } from "@/components/reusable/custom-input"
 import OnboardingVideo from "@/components/reusable/onboarding-video"
-import { VideoUpload } from "@/components/reusable/video-upload"
 import { Button } from "@/components/ui/button"
 import { uploadFileToStorage, urlToFile } from "@/lib/storage"
 import {
@@ -15,7 +13,6 @@ import {
   Users,
   Image as ImageIcon,
   Type,
-  Upload,
   X,
   ImageUp,
 } from "lucide-react"
@@ -42,6 +39,7 @@ import { Progress } from "@/components/ui/progress"
 import { useLoggedInUser } from "@/hooks/useAuth"
 import { showFormErrors } from "@/lib/errors"
 import {
+  DropzoneChildren,
   FileUpload,
   FileUploadDropzone,
   FileUploadItem,
@@ -87,7 +85,6 @@ function BrandingContentForm() {
     watch,
     setValue,
   } = form
-  const logo_file = watch("logo_file")
   const onFileReject = useCallback((file: File, message: string) => {
     toast.error(`Error : ${message}`)
   }, [])
@@ -450,51 +447,21 @@ function BrandingContentForm() {
                                   ? [...(Array.isArray(field.value) ? field.value : [field.value])]
                                   : []
                               }
-                              onValueChange={(val) => {
-                                field.onChange(val ?? null)
+                              onValueChange={(files: File[]) => {
+                                field.onChange(files.length > 0 ? files[0] : null)
                               }}
                               accept="image/*"
                               onFileReject={onFileReject}
                               multiple={false}
                             >
                               <FileUploadDropzone>
-                                <div className="flex flex-col items-center gap-2 text-center">
-                                  <div
-                                    className={cn(
-                                      "mx-auto h-12 w-12 rounded flex items-center justify-center",
-                                      "bg-muted text-muted-foreground"
-                                    )}
-                                    aria-hidden="true"
-                                  >
-                                    <ImageUp />
-                                  </div>
-                                  <div className="flex flex-col gap-1">
-                                    <p className="text-sm text-muted-foreground">
-                                      <span className="text-primary cursor-pointer">
-                                        Click to upload
-                                      </span>{" "}
-                                      or drag and drop
-                                    </p>
-                                    <p className="text-xs text-muted-foreground">
-                                      {" "}
-                                      SVG, PNG or JPG
-                                    </p>
-                                  </div>
-
-                                  <FileUploadTrigger asChild>
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      className="mt-2 cursor-pointer rounded-xs bg-transparent font-normal hover:bg-muted/20 transition-all duration-300"
-                                    >
-                                      Browse files
-                                    </Button>
-                                  </FileUploadTrigger>
-                                </div>
+                                <DropzoneChildren />
                               </FileUploadDropzone>
                               <FileUploadList className="">
-                                {logo_file
-                                  ? [...(Array.isArray(logo_file) ? logo_file : [logo_file])].map(
+                                {field.value
+                                  ? [
+                                      ...(Array.isArray(field.value) ? field.value : [field.value]),
+                                    ].map(
                                       (file: File, index: number): React.ReactNode => (
                                         <FileUploadItem key={index} value={file}>
                                           <FileUploadItemPreview />
@@ -530,14 +497,41 @@ function BrandingContentForm() {
                               <p className="text-sm text-muted-foreground">
                                 Portrait photos in corporate attire (max 6)
                               </p>
-                              <BrandAssetUploader
-                                label=""
-                                field={field.name}
-                                multiple={true}
-                                value={field.value}
-                                onChange={field.onChange}
+                              <FileUpload
                                 maxFiles={6}
-                              />
+                                maxSize={8 * 1024 * 1024}
+                                className="w-full"
+                                value={field.value || []}
+                                defaultValue={field.value || []}
+                                onValueChange={(files: File[]) => {
+                                  field.onChange(files.length > 0 ? files : null)
+                                }}
+                                accept="image/*"
+                                onFileReject={onFileReject}
+                                multiple={true}
+                              >
+                                <FileUploadDropzone>
+                                  <DropzoneChildren />
+                                </FileUploadDropzone>
+                                <FileUploadList className="">
+                                  {(field.value || []).map(
+                                    (file: File, index: number): React.ReactNode => (
+                                      <FileUploadItem key={index} value={file}>
+                                        <FileUploadItemPreview />
+                                        <FileUploadItemMetadata />
+                                        <FileUploadItemDelete
+                                          asChild
+                                          className="absolute top-2 right-2"
+                                        >
+                                          <Button variant="ghost" size="icon" className="size-7">
+                                            <X />
+                                          </Button>
+                                        </FileUploadItemDelete>
+                                      </FileUploadItem>
+                                    )
+                                  )}
+                                </FileUploadList>
+                              </FileUpload>
                             </div>
                           </FormControl>
                           <FormMessage />
@@ -608,12 +602,56 @@ function BrandingContentForm() {
                       <FormItem>
                         <FormLabel>CEO Introductory Video</FormLabel>
                         <FormControl>
-                          <VideoUpload
-                            label=""
-                            value={field.value}
-                            onChange={field.onChange}
-                            required={true}
-                          />
+                          <FileUpload
+                            maxFiles={1}
+                            maxSize={100 * 1024 * 1024}
+                            className="w-full"
+                            value={
+                              field.value
+                                ? [...(Array.isArray(field.value) ? field.value : [field.value])]
+                                : []
+                            }
+                            defaultValue={
+                              field.value
+                                ? [...(Array.isArray(field.value) ? field.value : [field.value])]
+                                : []
+                            }
+                            onValueChange={(files: File[]) => {
+                              field.onChange(files.length > 0 ? files[0] : null)
+                            }}
+                            accept="video/*"
+                            onFileReject={onFileReject}
+                            multiple={false}
+                          >
+                            <FileUploadDropzone>
+                              <DropzoneChildren
+                                icon="video"
+                                acceptLabel="MP4, MOV, WebM or AVI (max 100MB)"
+                              />
+                            </FileUploadDropzone>
+                            <FileUploadList className="">
+                              {field.value
+                                ? [
+                                    ...(Array.isArray(field.value) ? field.value : [field.value]),
+                                  ].map(
+                                    (file: File, index: number): React.ReactNode => (
+                                      <FileUploadItem key={index} value={file}>
+                                        <FileUploadItemPreview />
+                                        <FileUploadItemMetadata />
+                                        <FileUploadItemDelete
+                                          asChild
+                                          className="absolute top-2 right-2"
+                                        >
+                                          <Button variant="ghost" size="icon" className="size-7">
+                                            <X />
+                                          </Button>
+                                        </FileUploadItemDelete>
+                                      </FileUploadItem>
+                                    )
+                                  )
+                                : null}
+                            </FileUploadList>
+                          </FileUpload>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -738,12 +776,56 @@ function BrandingContentForm() {
                       <FormItem>
                         <FormLabel>Video Testimonials</FormLabel>
                         <FormControl>
-                          <VideoUpload
-                            label=""
-                            value={field.value}
-                            onChange={field.onChange}
-                            required={true}
-                          />
+                          <FileUpload
+                            maxFiles={1}
+                            maxSize={100 * 1024 * 1024}
+                            className="w-full"
+                            value={
+                              field.value
+                                ? [...(Array.isArray(field.value) ? field.value : [field.value])]
+                                : []
+                            }
+                            defaultValue={
+                              field.value
+                                ? [...(Array.isArray(field.value) ? field.value : [field.value])]
+                                : []
+                            }
+                            onValueChange={(files) => {
+                              field.onChange(files.length > 0 ? files[0] : null)
+                            }}
+                            accept="video/*"
+                            onFileReject={onFileReject}
+                            multiple={false}
+                          >
+                            <FileUploadDropzone>
+                              <DropzoneChildren
+                                icon="video"
+                                acceptLabel="MP4, MOV, WebM or AVI (max 100MB)"
+                              />
+                            </FileUploadDropzone>
+                            <FileUploadList className="">
+                              {field.value
+                                ? [
+                                    ...(Array.isArray(field.value) ? field.value : [field.value]),
+                                  ].map(
+                                    (file: File, index: number): React.ReactNode => (
+                                      <FileUploadItem key={index} value={file}>
+                                        <FileUploadItemPreview />
+                                        <FileUploadItemMetadata />
+                                        <FileUploadItemDelete
+                                          asChild
+                                          className="absolute top-2 right-2"
+                                        >
+                                          <Button variant="ghost" size="icon" className="size-7">
+                                            <X />
+                                          </Button>
+                                        </FileUploadItemDelete>
+                                      </FileUploadItem>
+                                    )
+                                  )
+                                : null}
+                            </FileUploadList>
+                          </FileUpload>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
