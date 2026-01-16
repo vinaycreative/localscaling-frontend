@@ -58,6 +58,7 @@ function BrandingContentForm() {
   const { data: brandingInfoData, isLoading: brandingInfoLoading } = useBrandingInfo()
 
   const { createBrandingInfo } = useCreateBrandingInfo()
+  const [filesLoading, setFilesLoading] = useState(false)
 
   const isEmpty = Object.keys(brandingInfoData || {})?.length === 0
   console.log("🚀 ~ BrandingContentForm ~ brandingInfoData:", brandingInfoData)
@@ -128,6 +129,7 @@ function BrandingContentForm() {
 
     // 2) Hydrate file fields in parallel (doesn't block the rest of the form)
     ;(async () => {
+      setFilesLoading(true)
       const [logoFile, ceoVideo, testimonialVideo, teamPhotosSettled] = await Promise.all([
         dbData.logo_url ? urlToFile(dbData.logo_url) : null,
         dbData.ceo_video_url ? urlToFile(dbData.ceo_video_url) : null,
@@ -150,10 +152,14 @@ function BrandingContentForm() {
               .map((r) => r.value)
           : []
       setValue("team_photos", teamPhotos, { shouldDirty: false })
-    })().catch((e) => {
-      // Non-blocking: even if files fail, the rest of the form stays hydrated.
-      console.error("Failed to hydrate branding files:", e)
-    })
+    })()
+      .catch((e) => {
+        // Non-blocking: even if files fail, the rest of the form stays hydrated.
+        console.error("Failed to hydrate branding files:", e)
+      })
+      .finally(() => {
+        setFilesLoading(false)
+      })
 
     return () => {
       cancelled = true
@@ -442,6 +448,7 @@ function BrandingContentForm() {
                                   ? [...(Array.isArray(field.value) ? field.value : [field.value])]
                                   : []
                               }
+                              
                               defaultValue={
                                 field.value
                                   ? [...(Array.isArray(field.value) ? field.value : [field.value])]
@@ -453,9 +460,10 @@ function BrandingContentForm() {
                               accept="image/*"
                               onFileReject={onFileReject}
                               multiple={false}
+                              disabled={filesLoading}
                             >
                               <FileUploadDropzone>
-                                <DropzoneChildren />
+                                <DropzoneChildren isDefaultFilesLoading={filesLoading} />
                               </FileUploadDropzone>
                               <FileUploadList className="">
                                 {field.value
@@ -466,6 +474,7 @@ function BrandingContentForm() {
                                         <FileUploadItem key={index} value={file}>
                                           <FileUploadItemPreview />
                                           <FileUploadItemMetadata />
+
                                           <FileUploadItemDelete
                                             asChild
                                             className="absolute top-2 right-2"
@@ -509,9 +518,10 @@ function BrandingContentForm() {
                                 accept="image/*"
                                 onFileReject={onFileReject}
                                 multiple={true}
+                                disabled={filesLoading}
                               >
                                 <FileUploadDropzone>
-                                  <DropzoneChildren />
+                                  <DropzoneChildren maxFiles={6} isDefaultFilesLoading={filesLoading} />
                                 </FileUploadDropzone>
                                 <FileUploadList className="">
                                   {(field.value || []).map(
@@ -622,9 +632,11 @@ function BrandingContentForm() {
                             accept="video/*"
                             onFileReject={onFileReject}
                             multiple={false}
+                            disabled={filesLoading}
                           >
                             <FileUploadDropzone>
                               <DropzoneChildren
+                                isDefaultFilesLoading={filesLoading}
                                 icon="video"
                                 acceptLabel="MP4, MOV, WebM or AVI (max 100MB)"
                               />
@@ -796,9 +808,11 @@ function BrandingContentForm() {
                             accept="video/*"
                             onFileReject={onFileReject}
                             multiple={false}
+                            disabled={filesLoading}
                           >
                             <FileUploadDropzone>
                               <DropzoneChildren
+                                isDefaultFilesLoading={filesLoading}
                                 icon="video"
                                 acceptLabel="MP4, MOV, WebM or AVI (max 100MB)"
                               />
