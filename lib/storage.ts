@@ -22,40 +22,51 @@ function getSupabaseClient() {
 
 export type StorageBucket = "branding-assets" | "videos" | "documents"
 
-// export async function uploadFileToStorage(
-//   file: File,
-//   bucket: StorageBucket,
-//   folder: string = "client"
-// ): Promise<string> {
-//   // 1. Sanitize file name to avoid issues with spaces or special characters
-//   const fileExt = file.name.split(".").pop()
-//   // Take first 30 chars of name, replace non-alphanumeric with dash
-//   const cleanName = file.name
-//     .split(".")[0]
-//     .replace(/[^a-zA-Z0-9]/g, "-")
-//     .substring(0, 30)
-//   const fileName = `${cleanName}-${Date.now()}.${fileExt}`
-//   const filePath = `${folder}/${fileName}`
+export const getFileNameFromUrl = (url: string): string => {
+  try {
+    const parsedUrl = new URL(url)
+    const pathname = parsedUrl.pathname
+    const name = pathname.substring(pathname.lastIndexOf("/") + 1)
 
-//   console.log(`[Storage] Uploading ${file.name} to ${bucket}/${filePath}...`)
+    return name || "file"
+  } catch {
+    return "file"
+  }
+}
 
-//   // 2. Upload
-//   const { error } = await supabase.storage.from(bucket).upload(filePath, file, {
-//     cacheControl: "3600",
-//     upsert: false,
-//   })
+export const getFileNameFromHeaders = (res: Response): string | null => {
+  const disposition = res.headers.get("Content-Disposition")
+  if (!disposition) return null
 
-//   if (error) {
-//     console.error(`[Storage] Error uploading to ${bucket}:`, error)
-//     throw new Error(`Upload failed: ${error.message}`)
-//   }
+  // Handles: attachment; filename="example.png"
+  const match = disposition.match(/filename\*?=(?:UTF-8'')?"?([^"]+)/i)
+  return match ? decodeURIComponent(match[1]) : null
+}
 
-//   // 3. Get Public URL
-//   const { data } = supabase.storage.from(bucket).getPublicUrl(filePath)
+export interface UploadedFile extends File {
+  uploaded?: boolean
+}
 
-//   console.log(`[Storage] Upload success: ${data.publicUrl}`)
-//   return data.publicUrl
-// }
+export const urlToFile = async (url: string): Promise<UploadedFile> => {
+  if (!url) return new File([], "file")
+
+  try {
+    const res = await fetch(url)
+    const blob = await res.blob()
+
+    const filename = getFileNameFromHeaders(res) || getFileNameFromUrl(url)
+
+    const file = new File([blob], filename, {
+      type: blob.type || res.headers.get("Content-Type") || "application/octet-stream",
+    }) as UploadedFile
+    file.uploaded = true
+
+    return file
+  } catch (e) {
+    console.error("Error converting URL to File:", e)
+    return new File([], "file")
+  }
+}
 
 export async function uploadFileToStorage(
   file: File,
@@ -68,7 +79,8 @@ export async function uploadFileToStorage(
   const supabase = getSupabaseClient()
   const bucket = "client"
   const { data, error } = await supabase.storage.from("client").upload(`${userId}/${name}`, file, {
-    contentType: file.type,
+    contentType: file?.type || "application/octet-stream",
+    upsert: true, // ✅ overwrite if exists
   })
   if (error) {
     console.error(`[Storage] Error uploading to ${bucket}:`, error)
@@ -77,7 +89,7 @@ export async function uploadFileToStorage(
   // 3. Get Public URL
   const { data: publicUrlData } = supabase.storage
     .from(bucket)
-    .getPublicUrl(`client/${userId}/${name}`)
+    .getPublicUrl(`/${userId}/${name}`)
 
   console.log(`[Storage] Upload success: ${publicUrlData.publicUrl}`)
   return publicUrlData.publicUrl

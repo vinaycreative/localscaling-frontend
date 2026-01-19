@@ -3,7 +3,6 @@
 // https://www.diceui.com/docs/components/file-upload
 import { Slot } from "@radix-ui/react-slot"
 import {
-  CheckCircle,
   CircleCheck,
   FileArchiveIcon,
   FileAudioIcon,
@@ -12,9 +11,13 @@ import {
   FileIcon,
   FileTextIcon,
   FileVideoIcon,
+  ImageUp,
+  Loader2,
+  Video,
 } from "lucide-react"
 import * as React from "react"
 import { cn } from "@/lib/utils"
+import { Button } from "./button"
 
 const ROOT_NAME = "FileUpload"
 const DROPZONE_NAME = "FileUploadDropzone"
@@ -370,9 +373,13 @@ function FileUploadRoot(props: FileUploadRootProps) {
 
   React.useEffect(() => {
     if (isControlled) {
-      store.dispatch({ type: "SET_FILES", files: value })
+      // Normalize value to array (handle null/undefined)
+      const normalizedValue = value || []
+      store.dispatch({ type: "SET_FILES", files: normalizedValue })
     } else if (defaultValue && defaultValue.length > 0 && !store.getState().files.size) {
-      store.dispatch({ type: "SET_FILES", files: defaultValue })
+      // Normalize defaultValue to array (handle null/undefined)
+      const normalizedDefault = defaultValue || []
+      store.dispatch({ type: "SET_FILES", files: normalizedDefault })
     }
   }, [value, defaultValue, isControlled, store])
 
@@ -795,7 +802,7 @@ function FileUploadDropzone(props: FileUploadDropzoneProps) {
       tabIndex={context.disabled ? undefined : 0}
       {...dropzoneProps}
       className={cn(
-        "relative flex select-none flex-col items-center justify-center gap-2 rounded-lg border p-4 outline-none transition-colors hover:bg-accent/30 focus-visible:border-ring/50 data-[disabled]:pointer-events-none data-[dragging]:border-primary/30 data-[invalid]:border-destructive data-[dragging]:bg-accent/30 data-[invalid]:ring-destructive/20",
+        "relative flex select-none flex-col items-center justify-center gap-2 rounded-sm border border-dashed p-4 outline-none transition-colors hover:bg-accent/30 focus-visible:border-ring/50 data-[disabled]:pointer-events-none data-[dragging]:border-primary/30 data-[invalid]:border-destructive data-[dragging]:bg-accent/30 data-[invalid]:ring-destructive/20",
         className
       )}
       onClick={onClick}
@@ -871,7 +878,7 @@ function FileUploadList(props: FileUploadListProps) {
       dir={context.dir}
       {...listProps}
       className={cn(
-        "data-[state=inactive]:fade-out-0 data-[state=active]:fade-in-0 data-[state=inactive]:slide-out-to-top-2 data-[state=active]:slide-in-from-top-2 flex flex-col gap-2 data-[state=active]:animate-in data-[state=inactive]:animate-out",
+        "data-[state=inactive]:fade-out-0 data-[state=active]:fade-in-0 data-[state=inactive]:slide-out-to-top-2 data-[state=active]:slide-in-from-top-2 flex flex-col gap-2 data-[state=active]:animate-in data-[state=inactive]:animate-out w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4",
         orientation === "horizontal" && "flex-row overflow-x-auto p-1.5",
         className
       )}
@@ -1077,11 +1084,15 @@ function FileUploadItemPreview(props: FileUploadItemPreviewProps) {
 
         return (
           // biome-ignore lint/performance/noImgElement: dynamic file URLs from user uploads don't work well with Next.js Image optimization
-          <img src={url} alt={file.name} className="size-full object-cover" />
+          <img src={url} alt={file.name} className="size-full object-contain" />
         )
+      } else if (itemContext.fileState?.file.type.startsWith("video/")) {
+        return (
+          <video src={URL.createObjectURL(file)} controls className="size-full object-contain" />
+        )
+      } else {
+        return getFileIcon(file)
       }
-
-      return getFileIcon(file)
     },
     [itemContext.fileState?.file.type, context.urlCache]
   )
@@ -1107,7 +1118,7 @@ function FileUploadItemPreview(props: FileUploadItemPreviewProps) {
       data-slot="file-upload-preview"
       {...previewProps}
       className={cn(
-        "relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded bg-accent/50 [&>svg]:size-10",
+        "relative flex size-20 shrink-0 items-center justify-center overflow-hidden rounded bg-accent/50 [&>svg]:size-10",
         className
       )}
     >
@@ -1293,10 +1304,8 @@ function FileUploadItemProgress(props: FileUploadItemProgressProps) {
                 transform: `translateX(-${100 - itemContext.fileState.progress}%)`,
               }}
             />
-            <div className="bg-green-900">ksjcjbsj</div>
-            <p className="bg-red-900 border flex-1">{`${itemContext.fileState.progress}%`} 100</p>
           </ItemProgressPrimitive>
-          <p className="text-xs"> {`${itemContext.fileState.progress}%`}</p>
+          <p className="text-xs text-muted-foreground">{`${itemContext.fileState.progress}%`}</p>
         </div>
       )
   }
@@ -1386,7 +1395,107 @@ function FileUploadClear(props: FileUploadClearProps) {
   )
 }
 
+interface FileUploadDropzoneChildrenProps extends React.ComponentProps<"div"> {
+  icon?: string | React.ReactNode
+  /** Main text: "Click to upload" part */
+  actionText?: React.ReactNode
+  /** Secondary text: "or drag and drop" part */
+  helperText?: React.ReactNode
+  maxFiles?: number
+  acceptLabel?: string | React.ReactNode
+  /** Override the whole sublabel line if you want */
+  subLabel?: React.ReactNode
+  /** Button label */
+  buttonText?: React.ReactNode
+  /** Button props override */
+  buttonProps?: Omit<React.ComponentProps<typeof Button>, "children">
+  /** Wrapper class for the icon box */
+  iconBoxClassName?: string
+  /** If you want to render children below (extra content) */
+  footer?: React.ReactNode
+  isDefaultFilesLoading?: boolean
+}
+
+function FileUploadDropzoneChildren({
+  className,
+  icon = "image",
+  actionText = "Click to upload",
+  helperText = "or drag and drop",
+  acceptLabel = "JPG, PNG, GIF, WEBP" as string,
+  maxFiles = 1,
+  subLabel,
+  buttonText = "Browse files",
+  buttonProps,
+  iconBoxClassName,
+  isDefaultFilesLoading = false,
+  footer,
+  ...props
+}: FileUploadDropzoneChildrenProps) {
+  const { children, ...dropzoneProps } = props
+
+  const IconNode = icon ? (
+    React.isValidElement(icon) ? (
+      icon
+    ) : icon === "image" ? (
+      <ImageUp />
+    ) : icon === "video" ? (
+      <Video />
+    ) : (
+      <FileIcon />
+    )
+  ) : null
+
+  return (
+    <div className={cn("flex flex-col items-center gap-2 text-center", className)} {...props}>
+      <div
+        className={cn(
+          "mx-auto flex h-12 w-12 items-center justify-center rounded bg-muted text-muted-foreground",
+          iconBoxClassName
+        )}
+        aria-hidden="true"
+      >
+        {isDefaultFilesLoading ? <Loader2 className="animate-spin" /> : IconNode}
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <p className="text-sm text-muted-foreground">
+          <span className="cursor-pointer text-primary">{actionText}</span> {helperText}
+        </p>
+        {typeof acceptLabel === "string" ? (
+          <p className="text-xs text-muted-foreground uppercase">
+            {acceptLabel}{" "}
+            <span className="text-xs text-muted-foreground capitalize">{`(Max ${maxFiles} files allowed)`}</span>
+          </p>
+        ) : (
+          <React.Fragment>
+            {acceptLabel}{" "}
+            <span className="text-xs text-muted-foreground capitalize">{`(Max ${maxFiles} files allowed)`}</span>
+          </React.Fragment>
+        )}
+      </div>
+
+      <FileUploadTrigger asChild>
+        <Button
+          variant="outline"
+          size="sm"
+          className={cn(
+            "mt-2 cursor-pointer rounded-xs bg-transparent font-normal transition-all duration-300 hover:bg-muted/20",
+            buttonProps?.className
+          )}
+          disabled={isDefaultFilesLoading}
+          {...buttonProps}
+        >
+          {isDefaultFilesLoading ? <Loader2 className="animate-spin" /> : buttonText}
+        </Button>
+      </FileUploadTrigger>
+
+      {footer}
+    </div>
+  )
+}
+
 export {
+  FileUploadDropzoneChildren as DropzoneChildren,
   FileUploadRoot as FileUpload,
   FileUploadDropzone,
   FileUploadTrigger,

@@ -1,11 +1,9 @@
 "use client"
-import BrandAssetUploader from "@/components/reusable/brand-asset-uploader"
 import ColorPickerInput from "@/components/reusable/color-picker"
 import { CustomInput } from "@/components/reusable/custom-input"
 import OnboardingVideo from "@/components/reusable/onboarding-video"
-import { VideoUpload } from "@/components/reusable/video-upload"
 import { Button } from "@/components/ui/button"
-import { uploadFileToStorage } from "@/lib/storage"
+import { uploadFileToStorage, urlToFile } from "@/lib/storage"
 import {
   ChevronLeft,
   ChevronRight,
@@ -15,9 +13,11 @@ import {
   Users,
   Image as ImageIcon,
   Type,
+  X,
+  ImageUp,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { Fragment, useEffect, useState } from "react"
+import { Fragment, useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { TeamMemberList } from "./components/member-entry-list"
 import { useForm } from "react-hook-form"
@@ -38,18 +38,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress"
 import { useLoggedInUser } from "@/hooks/useAuth"
 import { showFormErrors } from "@/lib/errors"
-
-const urlToFile = async (url: string, filename: string, mimeType: string): Promise<File> => {
-  if (!url) return new File([], filename)
-  try {
-    const res = await fetch(url)
-    const blob = await res.blob()
-    return new File([blob], filename, { type: mimeType })
-  } catch (e) {
-    console.error("Error converting URL to File:", e)
-    return new File([], filename)
-  }
-}
+import {
+  DropzoneChildren,
+  FileUpload,
+  FileUploadDropzone,
+  FileUploadItem,
+  FileUploadItemDelete,
+  FileUploadItemMetadata,
+  FileUploadItemPreview,
+  FileUploadList,
+  FileUploadTrigger,
+} from "@/components/ui/file-upload"
+import { cn } from "@/lib/utils"
 
 function BrandingContentForm() {
   const router = useRouter()
@@ -58,6 +58,7 @@ function BrandingContentForm() {
   const { data: brandingInfoData, isLoading: brandingInfoLoading } = useBrandingInfo()
 
   const { createBrandingInfo } = useCreateBrandingInfo()
+  const [filesLoading, setFilesLoading] = useState(false)
 
   const isEmpty = Object.keys(brandingInfoData || {})?.length === 0
   console.log("🚀 ~ BrandingContentForm ~ brandingInfoData:", brandingInfoData)
@@ -85,73 +86,85 @@ function BrandingContentForm() {
     watch,
     setValue,
   } = form
+  const onFileReject = useCallback((file: File, message: string) => {
+    toast.error(`Error : ${message}`)
+  }, [])
+
+  // Prevent refetches from overwriting user edits after initial hydration.
+  const hasHydratedRef = useRef(false)
 
   useEffect(() => {
-    const loadData = async () => {
-      console.log("🚀 ~ loadData ~ isEmpty:", isEmpty)
-      if (!isEmpty) {
-        const dbData = brandingInfoData
-        let logo_file = null
-        if (dbData.logo_url) {
-          logo_file = await urlToFile(dbData.logo_url, "logo.png", "image/png")
-          console.log("🚀 ~ loadData ~ logo_file:", logo_file)
-          setValue("logo_file", logo_file)
-        }
+    // Only hydrate once per mount (avoid overwriting user changes on background refetches).
+    if (hasHydratedRef.current) return
 
-        let team_photos: File[] = []
-        if (dbData.team_photo_urls && Array.isArray(dbData.team_photo_urls)) {
-          team_photos = await Promise.all(
-            dbData.team_photo_urls.map((url: string, index: number) =>
-              urlToFile(url, `team-${index}.jpg`, "image/jpeg")
-            )
-          )
-          console.log("🚀 ~ loadData ~ team_photos:", team_photos)
-          setValue("team_photos", team_photos)
-        }
+    const empty = Object.keys(brandingInfoData || {}).length === 0
+    if (empty) return
 
-        let ceo_video = null
-        if (dbData.ceo_video_url) {
-          ceo_video = await urlToFile(dbData.ceo_video_url, "ceo-intro.mp4", "video/mp4")
-          console.log("🚀 ~ loadData ~ ceo_video:", ceo_video)
-          setValue("ceo_video", ceo_video)
-        }
+    hasHydratedRef.current = true
 
-        let videoTestimonial = null
-        if (dbData.video_testimonial_url) {
-          videoTestimonial = await urlToFile(
-            dbData.video_testimonial_url,
-            "testimonial.mp4",
-            "video/mp4"
-          )
-          console.log("🚀 ~ loadData ~ videoTestimonial:", videoTestimonial)
-          setValue("video_testimonial", videoTestimonial)
-        }
+    let cancelled = false
+    const dbData = brandingInfoData
 
-        ;(Object.keys(brandingInfoData) as Array<keyof BrandingContentFormValues>)
-          .filter(
-            (el) =>
-              ![
-                "id",
-                "team_photo_urls",
-                "ceo_video_url",
-                "video_testimonial_url",
-                "logo_url",
-              ].includes(el)
-          )
-          .forEach((key) => {
-            const value = brandingInfoData?.[key]
-
-            if (value !== undefined) {
-              setValue(key, value)
-            }
-          })
+    // 1) Hydrate non-file fields immediately (fast + reliable)
+    form.reset(
+      {
+        font_link: dbData.font_link ?? "",
+        primary_brand_color: dbData.primary_brand_color ?? "#007BFF",
+        secondary_brand_color: dbData.secondary_brand_color ?? "#6C757D",
+        team_members:
+          Array.isArray(dbData.team_members) && dbData.team_members.length > 0
+            ? dbData.team_members
+            : [{ name: "", position: "" }],
+        video_creation_option: dbData.video_creation_option ?? "upload",
+        // file-backed fields are hydrated async below
+        logo_file: null,
+        team_photos: null,
+        ceo_video: null,
+        video_testimonial: null,
+      },
+      {
+        keepDefaultValues: true,
       }
-    }
+    )
 
-    if (brandingInfoData) {
-      loadData()
+    // 2) Hydrate file fields in parallel (doesn't block the rest of the form)
+    ;(async () => {
+      setFilesLoading(true)
+      const [logoFile, ceoVideo, testimonialVideo, teamPhotosSettled] = await Promise.all([
+        dbData.logo_url ? urlToFile(dbData.logo_url) : null,
+        dbData.ceo_video_url ? urlToFile(dbData.ceo_video_url) : null,
+        dbData.video_testimonial_url ? urlToFile(dbData.video_testimonial_url) : null,
+        Array.isArray(dbData.team_photo_urls)
+          ? Promise.allSettled(dbData.team_photo_urls.map((url: string) => urlToFile(url)))
+          : Promise.resolve([] as PromiseSettledResult<File>[]),
+      ])
+
+      if (cancelled) return
+
+      if (logoFile) setValue("logo_file", logoFile, { shouldDirty: false })
+      if (ceoVideo) setValue("ceo_video", ceoVideo, { shouldDirty: false })
+      if (testimonialVideo) setValue("video_testimonial", testimonialVideo, { shouldDirty: false })
+
+      const teamPhotos =
+        teamPhotosSettled.length > 0
+          ? teamPhotosSettled
+              .filter((r): r is PromiseFulfilledResult<File> => r.status === "fulfilled")
+              .map((r) => r.value)
+          : []
+      setValue("team_photos", teamPhotos, { shouldDirty: false })
+    })()
+      .catch((e) => {
+        // Non-blocking: even if files fail, the rest of the form stays hydrated.
+        console.error("Failed to hydrate branding files:", e)
+      })
+      .finally(() => {
+        setFilesLoading(false)
+      })
+
+    return () => {
+      cancelled = true
     }
-  }, [brandingInfoData])
+  }, [brandingInfoData, form, setValue])
 
   const onSubmit = async (values: BrandingContentFormValues) => {
     console.log("🚀 ~ onSubmit ~ values:", values)
@@ -169,8 +182,8 @@ function BrandingContentForm() {
       const team_photos: File[] = values.team_photos || []
       let teamPhotoUrls: string[] = []
       if (team_photos && team_photos.length > 0) {
-        const uploadPromises = team_photos.map((f) =>
-          uploadFileToStorage(f, "team-photo", user?.id ?? "")
+        const uploadPromises = team_photos.map((f, i) =>
+          uploadFileToStorage(f, "team-photo-" + i, user?.id ?? "")
         )
         teamPhotoUrls = await Promise.all(uploadPromises)
       }
@@ -181,6 +194,7 @@ function BrandingContentForm() {
         ceoVideoUrl = await uploadFileToStorage(ceo_video, "ceo-video", user?.id ?? "")
       }
       // TESTIMONIALS -> videos/testimonials
+
       const videoTestimonial = values.video_testimonial || null
       let videoTestimonialUrl = null
       if (videoTestimonial) {
@@ -417,14 +431,64 @@ function BrandingContentForm() {
                         <FormItem>
                           <FormLabel>Company Logo</FormLabel>
                           <FormControl>
-                            <BrandAssetUploader
+                            {/* <BrandAssetUploader
                               label=""
                               field={field?.name}
                               multiple={false}
                               value={field.value as File}
                               onChange={field.onChange}
                               maxFiles={1}
-                            />
+                            /> */}
+                            <FileUpload
+                              maxFiles={1}
+                              maxSize={5 * 1024 * 1024}
+                              className="w-full"
+                              value={
+                                field.value
+                                  ? [...(Array.isArray(field.value) ? field.value : [field.value])]
+                                  : []
+                              }
+                              
+                              defaultValue={
+                                field.value
+                                  ? [...(Array.isArray(field.value) ? field.value : [field.value])]
+                                  : []
+                              }
+                              onValueChange={(files: File[]) => {
+                                field.onChange(files.length > 0 ? files[0] : null)
+                              }}
+                              accept="image/*"
+                              onFileReject={onFileReject}
+                              multiple={false}
+                              disabled={filesLoading}
+                            >
+                              <FileUploadDropzone>
+                                <DropzoneChildren isDefaultFilesLoading={filesLoading} />
+                              </FileUploadDropzone>
+                              <FileUploadList className="">
+                                {field.value
+                                  ? [
+                                      ...(Array.isArray(field.value) ? field.value : [field.value]),
+                                    ].map(
+                                      (file: File, index: number): React.ReactNode => (
+                                        <FileUploadItem key={index} value={file}>
+                                          <FileUploadItemPreview />
+                                          <FileUploadItemMetadata />
+
+                                          <FileUploadItemDelete
+                                            asChild
+                                            className="absolute top-2 right-2"
+                                          >
+                                            <Button variant="ghost" size="icon" className="size-7">
+                                              <X />
+                                            </Button>
+                                          </FileUploadItemDelete>
+                                        </FileUploadItem>
+                                      )
+                                    )
+                                  : null}
+                              </FileUploadList>
+                            </FileUpload>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -442,14 +506,42 @@ function BrandingContentForm() {
                               <p className="text-sm text-muted-foreground">
                                 Portrait photos in corporate attire (max 6)
                               </p>
-                              <BrandAssetUploader
-                                label=""
-                                field={field.name}
-                                multiple={true}
-                                value={field.value}
-                                onChange={field.onChange}
+                              <FileUpload
                                 maxFiles={6}
-                              />
+                                maxSize={8 * 1024 * 1024}
+                                className="w-full"
+                                value={field.value || []}
+                                defaultValue={field.value || []}
+                                onValueChange={(files: File[]) => {
+                                  field.onChange(files.length > 0 ? files : null)
+                                }}
+                                accept="image/*"
+                                onFileReject={onFileReject}
+                                multiple={true}
+                                disabled={filesLoading}
+                              >
+                                <FileUploadDropzone>
+                                  <DropzoneChildren maxFiles={6} isDefaultFilesLoading={filesLoading} />
+                                </FileUploadDropzone>
+                                <FileUploadList className="">
+                                  {(field.value || []).map(
+                                    (file: File, index: number): React.ReactNode => (
+                                      <FileUploadItem key={index} value={file}>
+                                        <FileUploadItemPreview />
+                                        <FileUploadItemMetadata />
+                                        <FileUploadItemDelete
+                                          asChild
+                                          className="absolute top-2 right-2"
+                                        >
+                                          <Button variant="ghost" size="icon" className="size-7">
+                                            <X />
+                                          </Button>
+                                        </FileUploadItemDelete>
+                                      </FileUploadItem>
+                                    )
+                                  )}
+                                </FileUploadList>
+                              </FileUpload>
                             </div>
                           </FormControl>
                           <FormMessage />
@@ -520,12 +612,58 @@ function BrandingContentForm() {
                       <FormItem>
                         <FormLabel>CEO Introductory Video</FormLabel>
                         <FormControl>
-                          <VideoUpload
-                            label=""
-                            value={field.value}
-                            onChange={field.onChange}
-                            required={true}
-                          />
+                          <FileUpload
+                            maxFiles={1}
+                            maxSize={100 * 1024 * 1024}
+                            className="w-full"
+                            value={
+                              field.value
+                                ? [...(Array.isArray(field.value) ? field.value : [field.value])]
+                                : []
+                            }
+                            defaultValue={
+                              field.value
+                                ? [...(Array.isArray(field.value) ? field.value : [field.value])]
+                                : []
+                            }
+                            onValueChange={(files: File[]) => {
+                              field.onChange(files.length > 0 ? files[0] : null)
+                            }}
+                            accept="video/*"
+                            onFileReject={onFileReject}
+                            multiple={false}
+                            disabled={filesLoading}
+                          >
+                            <FileUploadDropzone>
+                              <DropzoneChildren
+                                isDefaultFilesLoading={filesLoading}
+                                icon="video"
+                                acceptLabel="MP4, MOV, WebM or AVI (max 100MB)"
+                              />
+                            </FileUploadDropzone>
+                            <FileUploadList className="">
+                              {field.value
+                                ? [
+                                    ...(Array.isArray(field.value) ? field.value : [field.value]),
+                                  ].map(
+                                    (file: File, index: number): React.ReactNode => (
+                                      <FileUploadItem key={index} value={file}>
+                                        <FileUploadItemPreview />
+                                        <FileUploadItemMetadata />
+                                        <FileUploadItemDelete
+                                          asChild
+                                          className="absolute top-2 right-2"
+                                        >
+                                          <Button variant="ghost" size="icon" className="size-7">
+                                            <X />
+                                          </Button>
+                                        </FileUploadItemDelete>
+                                      </FileUploadItem>
+                                    )
+                                  )
+                                : null}
+                            </FileUploadList>
+                          </FileUpload>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -650,12 +788,58 @@ function BrandingContentForm() {
                       <FormItem>
                         <FormLabel>Video Testimonials</FormLabel>
                         <FormControl>
-                          <VideoUpload
-                            label=""
-                            value={field.value}
-                            onChange={field.onChange}
-                            required={true}
-                          />
+                          <FileUpload
+                            maxFiles={1}
+                            maxSize={100 * 1024 * 1024}
+                            className="w-full"
+                            value={
+                              field.value
+                                ? [...(Array.isArray(field.value) ? field.value : [field.value])]
+                                : []
+                            }
+                            defaultValue={
+                              field.value
+                                ? [...(Array.isArray(field.value) ? field.value : [field.value])]
+                                : []
+                            }
+                            onValueChange={(files) => {
+                              field.onChange(files.length > 0 ? files[0] : null)
+                            }}
+                            accept="video/*"
+                            onFileReject={onFileReject}
+                            multiple={false}
+                            disabled={filesLoading}
+                          >
+                            <FileUploadDropzone>
+                              <DropzoneChildren
+                                isDefaultFilesLoading={filesLoading}
+                                icon="video"
+                                acceptLabel="MP4, MOV, WebM or AVI (max 100MB)"
+                              />
+                            </FileUploadDropzone>
+                            <FileUploadList className="">
+                              {field.value
+                                ? [
+                                    ...(Array.isArray(field.value) ? field.value : [field.value]),
+                                  ].map(
+                                    (file: File, index: number): React.ReactNode => (
+                                      <FileUploadItem key={index} value={file}>
+                                        <FileUploadItemPreview />
+                                        <FileUploadItemMetadata />
+                                        <FileUploadItemDelete
+                                          asChild
+                                          className="absolute top-2 right-2"
+                                        >
+                                          <Button variant="ghost" size="icon" className="size-7">
+                                            <X />
+                                          </Button>
+                                        </FileUploadItemDelete>
+                                      </FileUploadItem>
+                                    )
+                                  )
+                                : null}
+                            </FileUploadList>
+                          </FileUpload>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
