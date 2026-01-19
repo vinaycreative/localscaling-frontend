@@ -1,6 +1,6 @@
 "use client"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Badge, BadgeTypes } from "@/components/ui/badge"
+import { PriorityBadge, StatusBadge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -8,10 +8,18 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { MoreHorizontal, Paperclip, Layers2, MessagesSquare } from "lucide-react"
+import {
+  MoreHorizontal,
+  Paperclip,
+  Layers2,
+  MessagesSquare,
+  CheckCircle,
+  XCircle,
+} from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { TicketDetailsModal } from "./view-details"
+import { useState } from "react"
 import { AssignedTo, CreatedBy, CreateTicketPayload, Ticket } from "@/types/support"
 import { DataTable } from "@/components/data-table/data-table"
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar"
@@ -21,10 +29,9 @@ import { DataTableColumnHeader } from "@/components/data-table/data-table-column
 import { ColumnDef } from "@tanstack/react-table"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { useCreateTicket, useGetTickets } from "@/hooks/useTickets"
+import { CATEGORIES, CATEGORIES_TYPE, PRIORITIES, PRIORITIES_TYPE, STATUS, STATUS_TYPE } from "@/constants/select-options"
 import { formatDate } from "@/lib/format"
-import { CATEGORIES, PRIORITIES } from "@/constants/select-options"
-import { STATUS } from "@/constants/select-options"
-import { useState } from "react"
+
 import { useGetAssignees } from "@/hooks/useAssignees"
 import { AuthUser } from "@/lib/auth/schema"
 
@@ -120,7 +127,7 @@ export const getColumns = ({
     accessorKey: "category",
     header: ({ column }) => <DataTableColumnHeader column={column} label="Category" />,
     cell: ({ getValue }) => (
-      <span className="text-xs text-muted-foreground">{getValue<string>()}</span>
+      <span className="text-xs text-muted-foreground">{getValue<CATEGORIES_TYPE>()}</span>
     ),
     enableSorting: true,
     size: 140,
@@ -136,9 +143,7 @@ export const getColumns = ({
     accessorKey: "priority",
     header: ({ column }) => <DataTableColumnHeader column={column} label="Priority" />,
     cell: ({ getValue }) => (
-      <Badge className="capitalize" variant={getValue<string>() as BadgeTypes}>
-        {getValue<string>()}
-      </Badge>
+      <PriorityBadge priority={getValue<PRIORITIES_TYPE>() as PRIORITIES_TYPE} />
     ),
     enableSorting: true,
     size: 110,
@@ -153,11 +158,7 @@ export const getColumns = ({
     id: "status",
     accessorKey: "status",
     header: ({ column }) => <DataTableColumnHeader column={column} label="Status" />,
-    cell: ({ getValue }) => (
-      <Badge className="capitalize" variant={getValue<string>() as BadgeTypes}>
-        {getValue<string>()}
-      </Badge>
-    ),
+    cell: ({ getValue }) => <StatusBadge status={getValue<STATUS_TYPE>() as STATUS_TYPE} />,
     enableSorting: true,
     size: 120,
     meta: {
@@ -290,8 +291,6 @@ export function TicketsTable() {
     },
   })
 
-  // console.log("buildFilterQueryParams", String(buildFilterQueryParams(parsedFilters(table))))
-
   return (
     <>
       <div className="overflow-hidden rounded-lg border bg-card w-full">
@@ -299,10 +298,6 @@ export function TicketsTable() {
           <DataTable table={table} isLoading={isLoading}>
             <DataTableToolbar table={table}></DataTableToolbar>
           </DataTable>
-          {/* <DataTableAdvancedToolbar table={table}>
-            <DataTableFilterList table={table} />
-            <DataTableSortList table={table} />
-          </DataTableAdvancedToolbar> */}
         </div>
       </div>
 
@@ -351,7 +346,7 @@ function RowMenu({ row, setOpen, setCurrentDetails }: RowMenuProps) {
 
       <DropdownMenuContent align="end" className="w-[180px]">
         <DropdownMenuItem onClick={handleViewDetails} className="text-xs">
-          <Layers2 className="mr-1 h-4 w-4" /> Edit & View details
+          <Layers2 className="mr-2 h-4 w-4" /> Edit & View details
         </DropdownMenuItem>
 
         <DropdownMenuItem onClick={handleChatClick} className="text-xs">
