@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/form"
 import { Ticket, UpdateTicketPayload } from "@/types/support"
 import Image from "next/image"
+import { PRIORITIES, PRIORITIES_TYPE, STATUS, STATUS_TYPE } from "@/constants/select-options"
 
 export type TicketDetailsModalProps = {
   open: boolean
@@ -49,6 +50,8 @@ export type TicketDetailsModalProps = {
 const Schema = z.object({
   description: z.string().optional(),
   assigned_to: z.string().min(1, "Please select assignee"),
+  status: z.string().min(1, "Please select status"),
+  priority: z.string().min(1, "Please select priority"),
 })
 
 // ---------- Component ----------
@@ -61,12 +64,22 @@ export function TicketDetailsModal({
 }: TicketDetailsModalProps) {
   const form = useForm<z.infer<typeof Schema>>({
     resolver: zodResolver(Schema),
-    defaultValues: { description: ticket.description, assigned_to: ticket.assigned_to?.id },
+    defaultValues: {
+      description: ticket.description,
+      assigned_to: ticket.assigned_to?.id,
+      status: ticket.status,
+      priority: ticket.priority,
+    },
   })
 
   // keep form in sync when ticket prop changes
   useEffect(() => {
-    form.reset({ description: ticket.description, assigned_to: ticket.assigned_to?.id })
+    form.reset({
+      description: ticket.description ?? "",
+      assigned_to: ticket.assigned_to?.id ?? "",
+      status: ticket.status ?? "",
+      priority: ticket.priority ?? "",
+    })
   }, [ticket, form])
 
   const handleSubmit = async (values: z.infer<typeof Schema>) => {
@@ -75,17 +88,8 @@ export function TicketDetailsModal({
       ...ticket,
       assigned_to: values?.assigned_to,
       created_by: ticket?.created_by?.id,
-      // created_at: ticket.created_at,
-      // updated_at: ticket.updated_at,
-      // attachments: ticket.attachments,
-      // files: ticket.files,
-      // category: ticket.category,
-      // priority: ticket.priority,
-      // status: ticket.status,
-      // subject: ticket.subject,
-      // title: ticket.title,
-      // description: values?.description ?? "",
-      // id: ticket.id,
+      status: values?.status as STATUS_TYPE,
+      priority: values?.priority as PRIORITIES_TYPE,
     }
     await onSubmit(updated)
     onOpenChange(false)
@@ -164,30 +168,85 @@ export function TicketDetailsModal({
                     )}
                   /> */}
 
-                  <FormField
-                    control={form.control}
-                    name="assigned_to"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs">Assigned to</FormLabel>
-                        <FormControl>
-                          <Select value={field.value} onValueChange={field.onChange}>
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Select assignee" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {assignees?.map((a) => (
-                                <SelectItem key={a.label} value={a.value}>
-                                  {a.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <FormField
+                      control={form.control}
+                      name="assigned_to"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs">Assigned to</FormLabel>
+                          <FormControl>
+                            <Select value={field.value} onValueChange={field.onChange}>
+                              <SelectTrigger className="w-full max-w-full truncate ">
+                                <SelectValue
+                                  placeholder="Select assignee"
+                                  className="max-w-[100px] "
+                                />
+                              </SelectTrigger>
+                              <SelectContent className="w-full">
+                                {assignees?.map((a) => (
+                                  <SelectItem key={a.label} value={a.value}>
+                                    {a.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="status"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs">Status</FormLabel>
+                          <FormControl>
+                            <Select value={field.value} onValueChange={field.onChange}>
+                              <SelectTrigger className="w-full max-w-full truncate ">
+                                <SelectValue placeholder="Select Status" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {STATUS?.map((a) => (
+                                  <SelectItem key={a.label} value={a.value}>
+                                    {a.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="priority"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs">Priority</FormLabel>
+                          <FormControl>
+                            <Select value={field.value} onValueChange={field.onChange}>
+                              <SelectTrigger className="w-full max-w-full truncate ">
+                                <SelectValue placeholder="Select Priority" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {PRIORITIES?.map((a) => (
+                                  <SelectItem key={a.label} value={a.value}>
+                                    {a.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
                   <div className="space-y-2">
                     <FormLabel className="text-xs">Attachments</FormLabel>
