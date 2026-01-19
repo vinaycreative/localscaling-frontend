@@ -20,7 +20,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { TicketDetailsModal } from "./view-details"
 import { useState } from "react"
-import { AssignedTo, CreatedBy, CreateTicketPayload, Ticket } from "@/types/support"
+import { AssignedTo, CreatedBy, Ticket, UpdateTicketPayload } from "@/types/support"
 import { DataTable } from "@/components/data-table/data-table"
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar"
 import { parseAsArrayOf, parseAsInteger, parseAsString, useQueryState } from "nuqs"
@@ -28,8 +28,15 @@ import { useDataTable } from "@/hooks/use-data-table"
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
 import { ColumnDef } from "@tanstack/react-table"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { useCreateTicket, useGetTickets } from "@/hooks/useTickets"
-import { CATEGORIES, CATEGORIES_TYPE, PRIORITIES, PRIORITIES_TYPE, STATUS, STATUS_TYPE } from "@/constants/select-options"
+import { useGetTickets, useUpdateTicket } from "@/hooks/useTickets"
+import {
+  CATEGORIES,
+  CATEGORIES_TYPE,
+  PRIORITIES,
+  PRIORITIES_TYPE,
+  STATUS,
+  STATUS_TYPE,
+} from "@/constants/select-options"
 import { formatDate } from "@/lib/format"
 
 import { useGetAssignees } from "@/hooks/useAssignees"
@@ -265,13 +272,15 @@ export function TicketsTable() {
       created_at,
     },
   })
-  const { createTicket } = useCreateTicket()
+  // const { createTicket } = useCreateTicket()
+  const { updateTicket } = useUpdateTicket()
   const [openTicket, setOpenTicket] = useState(false) // to open the view details modal
   const [currentDetails, setCurrentDetails] = useState<Ticket | null>(null)
 
-  const handleSubmit = async (values: CreateTicketPayload) => {
+  const handleSubmit = async (values: UpdateTicketPayload) => {
+
     try {
-      await createTicket(values)
+      await updateTicket(values)
     } catch (error) {
       console.log("🚀 ~ handleSubmit ~ error:", error)
     }

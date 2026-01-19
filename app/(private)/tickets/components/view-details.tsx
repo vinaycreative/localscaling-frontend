@@ -34,7 +34,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import { Ticket } from "@/types/support"
+import { Ticket, UpdateTicketPayload } from "@/types/support"
 import Image from "next/image"
 
 export type TicketDetailsModalProps = {
@@ -42,13 +42,13 @@ export type TicketDetailsModalProps = {
   onOpenChange: (open: boolean) => void
   ticket: Ticket
   assignees?: { value: string; label: string }[]
-  onSubmit: (updated: Ticket) => Promise<void> | void
+  onSubmit: (updated: UpdateTicketPayload) => Promise<void> | void
 }
 
 // ---------- Form Schema ----------
 const Schema = z.object({
   description: z.string().optional(),
-  assigneeId: z.string().min(1, "Please select assignee"),
+  assigned_to: z.string().min(1, "Please select assignee"),
 })
 
 // ---------- Component ----------
@@ -61,18 +61,31 @@ export function TicketDetailsModal({
 }: TicketDetailsModalProps) {
   const form = useForm<z.infer<typeof Schema>>({
     resolver: zodResolver(Schema),
-    defaultValues: { description: ticket.description },
+    defaultValues: { description: ticket.description, assigned_to: ticket.assigned_to?.id },
   })
 
   // keep form in sync when ticket prop changes
   useEffect(() => {
-    form.reset({ description: ticket.description })
+    form.reset({ description: ticket.description, assigned_to: ticket.assigned_to?.id })
   }, [ticket, form])
 
   const handleSubmit = async (values: z.infer<typeof Schema>) => {
-    const updated: Ticket = {
+    console.log("🚀 ~ handleSubmit ~ values: INNSSIIEEDDEE", values)
+    const updated: UpdateTicketPayload = {
       ...ticket,
-      description: values.description ?? "",
+      assigned_to: values?.assigned_to,
+      created_by: ticket?.created_by?.id,
+      // created_at: ticket.created_at,
+      // updated_at: ticket.updated_at,
+      // attachments: ticket.attachments,
+      // files: ticket.files,
+      // category: ticket.category,
+      // priority: ticket.priority,
+      // status: ticket.status,
+      // subject: ticket.subject,
+      // title: ticket.title,
+      // description: values?.description ?? "",
+      // id: ticket.id,
     }
     await onSubmit(updated)
     onOpenChange(false)
@@ -153,7 +166,7 @@ export function TicketDetailsModal({
 
                   <FormField
                     control={form.control}
-                    name="assigneeId"
+                    name="assigned_to"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-xs">Assigned to</FormLabel>
