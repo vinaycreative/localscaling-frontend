@@ -6,12 +6,7 @@ import type {
   OptionProps,
 } from "react-select";
 import { components } from "react-select";
-import {
-  CaretSortIcon,
-  CheckIcon,
-  Cross2Icon as CloseIcon,
-} from "@radix-ui/react-icons";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, X, Check } from "lucide-react";
 
 export const DropdownIndicator = (props: DropdownIndicatorProps) => {
   return (
@@ -24,7 +19,7 @@ export const DropdownIndicator = (props: DropdownIndicatorProps) => {
 export const ClearIndicator = (props: ClearIndicatorProps) => {
   return (
     <components.ClearIndicator {...props}>
-      <CloseIcon className={"h-3.5 w-3.5 opacity-50"} />
+      <X className={"h-3.5 w-3.5 opacity-50"} />
     </components.ClearIndicator>
   );
 };
@@ -32,7 +27,7 @@ export const ClearIndicator = (props: ClearIndicatorProps) => {
 export const MultiValueRemove = (props: MultiValueRemoveProps) => {
   return (
     <components.MultiValueRemove {...props}>
-      <CloseIcon className={"h-3 w-3 opacity-50"} />
+      <X className={"h-3 w-3 opacity-50"} />
     </components.MultiValueRemove>
   );
 };
@@ -43,7 +38,7 @@ export const Option = (props: OptionProps) => {
       <div className="flex items-center justify-between">
         {/* TODO: Figure out the type */}
         <div>{(props.data as { label: string }).label}</div>
-        {props.isSelected && <CheckIcon />}
+        {props.isSelected && <Check className="h-4 w-4" />}
       </div>
     </components.Option>
   );
