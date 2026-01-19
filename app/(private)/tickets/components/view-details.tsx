@@ -103,7 +103,7 @@ export function TicketDetailsModal({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[700px] p-0">
+        <DialogContent className="sm:max-w-[60dvw] p-0">
           <DialogHeader className="px-6 pt-6">
             <DialogDescription className="text-md text-accent-foreground">
               View and edit ticket
@@ -199,7 +199,10 @@ export function TicketDetailsModal({
                               options={assignees?.map((a) => ({ label: a.label, value: a.value }))}
                               onChange={(newValue) => {
                                 const selectedOption = newValue as OptionObj | null
-                                console.log("🚀 ~ TicketDetailsModal ~ selectedOption:", selectedOption)
+                                console.log(
+                                  "🚀 ~ TicketDetailsModal ~ selectedOption:",
+                                  selectedOption
+                                )
                                 field.onChange(selectedOption?.value)
                               }}
                             />
@@ -299,7 +302,14 @@ export function TicketDetailsModal({
               <DialogFooter className="p-6 pb-6 pt-3">
                 <div className="flex justify-end">
                   <Button disabled={isLoading} type="submit" className="w-full sm:w-auto">
-                    {isLoading ? <Loader2 className="w-4 h-4 mr-2" /> : "Done"}
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2" />
+                        <span className="text-xs">Updating...</span>
+                      </>
+                    ) : (
+                      "Update Ticket"
+                    )}
                   </Button>
                 </div>
               </DialogFooter>
