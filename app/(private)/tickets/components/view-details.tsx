@@ -37,6 +37,8 @@ import {
 import { Ticket, UpdateTicketPayload } from "@/types/support"
 import Image from "next/image"
 import { PRIORITIES, PRIORITIES_TYPE, STATUS, STATUS_TYPE } from "@/constants/select-options"
+import { SimpleSelect } from "@/components/ui/react-select"
+import { OptionObj } from "@/components/ui/react-select/types"
 
 export type TicketDetailsModalProps = {
   open: boolean
@@ -176,7 +178,29 @@ export function TicketDetailsModal({
                         <FormItem>
                           <FormLabel className="text-xs">Assigned to</FormLabel>
                           <FormControl>
-                            <Select value={field.value} onValueChange={field.onChange}>
+                            <SimpleSelect
+                              value={
+                                field.value
+                                  ? {
+                                      label:
+                                        assignees?.find((a) => a.value === field.value)?.label ??
+                                        "",
+                                      value: field.value,
+                                    }
+                                  : null
+                              }
+                              className={"!w-full"}
+                              isMulti={false}
+                              isClearable={false}
+                              placeholder="Select Assignee."
+                              options={assignees?.map((a) => ({ label: a.label, value: a.value }))}
+                              onChange={(newValue) => {
+                                const selectedOption = newValue as OptionObj | null
+                                console.log("🚀 ~ TicketDetailsModal ~ selectedOption:", selectedOption)
+                                field.onChange(selectedOption?.value)
+                              }}
+                            />
+                            {/* <Select value={field.value} onValueChange={field.onChange}>
                               <SelectTrigger className="w-full max-w-full truncate ">
                                 <SelectValue
                                   placeholder="Select assignee"
@@ -190,7 +214,7 @@ export function TicketDetailsModal({
                                   </SelectItem>
                                 ))}
                               </SelectContent>
-                            </Select>
+                            </Select> */}
                           </FormControl>
                           <FormMessage />
                         </FormItem>
