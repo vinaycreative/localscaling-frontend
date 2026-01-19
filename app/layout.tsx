@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     images: ["/assets/landing.png"],
   },
   icons: {
-    icon: "/favicon.ico",
+    icon: "/logo-icon.svg",
   },
 }
 
