@@ -1,6 +1,6 @@
 "use client"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Badge, } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -279,7 +279,7 @@ export function TicketsTable() {
     },
   })
   // const { createTicket } = useCreateTicket()
-  const { updateTicket } = useUpdateTicket()
+  const { updateTicket, isPending: isUpdatingTicket } = useUpdateTicket()
   const [openTicket, setOpenTicket] = useState(false) // to open the view details modal
   const [currentDetails, setCurrentDetails] = useState<Ticket | null>(null)
 
@@ -309,7 +309,7 @@ export function TicketsTable() {
     <>
       <div className="overflow-hidden rounded-lg border bg-card w-full">
         <div className="data-table-container p-2">
-          <DataTable table={table} isLoading={isLoading}>
+          <DataTable table={table} isLoading={isLoading || isUpdatingTicket}>
             <DataTableToolbar table={table}></DataTableToolbar>
           </DataTable>
         </div>
@@ -325,6 +325,7 @@ export function TicketsTable() {
             value: asigne?.id,
           }))}
           onSubmit={handleSubmit}
+          isLoading={isUpdatingTicket}
         />
       )}
     </>

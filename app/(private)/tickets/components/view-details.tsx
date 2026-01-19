@@ -39,8 +39,10 @@ import Image from "next/image"
 import { PRIORITIES, PRIORITIES_TYPE, STATUS, STATUS_TYPE } from "@/constants/select-options"
 import { SimpleSelect } from "@/components/ui/react-select"
 import { OptionObj } from "@/components/ui/react-select/types"
+import { Loader2 } from "lucide-react"
 
 export type TicketDetailsModalProps = {
+  isLoading: boolean
   open: boolean
   onOpenChange: (open: boolean) => void
   ticket: Ticket
@@ -63,6 +65,7 @@ export function TicketDetailsModal({
   ticket,
   assignees,
   onSubmit,
+  isLoading,
 }: TicketDetailsModalProps) {
   const form = useForm<z.infer<typeof Schema>>({
     resolver: zodResolver(Schema),
@@ -295,8 +298,8 @@ export function TicketDetailsModal({
 
               <DialogFooter className="p-6 pb-6 pt-3">
                 <div className="flex justify-end">
-                  <Button type="submit" className="w-full sm:w-auto">
-                    Done
+                  <Button disabled={isLoading} type="submit" className="w-full sm:w-auto">
+                    {isLoading ? <Loader2 className="w-4 h-4 mr-2" /> : "Done"}
                   </Button>
                 </div>
               </DialogFooter>
