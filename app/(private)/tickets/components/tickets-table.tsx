@@ -1,6 +1,6 @@
 "use client"
 import { Checkbox } from "@/components/ui/checkbox"
-import { PriorityBadge, StatusBadge } from "@/components/ui/badge"
+import { Badge, } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -150,7 +150,9 @@ export const getColumns = ({
     accessorKey: "priority",
     header: ({ column }) => <DataTableColumnHeader column={column} label="Priority" />,
     cell: ({ getValue }) => (
-      <PriorityBadge priority={getValue<PRIORITIES_TYPE>() as PRIORITIES_TYPE} />
+      <Badge variant={getValue<PRIORITIES_TYPE>() as PRIORITIES_TYPE} className="capitalize">
+        {getValue<PRIORITIES_TYPE>().replaceAll("_", " ")}
+      </Badge>
     ),
     enableSorting: true,
     size: 110,
@@ -165,7 +167,11 @@ export const getColumns = ({
     id: "status",
     accessorKey: "status",
     header: ({ column }) => <DataTableColumnHeader column={column} label="Status" />,
-    cell: ({ getValue }) => <StatusBadge status={getValue<STATUS_TYPE>() as STATUS_TYPE} />,
+    cell: ({ getValue }) => (
+      <Badge variant={getValue<STATUS_TYPE>() as STATUS_TYPE} className="capitalize">
+        {getValue<STATUS_TYPE>().replaceAll("_", " ")}
+      </Badge>
+    ),
     enableSorting: true,
     size: 120,
     meta: {
@@ -278,7 +284,6 @@ export function TicketsTable() {
   const [currentDetails, setCurrentDetails] = useState<Ticket | null>(null)
 
   const handleSubmit = async (values: UpdateTicketPayload) => {
-
     try {
       await updateTicket(values)
     } catch (error) {
