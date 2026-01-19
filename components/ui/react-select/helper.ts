@@ -16,7 +16,7 @@ const indicatorsContainerStyles = "gap-1"
 const clearIndicatorStyles = "p-1 rounded-md"
 const indicatorSeparatorStyles = "bg-transparent"
 const dropdownIndicatorStyles = "p-1 rounded-md"
-const menuStyles = "mt-1 border bg-popover text-popover-foreground shadow-md rounded-md overflow-hidden"
+const menuStyles = "mt-1 border bg-popover text-popover-foreground shadow-md rounded-md overflow-hidden text-sm"
 const groupHeadingStyles = "text-muted-foreground px-2 py-1.5 text-xs"
 const optionStyles = {
   base: "relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm outline-hidden select-none",
