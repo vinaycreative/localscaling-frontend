@@ -89,7 +89,7 @@ export function TicketDetailsModal({
         <DialogContent className="sm:max-w-[60dvw] p-0">
           <DialogHeader className="px-6 pt-6">
             <DialogDescription className="text-md text-accent-foreground">
-              View and edit ticket
+              View Ticket Details
             </DialogDescription>
             <div className="text-sm font-medium text-muted-foreground">
               {ticket?.created_by?.first_name} {ticket?.created_by?.last_name}
@@ -110,13 +110,9 @@ export function TicketDetailsModal({
                   <div className="">
                     {/* Top facts row */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-xs">
-                      {/* <div>
-                        <div className="text-muted-foreground mb-1">Client</div>
-                        <div className="font-medium">{ticket.created_by?.first_name}</div>
-                      </div> */}
                       <div>
                         <div className="text-muted-foreground mb-1">Category</div>
-                        <Badge variant="outline" className="text-[11px]">
+                        <Badge variant="outline" className="">
                           {ticket.category}
                         </Badge>
                       </div>
@@ -132,34 +128,15 @@ export function TicketDetailsModal({
                           {ticket?.priority.replaceAll("_", " ")}
                         </Badge>
                       </div>
+                      <div>
+                        <div className="text-muted-foreground mb-1">Assigned to</div>
+                        <Badge variant="outline" className="">{ticket.assigned_to?.first_name ?? "N/A"}</Badge>
+                      </div>
                     </div>
                   </div>
                   <div>
                     <div className="text-sm leading-none font-medium mb-1.5">Description</div>
                     <p className="text-foreground text-xs">{ticket.description}</p>
-                  </div>
-                  {/* <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs">Description</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            className="min-h-[110px] resize-y"
-                            placeholder="Info about the project"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  /> */}
-                  <div>
-                    <div className="text-sm leading-none font-medium mb-1.5">Assigned to</div>
-                    <p className="text-foreground text-xs">
-                      {ticket.assigned_to?.first_name} {ticket.assigned_to?.last_name}
-                    </p>
                   </div>
 
                   <div className="space-y-2">
