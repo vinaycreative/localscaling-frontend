@@ -34,8 +34,9 @@ import {
   AlertDialogTitle,
   AlertDialogDescription,
 } from "@/components/ui/alert-dialog"
-import { Info, Trash2, CloudUpload } from "lucide-react"
+import { Info, Trash2 } from "lucide-react"
 import {
+  DropzoneChildren,
   FileUpload,
   FileUploadDropzone,
   FileUploadItem,
@@ -126,20 +127,29 @@ export function CreateTicketModal({
 
   const onFileValidate = React.useCallback(
     (file: File): string | null => {
-      // Validate max files
-      if (files.length >= 2) {
-        return "You can only upload up to 2 files"
+      // Max number of files
+      if (files.length >= 4) {
+        return "You can only upload up to 4 files"
       }
 
-      // Validate file type (only images)
-      if (!file.type.startsWith("image/")) {
-        return "Only image files are allowed"
+      const isImage = file.type.startsWith("image/")
+      const isVideo = file.type.startsWith("video/")
+
+      // Allow only image or video
+      if (!isImage && !isVideo) {
+        return "Only image or video files are allowed"
       }
 
-      // Validate file size (max 2MB)
-      const MAX_SIZE = 2 * 1024 * 1024 // 2MB
-      if (file.size > MAX_SIZE) {
-        return `File size must be less than ${MAX_SIZE / (1024 * 1024)}MB`
+      // Size limits
+      const MAX_IMAGE_SIZE = 2 * 1024 * 1024 // 2MB
+      const MAX_VIDEO_SIZE = 20 * 1024 * 1024 // 20MB
+
+      if (isImage && file.size > MAX_IMAGE_SIZE) {
+        return "Image size must be less than 2MB"
+      }
+
+      if (isVideo && file.size > MAX_VIDEO_SIZE) {
+        return "Video size must be less than 10MB"
       }
 
       return null
@@ -215,7 +225,7 @@ export function CreateTicketModal({
       >
         <div className={cn(open && "px-6 py-6 space-y-5")}>
           <DialogContent
-            className="sm:max-w-[590px] p-0 gap-0 border border-gray-500"
+            className="sm:max-w-[60dvw] p-0 gap-0 border border-gray-500"
             onEscapeKeyDown={(e) => e.preventDefault()}
             onInteractOutside={(e) => e.preventDefault()}
           >
@@ -344,34 +354,23 @@ export function CreateTicketModal({
                         onUpload={onUpload}
                       >
                         <FileUploadDropzone>
-                          <div className="flex flex-col items-center gap-2">
-                            <div className="flex items-center justify-center rounded-sm border p-2.5">
-                              <CloudUpload />
-                            </div>
-                            <p className="font-medium text-sm text-primary">
-                              Click to Upload
-                              <span className="text-muted-foreground font-normal">
-                                {" "}
-                                or drag & drop
-                              </span>
-                            </p>
-                            <p className="text-muted-foreground text-xs ">
-                              SVG, PNG, JPG or GIF (max. 800x400px)
-                            </p>
-                          </div>
+                          <DropzoneChildren
+                            maxFiles={4}
+                            acceptLabel="Image (max. 2mb) , Video (max. 20mb)"
+                          />
                         </FileUploadDropzone>
-                        <FileUploadList>
+                        <FileUploadList className="sm:grid-cols-1 lg:grid-cols-2 gap-4">
                           {files.map((file) => {
                             return (
-                              <FileUploadItem key={file.name} value={file} className="relative">
-                                <div className="w-full">
-                                  <div className="flex gap-2">
-                                    <FileUploadItemPreview />
-                                    <div className="w-full">
-                                      <FileUploadItemMetadata />
-                                      <FileUploadItemProgress />
-                                    </div>
+                              <FileUploadItem key={file.name} value={file} className="relative p-0">
+                                <div className="w-full space-y-1">
+                                  {/* <div className="flex gap-2"> */}
+                                  <FileUploadItemPreview />
+                                  <div className="w-full p-2 md:p-3">
+                                    <FileUploadItemMetadata />
+                                    <FileUploadItemProgress />
                                   </div>
+                                  {/* </div> */}
                                 </div>
 
                                 <FileUploadItemDelete asChild className="absolute top-2 right-2">
