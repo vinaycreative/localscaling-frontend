@@ -16,7 +16,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Badge, PriorityBadge, StatusBadge } from "@/components/ui/badge"
+import { Badge, BadgeTypes } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
 import {
   Select,
@@ -142,11 +142,15 @@ export function TicketDetailsModal({
                       </div>
                       <div>
                         <div className="text-muted-foreground mb-1">Status</div>
-                        <StatusBadge status={ticket.status} />
+                        <Badge className="capitalize" variant={ticket?.status as BadgeTypes}>
+                          {ticket?.status}
+                        </Badge>
                       </div>
                       <div>
                         <div className="text-muted-foreground mb-1">Priority</div>
-                        <PriorityBadge priority={ticket?.priority} />
+                        <Badge className="capitalize" variant={ticket?.priority as BadgeTypes}>
+                          {ticket?.priority}
+                        </Badge>
                       </div>
                     </div>
                   </div>
