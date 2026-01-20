@@ -9,12 +9,14 @@ export type CreatedBy = {
   id: string
   first_name: string
   last_name: string
+  email: string
 }
 
 export type AssignedTo = {
   id: string
   first_name: string
   last_name: string
+  email: string
 }
 
 export type Ticket = {

@@ -1,6 +1,6 @@
 "use client"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Badge, BadgeTypes } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -8,11 +8,19 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { MoreHorizontal, Paperclip, Layers2, MessagesSquare } from "lucide-react"
+import {
+  MoreHorizontal,
+  Paperclip,
+  Layers2,
+  MessagesSquare,
+  CheckCircle,
+  XCircle,
+} from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { TicketDetailsModal } from "./view-details"
-import { AssignedTo, CreatedBy, CreateTicketPayload, Ticket } from "@/types/support"
+import { useState } from "react"
+import { AssignedTo, CreatedBy, Ticket, UpdateTicketPayload } from "@/types/support"
 import { DataTable } from "@/components/data-table/data-table"
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar"
 import { parseAsArrayOf, parseAsInteger, parseAsString, useQueryState } from "nuqs"
@@ -20,11 +28,17 @@ import { useDataTable } from "@/hooks/use-data-table"
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
 import { ColumnDef } from "@tanstack/react-table"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { useCreateTicket, useGetTickets } from "@/hooks/useTickets"
+import { useGetTickets, useUpdateTicket } from "@/hooks/useTickets"
+import {
+  CATEGORIES,
+  CATEGORIES_TYPE,
+  PRIORITIES,
+  PRIORITIES_TYPE,
+  STATUS,
+  STATUS_TYPE,
+} from "@/constants/select-options"
 import { formatDate } from "@/lib/format"
-import { CATEGORIES, PRIORITIES } from "@/constants/select-options"
-import { STATUS } from "@/constants/select-options"
-import { useState } from "react"
+
 import { useGetAssignees } from "@/hooks/useAssignees"
 import { AuthUser } from "@/lib/auth/schema"
 
@@ -120,7 +134,7 @@ export const getColumns = ({
     accessorKey: "category",
     header: ({ column }) => <DataTableColumnHeader column={column} label="Category" />,
     cell: ({ getValue }) => (
-      <span className="text-xs text-muted-foreground">{getValue<string>()}</span>
+      <span className="text-xs text-muted-foreground">{getValue<CATEGORIES_TYPE>()}</span>
     ),
     enableSorting: true,
     size: 140,
@@ -136,8 +150,8 @@ export const getColumns = ({
     accessorKey: "priority",
     header: ({ column }) => <DataTableColumnHeader column={column} label="Priority" />,
     cell: ({ getValue }) => (
-      <Badge className="capitalize" variant={getValue<string>() as BadgeTypes}>
-        {getValue<string>()}
+      <Badge variant={getValue<PRIORITIES_TYPE>() as PRIORITIES_TYPE} className="capitalize">
+        {getValue<PRIORITIES_TYPE>().replaceAll("_", " ")}
       </Badge>
     ),
     enableSorting: true,
@@ -154,8 +168,8 @@ export const getColumns = ({
     accessorKey: "status",
     header: ({ column }) => <DataTableColumnHeader column={column} label="Status" />,
     cell: ({ getValue }) => (
-      <Badge className="capitalize" variant={getValue<string>() as BadgeTypes}>
-        {getValue<string>()}
+      <Badge variant={getValue<STATUS_TYPE>() as STATUS_TYPE} className="capitalize">
+        {getValue<STATUS_TYPE>().replaceAll("_", " ")}
       </Badge>
     ),
     enableSorting: true,
@@ -253,7 +267,12 @@ export function TicketsTable() {
   const [created_at] = useQueryState("created_at", parseAsString.withDefault(""))
 
   const { data: assignees } = useGetAssignees()
-  const { data: ticketsData, isLoading } = useGetTickets({
+  const {
+    data: ticketsData,
+    isLoading,
+    isFetching,
+    isRefetching,
+  } = useGetTickets({
     filters: {
       title: title ?? "",
       page,
@@ -264,13 +283,15 @@ export function TicketsTable() {
       created_at,
     },
   })
-  const { createTicket } = useCreateTicket()
+  // const { createTicket } = useCreateTicket()
+  const { updateTicket, isPending: isUpdatingTicket } = useUpdateTicket()
   const [openTicket, setOpenTicket] = useState(false) // to open the view details modal
   const [currentDetails, setCurrentDetails] = useState<Ticket | null>(null)
+  const isTicketsLoading = isLoading || isFetching || isRefetching || isUpdatingTicket
 
-  const handleSubmit = async (values: CreateTicketPayload) => {
+  const handleSubmit = async (values: UpdateTicketPayload) => {
     try {
-      await createTicket(values)
+      await updateTicket(values)
     } catch (error) {
       console.log("🚀 ~ handleSubmit ~ error:", error)
     }
@@ -290,19 +311,13 @@ export function TicketsTable() {
     },
   })
 
-  // console.log("buildFilterQueryParams", String(buildFilterQueryParams(parsedFilters(table))))
-
   return (
     <>
       <div className="overflow-hidden rounded-lg border bg-card w-full">
         <div className="data-table-container p-2">
-          <DataTable table={table} isLoading={isLoading}>
+          <DataTable table={table} isLoading={isTicketsLoading}>
             <DataTableToolbar table={table}></DataTableToolbar>
           </DataTable>
-          {/* <DataTableAdvancedToolbar table={table}>
-            <DataTableFilterList table={table} />
-            <DataTableSortList table={table} />
-          </DataTableAdvancedToolbar> */}
         </div>
       </div>
 
@@ -316,6 +331,7 @@ export function TicketsTable() {
             value: asigne?.id,
           }))}
           onSubmit={handleSubmit}
+          isLoading={isUpdatingTicket}
         />
       )}
     </>
@@ -349,9 +365,9 @@ function RowMenu({ row, setOpen, setCurrentDetails }: RowMenuProps) {
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-[180px]">
+      <DropdownMenuContent align="end" className="w-[220px]">
         <DropdownMenuItem onClick={handleViewDetails} className="text-xs">
-          <Layers2 className="mr-1 h-4 w-4" /> Edit & View details
+          <Layers2 className="mr-2 h-4 w-4" /> Edit & View details
         </DropdownMenuItem>
 
         <DropdownMenuItem onClick={handleChatClick} className="text-xs">

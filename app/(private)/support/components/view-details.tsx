@@ -16,7 +16,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Badge, PriorityBadge, StatusBadge } from "@/components/ui/badge"
+import { Badge, BadgeTypes } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
 import {
   Select,
@@ -40,6 +40,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Ticket } from "@/types/support"
+import Image from "next/image"
 
 export type TicketDetailsModalProps = {
   open: boolean
@@ -51,8 +52,8 @@ export type TicketDetailsModalProps = {
 
 // ---------- Form Schema ----------
 const Schema = z.object({
-  description: z.string().optional(),
-  assigneeId: z.string().min(1, "Please select assignee"),
+  // description: z.string().optional(),
+  // assigneeId: z.string().min(1, "Please select assignee"),
 })
 
 // ---------- Component ----------
@@ -65,165 +66,92 @@ export function TicketDetailsModal({
 }: TicketDetailsModalProps) {
   const form = useForm<z.infer<typeof Schema>>({
     resolver: zodResolver(Schema),
-    defaultValues: { description: ticket.description },
+    // defaultValues: { description: ticket.description },
   })
 
   // keep form in sync when ticket prop changes
   useEffect(() => {
-    form.reset({ description: ticket.description })
+    // form.reset({ desc  ription: ticket.description })
   }, [ticket, form])
 
   const handleSubmit = async (values: z.infer<typeof Schema>) => {
-    const updated: Ticket = {
-      ...ticket,
-      description: values.description ?? "",
-    }
-    await onSubmit(updated)
+    // const updated: Ticket = {
+    //   ...ticket,
+    //   description: values.description ?? "",
+    // }
+    // await onSubmit(updated)
     onOpenChange(false)
-  }
-
-  const badgeVariant = (value: string) => {
-    switch (value) {
-      case "Open":
-        return "secondary"
-      case "In Progress":
-        return "outline"
-      case "Resolved":
-        return "default"
-      case "Closed":
-        return "destructive"
-      case "High":
-        return "destructive"
-      case "Medium":
-        return "secondary"
-      case "Low":
-      default:
-        return "outline"
-    }
   }
 
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[700px] p-0">
+        <DialogContent className="sm:max-w-[60dvw] p-0">
           <DialogHeader className="px-6 pt-6">
-            <div className="text-xs font-medium text-muted-foreground">
-              {ticket?.created_by?.first_name}
+            <DialogDescription className="text-md text-accent-foreground">
+              View Ticket Details
+            </DialogDescription>
+            <div className="text-sm font-medium text-muted-foreground">
+              {ticket?.created_by?.first_name} {ticket?.created_by?.last_name}
+              {/* <div className="text-muted-foreground shrink-0">#{ticket?.id}</div> */}
             </div>
-
-            <div className="flex flex-col md:flex-row items-start md:items-center gap-1 md:gap-2">
-              <div className="text-muted-foreground shrink-0">#{ticket?.id}</div>
-
-              {/* let this one actually truncate inside a flex container */}
-              <div className="text-xl font-semibold tracking-tight w-full md:flex-1 md:text-left text-left">
-                {ticket?.title || "Untitled ticket"}
-              </div>
-            </div>
-
-            <DialogDescription className="sr-only">View and edit ticket</DialogDescription>
           </DialogHeader>
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)}>
               <ScrollArea className="h-[400px] w-full">
                 <div className="px-6 py-6 pt-0 space-y-5">
+                  <div className="flex flex-col md:flex-row items-start md:items-center gap-1 md:gap-2">
+                    {/* let this one actually truncate inside a flex container */}
+                    <div className="text-xl font-semibold tracking-tight w-full md:flex-1 md:text-left text-left">
+                      {ticket?.title || "Untitled ticket"}
+                    </div>
+                  </div>
                   <div className="">
                     {/* Top facts row */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-xs">
                       <div>
-                        <div className="text-muted-foreground mb-1">Client</div>
-                        <div className="font-medium">{ticket?.created_by?.first_name}</div>
-                      </div>
-                      <div>
                         <div className="text-muted-foreground mb-1">Category</div>
-                        <Badge variant="outline" className="text-[11px]">
+                        <Badge variant="outline" className="">
                           {ticket.category}
                         </Badge>
                       </div>
                       <div>
                         <div className="text-muted-foreground mb-1">Status</div>
-                        <StatusBadge status={ticket.status as "open" | "resolved"} />
+                        <Badge className="capitalize" variant={ticket?.status as BadgeTypes}>
+                          {ticket?.status.replaceAll("_", " ")}
+                        </Badge>
                       </div>
                       <div>
                         <div className="text-muted-foreground mb-1">Priority</div>
-                        <PriorityBadge priority={ticket?.priority} />
+                        <Badge className="capitalize" variant={ticket?.priority as BadgeTypes}>
+                          {ticket?.priority.replaceAll("_", " ")}
+                        </Badge>
+                      </div>
+                      <div>
+                        <div className="text-muted-foreground mb-1">Assigned to</div>
+                        <Badge variant="outline" className="">{ticket.assigned_to?.first_name ?? "N/A"}</Badge>
                       </div>
                     </div>
                   </div>
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs">Description</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            className="min-h-[110px] resize-y"
-                            placeholder="Info about the project"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="assigneeId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs">Assigned to</FormLabel>
-                        <FormControl>
-                          <Select value={field.value} onValueChange={field.onChange}>
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Select assignee" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {assignees.map((a) => (
-                                <SelectItem key={a.id} value={a.id}>
-                                  {a.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div>
+                    <div className="text-sm leading-none font-medium mb-1.5">Description</div>
+                    <p className="text-foreground text-xs">{ticket.description}</p>
+                  </div>
 
                   <div className="space-y-2">
                     <FormLabel className="text-xs">Attachments</FormLabel>
 
-                    <div className="space-y-2">
-                      {ticket.attachments?.length ? (
-                        ticket.attachments.map((f) => (
-                          <Card
-                            key={f.id}
-                            className="flex items-center gap-3 px-3 py-2 border rounded-md"
-                          >
-                            <div className="h-8 w-8 rounded-md bg-red-100 text-red-600 flex items-center justify-center">
-                              <FileText className="h-4 w-4" />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <p className="text-sm font-medium truncate">{f.name}</p>
-                              <p className="text-xs text-muted-foreground">
-                                {Math.round(f.sizeKB)} KB
-                              </p>
-                            </div>
-                            {f.url ? (
-                              <a
-                                href={f.url}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="text-xs text-primary hover:underline"
-                              >
-                                View
-                              </a>
-                            ) : null}
-                          </Card>
-                        ))
+                    <div className="grid grid-cols-3 gap-2 space-y-2">
+                      {ticket?.files?.length ? (
+                        ticket?.files.map((f) => {
+                          const isImageUrl = (url: string) => {
+                            return /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(url)
+                          }
+                          return isImageUrl(f) && f.startsWith("https") ? (
+                            <Image src={f} key={f} alt="attachment" width={200} height={200} />
+                          ) : null
+                        })
                       ) : (
                         <p className="text-xs text-muted-foreground">No attachments</p>
                       )}
@@ -235,7 +163,7 @@ export function TicketDetailsModal({
               <DialogFooter className="p-6 pb-6 pt-3">
                 <div className="flex justify-end">
                   <Button type="submit" className="w-full sm:w-auto">
-                    Done
+                    Close
                   </Button>
                 </div>
               </DialogFooter>

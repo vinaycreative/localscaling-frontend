@@ -71,9 +71,9 @@ function Badge({
   return <Comp data-slot="badge" className={cn(badgeVariants({ variant }), className)} {...props} />
 }
 
-function StatusBadge({ status }: { status: "open" | "resolved" }) {
+function StatusBadge({ status }: { status: STATUS_TYPE }) {
   const style =
-    status === "resolved"
+    status === "closed" || status === "cancelled"
       ? "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200"
       : "bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200"
 
