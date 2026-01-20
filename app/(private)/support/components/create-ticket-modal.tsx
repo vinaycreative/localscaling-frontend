@@ -428,18 +428,20 @@ export function CreateTicketModal({
                 id="dont-show-again"
                 checked={dontShowAgain}
                 onCheckedChange={(v) => setDontShowAgain(!!v)}
+                disabled={submitting}
               />
               <Label htmlFor="dont-show-again" className="text-xs text-muted-foreground">
                 Don’t show again
               </Label>
             </div>
             <div>
-              <AlertDialogCancel className="mr-2">Cancel</AlertDialogCancel>
+              <AlertDialogCancel className="mr-2" disabled={submitting}>Cancel</AlertDialogCancel>
               <AlertDialogAction
                 onClick={form.handleSubmit(actuallySubmit)}
                 className="bg-primary text-primary-foreground"
+                disabled={submitting}
               >
-                Submit ticket
+                {submitting ? "Submitting..." : "Submit ticket"}
               </AlertDialogAction>
             </div>
           </AlertDialogFooter>
