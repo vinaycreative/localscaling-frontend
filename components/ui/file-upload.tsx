@@ -878,7 +878,7 @@ function FileUploadList(props: FileUploadListProps) {
       dir={context.dir}
       {...listProps}
       className={cn(
-        "data-[state=inactive]:fade-out-0 data-[state=active]:fade-in-0 data-[state=inactive]:slide-out-to-top-2 data-[state=active]:slide-in-from-top-2 flex flex-col gap-2 data-[state=active]:animate-in data-[state=inactive]:animate-out w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4",
+        "data-[state=inactive]:fade-out-0 data-[state=active]:fade-in-0 data-[state=inactive]:slide-out-to-top-2 data-[state=active]:slide-in-from-top-2 flex flex-col gap-2 data-[state=active]:animate-in data-[state=inactive]:animate-out w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4",
         orientation === "horizontal" && "flex-row overflow-x-auto p-1.5",
         className
       )}
@@ -1084,7 +1084,7 @@ function FileUploadItemPreview(props: FileUploadItemPreviewProps) {
 
         return (
           // biome-ignore lint/performance/noImgElement: dynamic file URLs from user uploads don't work well with Next.js Image optimization
-          <img src={url} alt={file.name} className="size-full object-contain" />
+          <img src={url} alt={file.name} className="w-full h-full object-contain" />
         )
       } else if (itemContext.fileState?.file.type.startsWith("video/")) {
         return (
@@ -1118,7 +1118,7 @@ function FileUploadItemPreview(props: FileUploadItemPreviewProps) {
       data-slot="file-upload-preview"
       {...previewProps}
       className={cn(
-        "relative flex size-20 shrink-0 items-center justify-center overflow-hidden rounded bg-accent/50 [&>svg]:size-10",
+        "relative flex size-full min-h-[250px] md:min-h-[200px] object-contain max-h-[250px] md:max-h-[200px] shrink-0 items-center justify-center overflow-hidden rounded bg-accent/50 [&>svg]:size-10",
         className
       )}
     >
