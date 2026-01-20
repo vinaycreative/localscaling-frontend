@@ -8,17 +8,19 @@ import { useLoggedInUser } from "./useAuth"
 
 export const useGetTickets = ({ filters }: { filters: TicketFilters }) => {
   const { user } = useLoggedInUser()
-  console.log("🚀 ~ useGetTickets ~ user:", user?.type)
-  const { data, isLoading, error } = useGetTicketsQuery({ filters, type: user?.type })
-  return { data: data?.data, isLoading, error }
+  const { data, isLoading, error, isPending, ...rest } = useGetTicketsQuery({
+    filters,
+    type: user?.type,
+  })
+  return { data: data?.data, isLoading, error, isPending, ...rest }
 }
 
 export const useCreateTicket = () => {
-  const { mutateAsync: createTicket, error, isPending } = useCreateTicketMutation()
-  return { createTicket, error, isPending }
+  const { mutateAsync: createTicket, error, isPending , ...rest } = useCreateTicketMutation()
+  return { createTicket, error, isPending, ...rest }
 }
 
 export const useUpdateTicket = () => {
-  const { mutateAsync: updateTicket, error, isPending } = useUpdateTicketMutation()
-  return { updateTicket, error, isPending }
+  const { mutateAsync: updateTicket, error, isPending , ...rest } = useUpdateTicketMutation()
+  return { updateTicket, error, isPending, ...rest }
 }

@@ -259,7 +259,12 @@ export function SupportTable() {
   const [status] = useQueryState("status", parseAsArrayOf(parseAsString).withDefault([]))
   const [created_at] = useQueryState("created_at", parseAsString.withDefault(""))
 
-  const { data: ticketsData, isLoading } = useGetTickets({
+  const {
+    data: ticketsData,
+    isLoading,
+    isFetching,
+    isRefetching,
+  } = useGetTickets({
     filters: {
       title: title ?? "",
       page,
@@ -273,6 +278,7 @@ export function SupportTable() {
   const { createTicket } = useCreateTicket()
   const [openTicket, setOpenTicket] = useState(false) // to open the view details modal
   const [currentDetails, setCurrentDetails] = useState<Ticket | null>(null)
+  const isTicketsLoading = isLoading || isFetching || isRefetching
 
   const handleSubmit = async (values: CreateTicketPayload) => {
     try {
@@ -300,7 +306,7 @@ export function SupportTable() {
     <>
       <div className="overflow-hidden rounded-lg border bg-card w-full">
         <div className="data-table-container p-2">
-          <DataTable table={table} isLoading={isLoading}>
+          <DataTable table={table} isLoading={isTicketsLoading}>
             <DataTableToolbar table={table}></DataTableToolbar>
           </DataTable>
         </div>
