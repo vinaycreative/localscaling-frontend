@@ -20,9 +20,9 @@ const menuStyles = "mt-1 border bg-popover text-popover-foreground shadow-md rou
 const groupHeadingStyles = "text-muted-foreground px-2 py-1.5 text-xs"
 const optionStyles = {
   base: "relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm outline-hidden select-none",
-  focus: "bg-accent text-accent-foreground",
+  focus: "text-accent-foreground",
   disabled: "pointer-events-none opacity-50",
-  selected: "",
+  selected: "bg-accent",
 }
 const noOptionsMessageStyles =
   "text-accent-foreground p-2 bg-accent border border-dashed border-border rounded-sm"
