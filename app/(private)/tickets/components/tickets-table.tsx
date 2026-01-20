@@ -267,7 +267,12 @@ export function TicketsTable() {
   const [created_at] = useQueryState("created_at", parseAsString.withDefault(""))
 
   const { data: assignees } = useGetAssignees()
-  const { data: ticketsData, isLoading } = useGetTickets({
+  const {
+    data: ticketsData,
+    isLoading,
+    isFetching,
+    isRefetching,
+  } = useGetTickets({
     filters: {
       title: title ?? "",
       page,
@@ -282,6 +287,7 @@ export function TicketsTable() {
   const { updateTicket, isPending: isUpdatingTicket } = useUpdateTicket()
   const [openTicket, setOpenTicket] = useState(false) // to open the view details modal
   const [currentDetails, setCurrentDetails] = useState<Ticket | null>(null)
+  const isTicketsLoading = isLoading || isFetching || isRefetching || isUpdatingTicket
 
   const handleSubmit = async (values: UpdateTicketPayload) => {
     try {
@@ -309,7 +315,7 @@ export function TicketsTable() {
     <>
       <div className="overflow-hidden rounded-lg border bg-card w-full">
         <div className="data-table-container p-2">
-          <DataTable table={table} isLoading={isLoading || isUpdatingTicket}>
+          <DataTable table={table} isLoading={isTicketsLoading}>
             <DataTableToolbar table={table}></DataTableToolbar>
           </DataTable>
         </div>
@@ -359,7 +365,7 @@ function RowMenu({ row, setOpen, setCurrentDetails }: RowMenuProps) {
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-[180px]">
+      <DropdownMenuContent align="end" className="w-[220px]">
         <DropdownMenuItem onClick={handleViewDetails} className="text-xs">
           <Layers2 className="mr-2 h-4 w-4" /> Edit & View details
         </DropdownMenuItem>

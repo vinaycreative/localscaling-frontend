@@ -127,26 +127,28 @@ export function TicketDetailsModal({
                   <div className="">
                     {/* Top facts row */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-xs">
-                      {/* <div>
-                        <div className="text-muted-foreground mb-1">Client</div>
-                        <div className="font-medium">{ticket.created_by?.first_name}</div>
-                      </div> */}
                       <div>
                         <div className="text-muted-foreground mb-1">Category</div>
-                        <Badge variant="outline" className="text-[11px]">
+                        <Badge variant="outline" className="">
                           {ticket.category}
                         </Badge>
                       </div>
                       <div>
                         <div className="text-muted-foreground mb-1">Status</div>
                         <Badge className="capitalize" variant={ticket?.status as BadgeTypes}>
-                          {ticket?.status}
+                          {ticket?.status.replaceAll("_", " ")}
                         </Badge>
                       </div>
                       <div>
                         <div className="text-muted-foreground mb-1">Priority</div>
                         <Badge className="capitalize" variant={ticket?.priority as BadgeTypes}>
-                          {ticket?.priority}
+                          {ticket?.priority.replaceAll("_", " ")}
+                        </Badge>
+                      </div>
+                      <div>
+                        <div className="text-muted-foreground mb-1">Assigned to</div>
+                        <Badge variant="outline" className="">
+                          {ticket.assigned_to?.email ?? "N/A"}
                         </Badge>
                       </div>
                     </div>
