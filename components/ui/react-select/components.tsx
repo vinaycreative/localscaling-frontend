@@ -35,10 +35,10 @@ export const MultiValueRemove = (props: MultiValueRemoveProps) => {
 export const Option = (props: OptionProps) => {
   return (
     <components.Option {...props}>
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between relative">
         {/* TODO: Figure out the type */}
         <div>{(props.data as { label: string }).label}</div>
-        {props.isSelected && <Check className="h-4 w-4" />}
+        {props.isSelected && <Check className="h-4 w-4 absolute right-0 top-0 " />}
       </div>
     </components.Option>
   );
