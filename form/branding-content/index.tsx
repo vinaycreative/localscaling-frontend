@@ -1,9 +1,7 @@
 "use client"
-import BrandAssetUploader from "@/components/reusable/brand-asset-uploader"
 import ColorPickerInput from "@/components/reusable/color-picker"
 import { CustomInput } from "@/components/reusable/custom-input"
 import OnboardingVideo from "@/components/reusable/onboarding-video"
-import { VideoUpload } from "@/components/reusable/video-upload"
 import { Button } from "@/components/ui/button"
 import { uploadFileToStorage, urlToFile } from "@/lib/storage"
 import {
@@ -15,9 +13,11 @@ import {
   Users,
   Image as ImageIcon,
   Type,
+  X,
+  ImageUp,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { Fragment, useEffect, useRef, useState } from "react"
+import { Fragment, useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { TeamMemberList } from "./components/member-entry-list"
 import { useForm } from "react-hook-form"
@@ -38,6 +38,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress"
 import { useLoggedInUser } from "@/hooks/useAuth"
 import { showFormErrors } from "@/lib/errors"
+import {
+  DropzoneChildren,
+  FileUpload,
+  FileUploadDropzone,
+  FileUploadItem,
+  FileUploadItemDelete,
+  FileUploadItemMetadata,
+  FileUploadItemPreview,
+  FileUploadList,
+  FileUploadTrigger,
+} from "@/components/ui/file-upload"
+import { cn } from "@/lib/utils"
 
 function BrandingContentForm() {
   const router = useRouter()
@@ -46,6 +58,7 @@ function BrandingContentForm() {
   const { data: brandingInfoData, isLoading: brandingInfoLoading } = useBrandingInfo()
 
   const { createBrandingInfo } = useCreateBrandingInfo()
+  const [filesLoading, setFilesLoading] = useState(false)
 
   const isEmpty = Object.keys(brandingInfoData || {})?.length === 0
   console.log("🚀 ~ BrandingContentForm ~ brandingInfoData:", brandingInfoData)
@@ -73,6 +86,9 @@ function BrandingContentForm() {
     watch,
     setValue,
   } = form
+  const onFileReject = useCallback((file: File, message: string) => {
+    toast.error(`Error : ${message}`)
+  }, [])
 
   // Prevent refetches from overwriting user edits after initial hydration.
   const hasHydratedRef = useRef(false)
@@ -113,6 +129,7 @@ function BrandingContentForm() {
 
     // 2) Hydrate file fields in parallel (doesn't block the rest of the form)
     ;(async () => {
+      setFilesLoading(true)
       const [logoFile, ceoVideo, testimonialVideo, teamPhotosSettled] = await Promise.all([
         dbData.logo_url ? urlToFile(dbData.logo_url) : null,
         dbData.ceo_video_url ? urlToFile(dbData.ceo_video_url) : null,
@@ -126,8 +143,7 @@ function BrandingContentForm() {
 
       if (logoFile) setValue("logo_file", logoFile, { shouldDirty: false })
       if (ceoVideo) setValue("ceo_video", ceoVideo, { shouldDirty: false })
-      if (testimonialVideo)
-        setValue("video_testimonial", testimonialVideo, { shouldDirty: false })
+      if (testimonialVideo) setValue("video_testimonial", testimonialVideo, { shouldDirty: false })
 
       const teamPhotos =
         teamPhotosSettled.length > 0
@@ -136,10 +152,14 @@ function BrandingContentForm() {
               .map((r) => r.value)
           : []
       setValue("team_photos", teamPhotos, { shouldDirty: false })
-    })().catch((e) => {
-      // Non-blocking: even if files fail, the rest of the form stays hydrated.
-      console.error("Failed to hydrate branding files:", e)
-    })
+    })()
+      .catch((e) => {
+        // Non-blocking: even if files fail, the rest of the form stays hydrated.
+        console.error("Failed to hydrate branding files:", e)
+      })
+      .finally(() => {
+        setFilesLoading(false)
+      })
 
     return () => {
       cancelled = true
@@ -411,14 +431,64 @@ function BrandingContentForm() {
                         <FormItem>
                           <FormLabel>Company Logo</FormLabel>
                           <FormControl>
-                            <BrandAssetUploader
+                            {/* <BrandAssetUploader
                               label=""
                               field={field?.name}
                               multiple={false}
                               value={field.value as File}
                               onChange={field.onChange}
                               maxFiles={1}
-                            />
+                            /> */}
+                            <FileUpload
+                              maxFiles={1}
+                              maxSize={5 * 1024 * 1024}
+                              className="w-full"
+                              value={
+                                field.value
+                                  ? [...(Array.isArray(field.value) ? field.value : [field.value])]
+                                  : []
+                              }
+                              
+                              defaultValue={
+                                field.value
+                                  ? [...(Array.isArray(field.value) ? field.value : [field.value])]
+                                  : []
+                              }
+                              onValueChange={(files: File[]) => {
+                                field.onChange(files.length > 0 ? files[0] : null)
+                              }}
+                              accept="image/*"
+                              onFileReject={onFileReject}
+                              multiple={false}
+                              disabled={filesLoading}
+                            >
+                              <FileUploadDropzone>
+                                <DropzoneChildren isDefaultFilesLoading={filesLoading} />
+                              </FileUploadDropzone>
+                              <FileUploadList className="">
+                                {field.value
+                                  ? [
+                                      ...(Array.isArray(field.value) ? field.value : [field.value]),
+                                    ].map(
+                                      (file: File, index: number): React.ReactNode => (
+                                        <FileUploadItem key={index} value={file}>
+                                          <FileUploadItemPreview />
+                                          <FileUploadItemMetadata />
+
+                                          <FileUploadItemDelete
+                                            asChild
+                                            className="absolute top-2 right-2"
+                                          >
+                                            <Button variant="ghost" size="icon" className="size-7">
+                                              <X />
+                                            </Button>
+                                          </FileUploadItemDelete>
+                                        </FileUploadItem>
+                                      )
+                                    )
+                                  : null}
+                              </FileUploadList>
+                            </FileUpload>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -436,14 +506,42 @@ function BrandingContentForm() {
                               <p className="text-sm text-muted-foreground">
                                 Portrait photos in corporate attire (max 6)
                               </p>
-                              <BrandAssetUploader
-                                label=""
-                                field={field.name}
-                                multiple={true}
-                                value={field.value}
-                                onChange={field.onChange}
+                              <FileUpload
                                 maxFiles={6}
-                              />
+                                maxSize={8 * 1024 * 1024}
+                                className="w-full"
+                                value={field.value || []}
+                                defaultValue={field.value || []}
+                                onValueChange={(files: File[]) => {
+                                  field.onChange(files.length > 0 ? files : null)
+                                }}
+                                accept="image/*"
+                                onFileReject={onFileReject}
+                                multiple={true}
+                                disabled={filesLoading}
+                              >
+                                <FileUploadDropzone>
+                                  <DropzoneChildren maxFiles={6} isDefaultFilesLoading={filesLoading} />
+                                </FileUploadDropzone>
+                                <FileUploadList className="">
+                                  {(field.value || []).map(
+                                    (file: File, index: number): React.ReactNode => (
+                                      <FileUploadItem key={index} value={file}>
+                                        <FileUploadItemPreview />
+                                        <FileUploadItemMetadata />
+                                        <FileUploadItemDelete
+                                          asChild
+                                          className="absolute top-2 right-2"
+                                        >
+                                          <Button variant="ghost" size="icon" className="size-7">
+                                            <X />
+                                          </Button>
+                                        </FileUploadItemDelete>
+                                      </FileUploadItem>
+                                    )
+                                  )}
+                                </FileUploadList>
+                              </FileUpload>
                             </div>
                           </FormControl>
                           <FormMessage />
@@ -514,12 +612,58 @@ function BrandingContentForm() {
                       <FormItem>
                         <FormLabel>CEO Introductory Video</FormLabel>
                         <FormControl>
-                          <VideoUpload
-                            label=""
-                            value={field.value}
-                            onChange={field.onChange}
-                            required={true}
-                          />
+                          <FileUpload
+                            maxFiles={1}
+                            maxSize={100 * 1024 * 1024}
+                            className="w-full"
+                            value={
+                              field.value
+                                ? [...(Array.isArray(field.value) ? field.value : [field.value])]
+                                : []
+                            }
+                            defaultValue={
+                              field.value
+                                ? [...(Array.isArray(field.value) ? field.value : [field.value])]
+                                : []
+                            }
+                            onValueChange={(files: File[]) => {
+                              field.onChange(files.length > 0 ? files[0] : null)
+                            }}
+                            accept="video/*"
+                            onFileReject={onFileReject}
+                            multiple={false}
+                            disabled={filesLoading}
+                          >
+                            <FileUploadDropzone>
+                              <DropzoneChildren
+                                isDefaultFilesLoading={filesLoading}
+                                icon="video"
+                                acceptLabel="MP4, MOV, WebM or AVI (max 100MB)"
+                              />
+                            </FileUploadDropzone>
+                            <FileUploadList className="">
+                              {field.value
+                                ? [
+                                    ...(Array.isArray(field.value) ? field.value : [field.value]),
+                                  ].map(
+                                    (file: File, index: number): React.ReactNode => (
+                                      <FileUploadItem key={index} value={file}>
+                                        <FileUploadItemPreview />
+                                        <FileUploadItemMetadata />
+                                        <FileUploadItemDelete
+                                          asChild
+                                          className="absolute top-2 right-2"
+                                        >
+                                          <Button variant="ghost" size="icon" className="size-7">
+                                            <X />
+                                          </Button>
+                                        </FileUploadItemDelete>
+                                      </FileUploadItem>
+                                    )
+                                  )
+                                : null}
+                            </FileUploadList>
+                          </FileUpload>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -644,12 +788,58 @@ function BrandingContentForm() {
                       <FormItem>
                         <FormLabel>Video Testimonials</FormLabel>
                         <FormControl>
-                          <VideoUpload
-                            label=""
-                            value={field.value}
-                            onChange={field.onChange}
-                            required={true}
-                          />
+                          <FileUpload
+                            maxFiles={1}
+                            maxSize={100 * 1024 * 1024}
+                            className="w-full"
+                            value={
+                              field.value
+                                ? [...(Array.isArray(field.value) ? field.value : [field.value])]
+                                : []
+                            }
+                            defaultValue={
+                              field.value
+                                ? [...(Array.isArray(field.value) ? field.value : [field.value])]
+                                : []
+                            }
+                            onValueChange={(files) => {
+                              field.onChange(files.length > 0 ? files[0] : null)
+                            }}
+                            accept="video/*"
+                            onFileReject={onFileReject}
+                            multiple={false}
+                            disabled={filesLoading}
+                          >
+                            <FileUploadDropzone>
+                              <DropzoneChildren
+                                isDefaultFilesLoading={filesLoading}
+                                icon="video"
+                                acceptLabel="MP4, MOV, WebM or AVI (max 100MB)"
+                              />
+                            </FileUploadDropzone>
+                            <FileUploadList className="">
+                              {field.value
+                                ? [
+                                    ...(Array.isArray(field.value) ? field.value : [field.value]),
+                                  ].map(
+                                    (file: File, index: number): React.ReactNode => (
+                                      <FileUploadItem key={index} value={file}>
+                                        <FileUploadItemPreview />
+                                        <FileUploadItemMetadata />
+                                        <FileUploadItemDelete
+                                          asChild
+                                          className="absolute top-2 right-2"
+                                        >
+                                          <Button variant="ghost" size="icon" className="size-7">
+                                            <X />
+                                          </Button>
+                                        </FileUploadItemDelete>
+                                      </FileUploadItem>
+                                    )
+                                  )
+                                : null}
+                            </FileUploadList>
+                          </FileUpload>
                         </FormControl>
                         <FormMessage />
                       </FormItem>

@@ -3,6 +3,7 @@ import Link from "next/link"
 import React, { Suspense } from "react"
 import Header from "./Header"
 import LoadingState from "../reusable/tags/loading-state"
+import Loading from "../Loading"
 
 interface PageProps {
   navURL: string
@@ -16,12 +17,7 @@ interface PageProps {
 const Page = ({ children, navURL, navURLCount, title, description, rightButton }: PageProps) => {
   return (
     <Suspense
-      fallback={
-        <>
-          Suspense Page loading...
-          <LoadingState />
-        </>
-      }
+    fallback={<Loading/>}
     >
       <main className="grid grid-rows-[52px_1fr] w-full h-dvh px-3 pt-4 pb-2 overflow-hidden">
         <Header>

@@ -1,6 +1,6 @@
 "use client"
 import { Checkbox } from "@/components/ui/checkbox"
-import { PriorityBadge, StatusBadge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -29,7 +29,7 @@ import { DataTableColumnHeader } from "@/components/data-table/data-table-column
 import { ColumnDef } from "@tanstack/react-table"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { useCreateTicket, useGetTickets } from "@/hooks/useTickets"
-import { CATEGORIES, PRIORITIES } from "@/constants/select-options"
+import { CATEGORIES, PRIORITIES, PRIORITIES_TYPE, STATUS_TYPE } from "@/constants/select-options"
 import { formatDate } from "@/lib/format"
 
 export const getColumns = ({
@@ -140,7 +140,9 @@ export const getColumns = ({
     accessorKey: "priority",
     header: ({ column }) => <DataTableColumnHeader column={column} label="Priority" />,
     cell: ({ getValue }) => (
-      <PriorityBadge priority={getValue<string>() as "high" | "medium" | "low"} />
+      <Badge variant={getValue<PRIORITIES_TYPE>() as PRIORITIES_TYPE} className="capitalize">
+        {getValue<PRIORITIES_TYPE>().replaceAll("_", " ")}
+      </Badge>
     ),
     enableSorting: true,
     size: 110,
@@ -156,9 +158,9 @@ export const getColumns = ({
     accessorKey: "status",
     header: ({ column }) => <DataTableColumnHeader column={column} label="Status" />,
     cell: ({ getValue }) => (
-      <StatusBadge
-        status={getValue<"open" | "pending" | "in_progress" | "closed" | "cancelled">()}
-      />
+      <Badge variant={getValue<STATUS_TYPE>() as STATUS_TYPE} className="capitalize">
+        {getValue<STATUS_TYPE>().replaceAll("_", " ")}
+      </Badge>
     ),
     enableSorting: true,
     size: 120,
@@ -257,7 +259,12 @@ export function SupportTable() {
   const [status] = useQueryState("status", parseAsArrayOf(parseAsString).withDefault([]))
   const [created_at] = useQueryState("created_at", parseAsString.withDefault(""))
 
-  const { data: ticketsData, isLoading } = useGetTickets({
+  const {
+    data: ticketsData,
+    isLoading,
+    isFetching,
+    isRefetching,
+  } = useGetTickets({
     filters: {
       title: title ?? "",
       page,
@@ -271,6 +278,7 @@ export function SupportTable() {
   const { createTicket } = useCreateTicket()
   const [openTicket, setOpenTicket] = useState(false) // to open the view details modal
   const [currentDetails, setCurrentDetails] = useState<Ticket | null>(null)
+  const isTicketsLoading = isLoading || isFetching || isRefetching
 
   const handleSubmit = async (values: CreateTicketPayload) => {
     try {
@@ -298,7 +306,7 @@ export function SupportTable() {
     <>
       <div className="overflow-hidden rounded-lg border bg-card w-full">
         <div className="data-table-container p-2">
-          <DataTable table={table} isLoading={isLoading}>
+          <DataTable table={table} isLoading={isTicketsLoading}>
             <DataTableToolbar table={table}></DataTableToolbar>
           </DataTable>
         </div>

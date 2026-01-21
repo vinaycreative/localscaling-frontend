@@ -74,13 +74,9 @@ function Badge({
   )
 }
 
-function StatusBadge({
-  status,
-}: {
-  status: "open" | "pending" | "in_progress" | "closed" | "cancelled"
-}) {
+function StatusBadge({ status }: { status: STATUS_TYPE }) {
   const style =
-    status === "open"
+    status === "closed" || status === "cancelled"
       ? "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200"
       : "bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200"
 

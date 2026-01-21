@@ -264,8 +264,8 @@ function ToolsAccessForm() {
 
   useEffect(() => {
     if (toolsAccessData && !toolsAccessLoading) {
-      let keys = Object.keys(toolsAccessData || {})
-      let data = toolsAccessData || {}
+      const keys = Object.keys(toolsAccessData || {})
+      const data = toolsAccessData || {}
       keys.forEach((key) => {
         form.setValue(key as keyof ToolsAccessFormValues, data?.[key])
       })

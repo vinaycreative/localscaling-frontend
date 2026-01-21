@@ -12,8 +12,11 @@ import { useCreateTicket } from "@/hooks/useTickets"
 import { toast } from "sonner"
 import { useLoggedInUser } from "@/hooks/useAuth"
 import { uploadFileToStorage } from "@/lib/storage"
+import { Role } from "@/constants/auth"
 
 export default function SupportPage() {
+  const { user } = useLoggedInUser()
+  const isUser = user?.role === Role.client
   const [createTicket, setCreateTicket] = useState<boolean>(false)
   const form = useForm<CreateTicketValues>({
     resolver: zodResolver(createTicketSchema),
@@ -27,12 +30,11 @@ export default function SupportPage() {
 
   const { createTicket: createTicketForm } = useCreateTicket()
   const [files, setFiles] = React.useState<File[]>(form?.getValues("files") || [])
-  const { user } = useLoggedInUser()
 
   return (
     <Page
       rightButton={
-        <Button
+        isUser && <Button
           onClick={() => {
             setCreateTicket((prev) => !prev)
           }}
@@ -50,7 +52,7 @@ export default function SupportPage() {
           <SupportTable />
         </div>
       </div>
-      {createTicket && (
+      {createTicket && isUser && (
         <CreateTicketModal
           form={form}
           open={createTicket}

@@ -34,21 +34,28 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import { Ticket } from "@/types/support"
+import { Ticket, UpdateTicketPayload } from "@/types/support"
 import Image from "next/image"
+import { PRIORITIES, PRIORITIES_TYPE, STATUS, STATUS_TYPE } from "@/constants/select-options"
+import { SimpleSelect } from "@/components/ui/react-select"
+import { OptionObj } from "@/components/ui/react-select/types"
+import { Loader2 } from "lucide-react"
 
 export type TicketDetailsModalProps = {
+  isLoading: boolean
   open: boolean
   onOpenChange: (open: boolean) => void
   ticket: Ticket
   assignees?: { value: string; label: string }[]
-  onSubmit: (updated: Ticket) => Promise<void> | void
+  onSubmit: (updated: UpdateTicketPayload) => Promise<void> | void
 }
 
 // ---------- Form Schema ----------
 const Schema = z.object({
   description: z.string().optional(),
-  assigneeId: z.string().min(1, "Please select assignee"),
+  assigned_to: z.string().min(1, "Please select assignee"),
+  status: z.string().min(1, "Please select status"),
+  priority: z.string().min(1, "Please select priority"),
 })
 
 // ---------- Component ----------
@@ -58,21 +65,36 @@ export function TicketDetailsModal({
   ticket,
   assignees,
   onSubmit,
+  isLoading,
 }: TicketDetailsModalProps) {
   const form = useForm<z.infer<typeof Schema>>({
     resolver: zodResolver(Schema),
-    defaultValues: { description: ticket.description },
+    defaultValues: {
+      description: ticket.description,
+      assigned_to: ticket.assigned_to?.id,
+      status: ticket.status,
+      priority: ticket.priority,
+    },
   })
 
   // keep form in sync when ticket prop changes
   useEffect(() => {
-    form.reset({ description: ticket.description })
+    form.reset({
+      description: ticket.description ?? "",
+      assigned_to: ticket.assigned_to?.id ?? "",
+      status: ticket.status ?? "",
+      priority: ticket.priority ?? "",
+    })
   }, [ticket, form])
 
   const handleSubmit = async (values: z.infer<typeof Schema>) => {
-    const updated: Ticket = {
+    console.log("🚀 ~ handleSubmit ~ values: INNSSIIEEDDEE", values)
+    const updated: UpdateTicketPayload = {
       ...ticket,
-      description: values.description ?? "",
+      assigned_to: values?.assigned_to,
+      created_by: ticket?.created_by?.id,
+      status: values?.status as STATUS_TYPE,
+      priority: values?.priority as PRIORITIES_TYPE,
     }
     await onSubmit(updated)
     onOpenChange(false)
@@ -81,7 +103,7 @@ export function TicketDetailsModal({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[700px] p-0">
+        <DialogContent className="sm:max-w-[60dvw] p-0">
           <DialogHeader className="px-6 pt-6">
             <DialogDescription className="text-md text-accent-foreground">
               View and edit ticket
@@ -105,26 +127,28 @@ export function TicketDetailsModal({
                   <div className="">
                     {/* Top facts row */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-xs">
-                      {/* <div>
-                        <div className="text-muted-foreground mb-1">Client</div>
-                        <div className="font-medium">{ticket.created_by?.first_name}</div>
-                      </div> */}
                       <div>
                         <div className="text-muted-foreground mb-1">Category</div>
-                        <Badge variant="outline" className="text-[11px]">
+                        <Badge variant="outline" className="">
                           {ticket.category}
                         </Badge>
                       </div>
                       <div>
                         <div className="text-muted-foreground mb-1">Status</div>
                         <Badge className="capitalize" variant={ticket?.status as BadgeTypes}>
-                          {ticket?.status}
+                          {ticket?.status.replaceAll("_", " ")}
                         </Badge>
                       </div>
                       <div>
                         <div className="text-muted-foreground mb-1">Priority</div>
                         <Badge className="capitalize" variant={ticket?.priority as BadgeTypes}>
-                          {ticket?.priority}
+                          {ticket?.priority.replaceAll("_", " ")}
+                        </Badge>
+                      </div>
+                      <div>
+                        <div className="text-muted-foreground mb-1">Assigned to</div>
+                        <Badge variant="outline" className="">
+                          {ticket.assigned_to?.email ?? "N/A"}
                         </Badge>
                       </div>
                     </div>
@@ -151,30 +175,110 @@ export function TicketDetailsModal({
                     )}
                   /> */}
 
-                  <FormField
-                    control={form.control}
-                    name="assigneeId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs">Assigned to</FormLabel>
-                        <FormControl>
-                          <Select value={field.value} onValueChange={field.onChange}>
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Select assignee" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {assignees?.map((a) => (
-                                <SelectItem key={a.label} value={a.value}>
-                                  {a.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <FormField
+                      control={form.control}
+                      name="assigned_to"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs">Assigned to</FormLabel>
+                          <FormControl>
+                            <SimpleSelect
+                              value={
+                                field.value
+                                  ? {
+                                      label:
+                                        assignees?.find((a) => a.value === field.value)?.label ??
+                                        "",
+                                      value: field.value,
+                                    }
+                                  : null
+                              }
+                              className={"!w-full"}
+                              isMulti={false}
+                              isClearable={false}
+                              placeholder="Select Assignee."
+                              options={assignees?.map((a) => ({ label: a.label, value: a.value }))}
+                              onChange={(newValue) => {
+                                const selectedOption = newValue as OptionObj | null
+                                console.log(
+                                  "🚀 ~ TicketDetailsModal ~ selectedOption:",
+                                  selectedOption
+                                )
+                                field.onChange(selectedOption?.value)
+                              }}
+                            />
+                            {/* <Select value={field.value} onValueChange={field.onChange}>
+                              <SelectTrigger className="w-full max-w-full truncate ">
+                                <SelectValue
+                                  placeholder="Select assignee"
+                                  className="max-w-[100px] "
+                                />
+                              </SelectTrigger>
+                              <SelectContent className="w-full">
+                                {assignees?.map((a) => (
+                                  <SelectItem key={a.label} value={a.value}>
+                                    {a.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select> */}
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="status"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs">Status</FormLabel>
+                          <FormControl>
+                            <Select value={field.value} onValueChange={field.onChange}>
+                              <SelectTrigger className="w-full max-w-full truncate ">
+                                <SelectValue placeholder="Select Status" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {STATUS?.map((a) => (
+                                  <SelectItem key={a.label} value={a.value}>
+                                    {a.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="priority"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs">Priority</FormLabel>
+                          <FormControl>
+                            <Select value={field.value} onValueChange={field.onChange}>
+                              <SelectTrigger className="w-full max-w-full truncate ">
+                                <SelectValue placeholder="Select Priority" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {PRIORITIES?.map((a) => (
+                                  <SelectItem key={a.label} value={a.value}>
+                                    {a.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
                   <div className="space-y-2">
                     <FormLabel className="text-xs">Attachments</FormLabel>
@@ -199,8 +303,15 @@ export function TicketDetailsModal({
 
               <DialogFooter className="p-6 pb-6 pt-3">
                 <div className="flex justify-end">
-                  <Button type="submit" className="w-full sm:w-auto">
-                    Done
+                  <Button disabled={isLoading} type="submit" className="w-full sm:w-auto">
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2" />
+                        <span className="text-xs">Updating...</span>
+                      </>
+                    ) : (
+                      "Update Ticket"
+                    )}
                   </Button>
                 </div>
               </DialogFooter>
