@@ -8,6 +8,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSkeleton,
 } from "@/components/ui/sidebar"
 import {
   ChartPie,
@@ -74,12 +75,11 @@ type itemType = {
   href: string
 }
 
-export function NavMain({ initialRole }: { initialRole?: RoleValue }) {
+export function NavMain({ role, isLoading }: { role?: RoleValue, isLoading: boolean }) {
   const pathName = usePathname()
-  const { user } = useLoggedInUser()
   const [items, setItems] = useState<itemType[]>([...default_items])
   const { data: sidebarInfo, isLoading: countLoading, error: countError } = useSidebarInfo()
-  const role = user?.role
+
 
   useEffect(() => {
     if (sidebarInfo && !countLoading && !countError) {
@@ -95,24 +95,28 @@ export function NavMain({ initialRole }: { initialRole?: RoleValue }) {
     }
   }, [sidebarInfo, countLoading, countError])
 
-  if (!role) return null
+  // if (!role) return null
 
   return (
     <SidebarMenu>
-      {NAV_ITEMS.filter((i) => i.roles.includes(role)).map((item) => (
-        <SidebarMenuItem key={item.href} className="px-2">
-          <SidebarMenuButton
-            asChild
-            className="cursor-pointer rounded"
-            isActive={pathName === item.href || pathName.startsWith(item.href + "/")}
-          >
-            <Link href={item.href}>
-              <item.icon />
-              <span>{item.label}</span>
-            </Link>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      ))}
+      {isLoading ?
+        <div className="flex flex-col gap-2 m-1.5 p-1">
+          {[1, 2, 3, 4, 5]?.map((skel: number) => <SidebarMenuSkeleton className="border border-gray-100 p-4 justify-between" key={skel} showIcon={true} />)}
+        </div>
+        : NAV_ITEMS.filter((i) => i.roles.includes(role as string))?.map((item) => (
+          <SidebarMenuItem key={item.href} className="px-2">
+            <SidebarMenuButton
+              asChild
+              className="cursor-pointer rounded"
+              isActive={pathName === item.href || pathName.startsWith(item.href + "/")}
+            >
+              <Link href={item.href}>
+                <item.icon />
+                <span>{item.label}</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        ))}
 
       <SidebarGroup className="py-0">
         {role === Role.client && (

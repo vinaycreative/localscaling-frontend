@@ -142,7 +142,7 @@ function DataTableToolbarFilter<TData>({
         default:
           return null;
       }
-    }, [column, columnMeta]);
+    }, [column, columnMeta , columnMeta?.options]);
 
     return onFilterRender();
   }
