@@ -9,6 +9,7 @@ import { useState } from "react"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { useAuth } from "@/hooks/useAuth"
 import { Label } from "@/components/ui/label"
+import { ShaderRipple } from "@/components/shader-ripple"
 
 const roles = [
   { label: "Admin", email: "admin@example.com" },
@@ -30,8 +31,8 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen grid place-items-center p-6">
-      <div className="w-full max-w-sm rounded-lg border bg-background p-6 shadow-sm">
+    <div className="min-h-screen grid place-items-center p-6 relative">
+      <div className="w-full z-10 relative max-w-sm rounded-lg border bg-background p-6 shadow-sm">
         <h1 className="text-xl font-semibold mb-2">Sign in</h1>
         <p className="text-sm text-muted-foreground mb-6">
           Use the quick role buttons below or enter credentials.
@@ -115,6 +116,7 @@ export default function LoginPage() {
           </p>
         </div>
       </div>
+      <ShaderRipple className="absolute -z-0 inset-0 h-screen" />
     </div>
   )
 }
