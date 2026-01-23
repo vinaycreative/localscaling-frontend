@@ -74,40 +74,5 @@ function Badge({
   )
 }
 
-function StatusBadge({ status }: { status: STATUS_TYPE }) {
-  const style =
-    status === "closed" || status === "cancelled"
-      ? "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200"
-      : "bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200"
 
-  return (
-    <Badge
-      variant="secondary"
-      className={`${style} rounded-full px-2.5 py-0.5 text-xs font-medium capitalize`}
-    >
-      {status}
-    </Badge>
-  )
-}
-
-function PriorityBadge({ priority }: { priority: "low" | "medium" | "high" }) {
-  const style =
-    priority === "low"
-      ? "bg-blue-50 text-blue-500 ring-1 ring-inset ring-blue-500"
-      : priority === "high"
-        ? "bg-red-50 text-red-500 ring-1 ring-inset ring-red-500"
-        : priority === "medium"
-          ? "bg-amber-50 text-amber-500 ring-1 ring-inset ring-amber-500"
-          : ""
-
-  return (
-    <Badge
-      variant="secondary"
-      className={`${style} rounded-full px-2.5 py-0.5 text-xs font-medium capitalize`}
-    >
-      {priority}
-    </Badge>
-  )
-}
-
-export { Badge, badgeVariants, StatusBadge, PriorityBadge, badgeClassNames, type BadgeTypes }
+export { Badge, badgeVariants, badgeClassNames, type BadgeTypes }

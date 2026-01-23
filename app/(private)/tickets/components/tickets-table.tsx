@@ -13,13 +13,11 @@ import {
   Paperclip,
   Layers2,
   MessagesSquare,
-  CheckCircle,
-  XCircle,
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { TicketDetailsModal } from "./view-details"
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { AssignedTo, CreatedBy, Ticket, UpdateTicketPayload } from "@/types/support"
 import { DataTable } from "@/components/data-table/data-table"
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar"
@@ -45,217 +43,228 @@ import { AuthUser } from "@/lib/auth/schema"
 export const getColumns = ({
   setOpenTicket,
   setCurrentDetails,
+  assigneesOptions
 }: {
   setOpenTicket: React.Dispatch<React.SetStateAction<boolean>>
   setCurrentDetails: React.Dispatch<React.SetStateAction<Ticket | null>>
-}): ColumnDef<Ticket>[] => [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <div className="flex items-center justify-center">
-        <Checkbox
-          aria-label="Select all"
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
-        />
-      </div>
-    ),
-    cell: ({ row }) => (
-      <div className="flex items-center justify-center">
-        <Checkbox
-          aria-label={`Select ${row.original.id}`}
-          checked={row.getIsSelected()}
-          onCheckedChange={(v) => row.toggleSelected(!!v)}
-        />
-      </div>
-    ),
-    enableSorting: false,
-    enableHiding: false,
-    size: 40,
-  },
-  {
-    accessorKey: "id",
-    header: ({ column }) => <DataTableColumnHeader column={column} label="Ticket Id" />,
-    cell: ({ row }) => {
-      const t = row.original
-      return (
-        <div className="flex items-center gap-2">
-          {(t?.attachments || [])?.length > 0 && (
-            <Paperclip className="h-4 w-4 text-muted-foreground shrink-0" />
-          )}
-          <Link href="#" className="truncate hover:underline w-full">
-            {t.id}
-          </Link>
+  assigneesOptions: { label: string; value: string }[]
+}): ColumnDef<Ticket>[] => {
+  return [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <div className="flex items-center justify-center">
+          <Checkbox
+            aria-label="Select all"
+            checked={
+              table.getIsAllPageRowsSelected() ||
+              (table.getIsSomePageRowsSelected() && "indeterminate")
+            }
+            onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
+          />
         </div>
-      )
+      ),
+      cell: ({ row }) => (
+        <div className="flex items-center justify-center">
+          <Checkbox
+            aria-label={`Select ${row.original.id}`}
+            checked={row.getIsSelected()}
+            onCheckedChange={(v) => row.toggleSelected(!!v)}
+          />
+        </div>
+      ),
+      enableSorting: false,
+      enableHiding: false,
+      size: 40,
     },
-    enableSorting: true,
-    size: 300,
-  },
-  {
-    id: "title",
-    accessorKey: "title",
-    header: ({ column }) => <DataTableColumnHeader column={column} label="Title" />,
-    cell: ({ getValue }) => (
-      <span className="text-xs text-foreground/90 break-words whitespace-break-spaces">
-        {getValue<string>()}
-      </span>
-    ),
-    meta: {
-      label: "Title",
-      variant: "text",
+    {
+      accessorKey: "id",
+      header: ({ column }) => <DataTableColumnHeader column={column} label="Ticket Id" />,
+      cell: ({ row }) => {
+        const t = row.original
+        return (
+          <div className="flex items-center gap-2">
+            {(t?.attachments || [])?.length > 0 && (
+              <Paperclip className="h-4 w-4 text-muted-foreground shrink-0" />
+            )}
+            <Link href="#" className="truncate hover:underline w-full">
+              {t.id}
+            </Link>
+          </div>
+        )
+      },
+      enableSorting: true,
+      size: 300,
     },
-    enableSorting: true,
-    enableColumnFilter: true,
-    size: 250,
-  },
-  // {
-  //   id: "subject",
-  //   accessorKey: "subject",
-  //   header: ({ column }) => <DataTableColumnHeader column={column} label="Subject" />,
-  //   cell: ({ getValue }) => (
-  //     <span className="text-xs text-foreground/90 break-words whitespace-break-spaces">
-  //       {getValue<string>()}
-  //     </span>
-  //   ),
-  //   // meta: {
-  //   //   label: "Subject",
-  //   //   variant: "text",
-  //   // },
-  //   enableSorting: true,
-  //   enableColumnFilter: true,
-  //   size: 250,
-  // },
-  {
-    id: "category",
-    accessorKey: "category",
-    header: ({ column }) => <DataTableColumnHeader column={column} label="Category" />,
-    cell: ({ getValue }) => (
-      <span className="text-xs text-muted-foreground">{getValue<CATEGORIES_TYPE>()}</span>
-    ),
-    enableSorting: true,
-    size: 140,
-    meta: {
-      label: "Category",
-      variant: "multiSelect",
-      options: CATEGORIES,
-    },
-    enableColumnFilter: true,
-  },
-  {
-    id: "priority",
-    accessorKey: "priority",
-    header: ({ column }) => <DataTableColumnHeader column={column} label="Priority" />,
-    cell: ({ getValue }) => (
-      <Badge variant={getValue<PRIORITIES_TYPE>() as PRIORITIES_TYPE} className="capitalize">
-        {getValue<PRIORITIES_TYPE>().replaceAll("_", " ")}
-      </Badge>
-    ),
-    enableSorting: true,
-    size: 110,
-    meta: {
-      label: "Priority",
-      variant: "select",
-      options: PRIORITIES,
-    },
-    enableColumnFilter: true,
-  },
-  {
-    id: "status",
-    accessorKey: "status",
-    header: ({ column }) => <DataTableColumnHeader column={column} label="Status" />,
-    cell: ({ getValue }) => (
-      <Badge variant={getValue<STATUS_TYPE>() as STATUS_TYPE} className="capitalize">
-        {getValue<STATUS_TYPE>().replaceAll("_", " ")}
-      </Badge>
-    ),
-    enableSorting: true,
-    size: 120,
-    meta: {
-      label: "Status",
-      variant: "select",
-      options: STATUS,
-    },
-    enableColumnFilter: true,
-  },
-  {
-    accessorKey: "created_by",
-    header: ({ column }) => <DataTableColumnHeader column={column} label="Created By" />,
-    cell: ({ getValue }) => {
-      const createdBy = getValue<CreatedBy>()
-
-      return (
-        <span className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Avatar>
-            <AvatarFallback>{createdBy?.first_name?.[0] ?? "?"}</AvatarFallback>
-          </Avatar>
-
-          {createdBy?.first_name ?? "Unknown"}
+    {
+      id: "title",
+      accessorKey: "title",
+      header: ({ column }) => <DataTableColumnHeader column={column} label="Title" />,
+      cell: ({ getValue }) => (
+        <span className="text-xs text-foreground/90 break-words whitespace-break-spaces">
+          {getValue<string>()}
         </span>
-      )
+      ),
+      meta: {
+        label: "Title",
+        variant: "text",
+      },
+      enableSorting: true,
+      enableColumnFilter: true,
+      size: 250,
     },
-    enableSorting: true,
-    size: 200,
-  },
-  {
-    accessorKey: "assigned_to",
-    header: ({ column }) => <DataTableColumnHeader column={column} label="Assigned To" />,
-    cell: ({ getValue }) => {
-      const assignedTo = getValue<AssignedTo>()
+    // {
+    //   id: "subject",
+    //   accessorKey: "subject",
+    //   header: ({ column }) => <DataTableColumnHeader column={column} label="Subject" />,
+    //   cell: ({ getValue }) => (
+    //     <span className="text-xs text-foreground/90 break-words whitespace-break-spaces">
+    //       {getValue<string>()}
+    //     </span>
+    //   ),
+    //   // meta: {
+    //   //   label: "Subject",
+    //   //   variant: "text",
+    //   // },
+    //   enableSorting: true,
+    //   enableColumnFilter: true,
+    //   size: 250,
+    // },
+    {
+      id: "category",
+      accessorKey: "category",
+      header: ({ column }) => <DataTableColumnHeader column={column} label="Category" />,
+      cell: ({ getValue }) => (
+        <span className="text-xs text-muted-foreground">{getValue<CATEGORIES_TYPE>()}</span>
+      ),
+      enableSorting: true,
+      size: 140,
+      meta: {
+        label: "Category",
+        variant: "multiSelect",
+        options: CATEGORIES,
+      },
+      enableColumnFilter: true,
+    },
+    {
+      id: "priority",
+      accessorKey: "priority",
+      header: ({ column }) => <DataTableColumnHeader column={column} label="Priority" />,
+      cell: ({ getValue }) => (
+        <Badge variant={getValue<PRIORITIES_TYPE>() as PRIORITIES_TYPE} className="capitalize">
+          {getValue<PRIORITIES_TYPE>().replaceAll("_", " ")}
+        </Badge>
+      ),
+      enableSorting: true,
+      size: 110,
+      meta: {
+        label: "Priority",
+        variant: "select",
+        options: PRIORITIES,
+      },
+      enableColumnFilter: true,
+    },
+    {
+      id: "status",
+      accessorKey: "status",
+      header: ({ column }) => <DataTableColumnHeader column={column} label="Status" />,
+      cell: ({ getValue }) => (
+        <Badge variant={getValue<STATUS_TYPE>() as STATUS_TYPE} className="capitalize">
+          {getValue<STATUS_TYPE>().replaceAll("_", " ")}
+        </Badge>
+      ),
+      enableSorting: true,
+      size: 120,
+      meta: {
+        label: "Status",
+        variant: "select",
+        options: STATUS,
+      },
+      enableColumnFilter: true,
+    },
+    {
+      accessorKey: "created_by",
+      header: ({ column }) => <DataTableColumnHeader column={column} label="Created By" />,
+      cell: ({ getValue }) => {
+        const createdBy = getValue<CreatedBy>()
 
-      return (
-        <span className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Avatar>
-            <AvatarFallback>{assignedTo?.first_name?.[0] ?? "?"}</AvatarFallback>
-          </Avatar>
+        return (
+          <span className="flex items-center gap-2 w-full text-xs text-foreground/90 break-words whitespace-break-spaces">
+            <Avatar>
+              <AvatarFallback>{createdBy?.first_name?.[0].toUpperCase() ?? "?"}</AvatarFallback>
+            </Avatar>
+            <span className="w-[80%] break-words whitespace-break-spaces">{createdBy?.email ?? "N/A"}</span>
 
-          {assignedTo?.first_name ?? "N/A"}
+          </span>
+        )
+      },
+      enableSorting: true,
+      size: 300,
+    },
+    {
+      id: "assigned_to",
+      accessorKey: "assigned_to",
+      header: ({ column }) => <DataTableColumnHeader column={column} label="Assigned To" />,
+      cell: ({ getValue }) => {
+        const assignedTo = getValue<AssignedTo>()
+
+        return (
+          <span className="flex items-center gap-2 w-full text-xs text-foreground/90 break-words whitespace-break-spaces">
+            <Avatar>
+              <AvatarFallback>{assignedTo?.first_name?.[0].toUpperCase() ?? "?"}</AvatarFallback>
+            </Avatar>
+            <span className="w-[80%] break-words whitespace-break-spaces">{assignedTo?.email ?? "N/A"}</span>
+
+          </span>
+        )
+      },
+      enableSorting: true,
+      size: 300,
+      meta: {
+        label: "Assigned To",
+        variant: "select",
+        options: assigneesOptions ?? [],
+      },
+      enableColumnFilter: true,
+    },
+    {
+      id: "created_at",
+      accessorKey: "created_at",
+      header: ({ column }) => <DataTableColumnHeader column={column} label="Created At" />,
+      cell: ({ getValue }) => (
+        <span className="text-xs text-muted-foreground break-all">
+          {formatDate(getValue<string>())}
         </span>
-      )
+      ),
+      enableSorting: true,
+      size: 180,
+      meta: {
+        label: "Created at",
+        variant: "date",
+      },
+      enableColumnFilter: true,
     },
-    enableSorting: true,
-    size: 200,
-  },
-  {
-    id: "created_at",
-    accessorKey: "created_at",
-    header: ({ column }) => <DataTableColumnHeader column={column} label="Created At" />,
-    cell: ({ getValue }) => (
-      <span className="text-xs text-muted-foreground break-all">
-        {formatDate(getValue<string>())}
-      </span>
-    ),
-    enableSorting: true,
-    size: 180,
-    meta: {
-      label: "Created at",
-      variant: "date",
-    },
-    enableColumnFilter: true,
-  },
 
-  {
-    accessorKey: "updated_at",
-    header: ({ column }) => <DataTableColumnHeader column={column} label="Updated At" />,
-    cell: ({ getValue }) => (
-      <span className="text-xs text-muted-foreground">{formatDate(getValue<string>())}</span>
-    ),
-    enableSorting: true,
-    size: 180,
-  },
-  {
-    id: "actions",
-    header: "",
-    enableSorting: false,
-    cell: ({ row }) => (
-      <RowMenu row={row.original} setOpen={setOpenTicket} setCurrentDetails={setCurrentDetails} />
-    ),
-    size: 60,
-  },
-]
+    {
+      accessorKey: "updated_at",
+      header: ({ column }) => <DataTableColumnHeader column={column} label="Updated At" />,
+      cell: ({ getValue }) => (
+        <span className="text-xs text-muted-foreground">{formatDate(getValue<string>())}</span>
+      ),
+      enableSorting: true,
+      size: 180,
+    },
+    {
+      id: "actions",
+      header: "",
+      enableSorting: false,
+      cell: ({ row }) => (
+        <RowMenu row={row.original} setOpen={setOpenTicket} setCurrentDetails={setCurrentDetails} />
+      ),
+      size: 60,
+    },
+  ];
+}
 
 export function TicketsTable() {
   const [page] = useQueryState("page", parseAsInteger.withDefault(1))
@@ -265,8 +274,18 @@ export function TicketsTable() {
   const [priority] = useQueryState("priority", parseAsArrayOf(parseAsString).withDefault([]))
   const [status] = useQueryState("status", parseAsArrayOf(parseAsString).withDefault([]))
   const [created_at] = useQueryState("created_at", parseAsString.withDefault(""))
+  const [assigned_to] = useQueryState("assigned_to",parseAsArrayOf(parseAsString).withDefault([]))
 
-  const { data: assignees } = useGetAssignees()
+  const { data: assignees, isLoading: isAsssigneesLoading, isFetching: isFetchingAssignees,
+    isRefetching: isRefetchingAssignees } = useGetAssignees()
+
+  const assigneesOptions = useMemo(() => {
+    if (!assignees) return []
+    return assignees.map((asigne: AuthUser) => ({
+      label: `${asigne?.email}`,
+      value: asigne?.id,
+    }))
+  }, [assignees, isFetchingAssignees, isRefetchingAssignees])
   const {
     data: ticketsData,
     isLoading,
@@ -281,6 +300,7 @@ export function TicketsTable() {
       priority: priority?.[0] ?? "",
       status: status?.[0] ?? "",
       created_at,
+      assigned_to: assigned_to?.[0] ?? "",
     },
   })
   // const { createTicket } = useCreateTicket()
@@ -298,9 +318,24 @@ export function TicketsTable() {
     // send to API or mutate state
   }
 
+  const assigneeKey = useMemo(
+    () => (assigneesOptions ?? []).map((x: { value: string }) => x.value).join("|"),
+    [assigneesOptions]
+  );
+
+  const columns = useMemo(
+    () =>
+      getColumns({
+        setOpenTicket,
+        setCurrentDetails,
+        assigneesOptions: assigneesOptions ?? [],
+      }),
+    [setOpenTicket, setCurrentDetails, assigneeKey, isAsssigneesLoading, isFetchingAssignees,
+      isRefetchingAssignees]
+  );
   const { table } = useDataTable({
     data: ticketsData?.data || [],
-    columns: getColumns({ setOpenTicket, setCurrentDetails }),
+    columns,
     pageCount: ticketsData?.totalPages || 0,
     getRowId: (row) => row.id,
     initialState: {
@@ -316,7 +351,7 @@ export function TicketsTable() {
       <div className="overflow-hidden rounded-lg border bg-card w-full">
         <div className="data-table-container p-2">
           <DataTable table={table} isLoading={isTicketsLoading}>
-            <DataTableToolbar table={table}></DataTableToolbar>
+            <DataTableToolbar key={assigneeKey} table={table}></DataTableToolbar>
           </DataTable>
         </div>
       </div>
@@ -326,10 +361,7 @@ export function TicketsTable() {
           open={openTicket}
           onOpenChange={setOpenTicket}
           ticket={currentDetails}
-          assignees={assignees?.map((asigne: AuthUser) => ({
-            label: `${asigne?.first_name ?? "Not Available"} ${asigne?.last_name ?? ""} - (${asigne?.email})`,
-            value: asigne?.id,
-          }))}
+          assignees={assigneesOptions}
           onSubmit={handleSubmit}
           isLoading={isUpdatingTicket}
         />

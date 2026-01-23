@@ -52,6 +52,7 @@ export type TicketFilters = {
   priority?: string | null
   status?: string | null
   created_at?: string | null
+  assigned_to?: string | null
 }
 
 export type CreateTicketValues = z.infer<typeof createTicketSchema>

@@ -6,32 +6,43 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSkeleton,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { RoleValue } from "@/constants/auth";
 
 export function NavSecondary({
+  role,
   items,
+  isLoading,
 }: {
+  isLoading: boolean,
+  role?: RoleValue | null,
   items: {
-    title: string;
-    url: string;
-    icon: LucideIcon;
+    label: string
+    href: string
+    icon: React.ComponentType<React.SVGProps<SVGSVGElement>>
+    roles: readonly string[]
   }[];
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
   const pathName = usePathname()
   return (
     <SidebarMenu>
-      {items.map((item) => (
-        <SidebarMenuItem key={item.title}>
-          <SidebarMenuButton asChild className={`text-muted-foreground rounded ${pathName.startsWith("/support") && "bg-sidebar-accent text-sidebar-accent-foreground"}`}>
-            <Link href={item.url}>
-              <item.icon />
-              <span>{item.title}</span>
-            </Link>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      ))}
+      {isLoading ?
+        <div className="flex flex-col gap-2">
+          {[1, 2]?.map((skel) => <SidebarMenuSkeleton className="border border-gray-100 m-1 p-4 justify-between" key={skel} />)}
+        </div>
+        : items.filter((item) => item.roles.includes(role as string)).map((item) => (
+          <SidebarMenuItem key={item.label}>
+            <SidebarMenuButton asChild className={`text-muted-foreground rounded ${pathName.startsWith("/support") && "bg-sidebar-accent text-sidebar-accent-foreground"}`}>
+              <Link href={item.href}>
+                <item.icon />
+                <span>{item.label}</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        ))}
     </SidebarMenu>
   );
 }

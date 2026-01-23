@@ -4,6 +4,7 @@ import { DataTable } from "@/components/data-table/data-table"
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar"
 import { Checkbox } from "@/components/ui/checkbox"
+import { STATUS } from "@/constants/select-options"
 import { useDataTable } from "@/hooks/use-data-table"
 import { useProjects } from "@/hooks/useProjects"
 import { formatDate } from "@/lib/format"
@@ -126,10 +127,7 @@ const columns: ColumnDef<Project>[] = [
     meta: {
       label: "Status",
       variant: "select",
-      options: [
-        { label: "Active", value: "active" },
-        { label: "Inactive", value: "inactive" },
-      ],
+      options: STATUS,
     },
   },
   {

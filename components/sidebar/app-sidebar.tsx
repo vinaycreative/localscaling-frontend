@@ -7,11 +7,13 @@ import { NavUser } from "@/components/sidebar/nav-user"
 import { NavMain } from "./nav-main"
 import { NavSecondary } from "./nav-secondary"
 import { useLoggedInUser } from "@/hooks/useAuth"
+import { Role } from "@/constants/auth"
 
 type NavSecondaryType = {
-  title: string
-  url: string
-  icon: LucideIcon
+  label: string
+  href: string
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>
+  roles: readonly string[]
 }
 
 const data = {
@@ -22,15 +24,16 @@ const data = {
 
   navSecondary: [
     {
-      title: "Support",
-      url: "/support",
+      label: "Support",
+      href: "/support",
       icon: MessageCircle,
+      roles: [Role.client],
     },
   ],
 }
 
 export default function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
-  const { user } = useLoggedInUser()
+  const { user, isLoading } = useLoggedInUser()
 
   const navSecondaryItems: NavSecondaryType[] = data?.navSecondary
 
@@ -39,13 +42,14 @@ export default function AppSidebar(props: React.ComponentProps<typeof Sidebar>) 
       <SidebarHeader className="h-16 bg-background rounded-t-md">
         <div className="flex h-full w-full items-center justify-start px-2">
           <Image src="/logo.svg" alt="Logo" width={100} height={50} className="w-40" />
+
         </div>
       </SidebarHeader>
       <SidebarContent className="bg-background">
-        <NavMain initialRole={user?.role} />
+        <NavMain isLoading={isLoading} role={user?.role} />
       </SidebarContent>
       <SidebarFooter className="bg-background rounded-b-md">
-        <NavSecondary items={navSecondaryItems} className="mt-auto" />
+        <NavSecondary role={user?.role} isLoading={isLoading} items={navSecondaryItems} className="mt-auto" />
         <NavUser />
       </SidebarFooter>
     </Sidebar>

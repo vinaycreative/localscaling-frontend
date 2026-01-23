@@ -29,7 +29,7 @@ import { DataTableColumnHeader } from "@/components/data-table/data-table-column
 import { ColumnDef } from "@tanstack/react-table"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { useCreateTicket, useGetTickets } from "@/hooks/useTickets"
-import { CATEGORIES, PRIORITIES, PRIORITIES_TYPE, STATUS_TYPE } from "@/constants/select-options"
+import { CATEGORIES, PRIORITIES, PRIORITIES_TYPE, STATUS, STATUS_TYPE } from "@/constants/select-options"
 import { formatDate } from "@/lib/format"
 
 export const getColumns = ({
@@ -167,10 +167,7 @@ export const getColumns = ({
     meta: {
       label: "Status",
       variant: "select",
-      options: [
-        { label: "Open", value: "open", icon: CheckCircle },
-        { label: "Resolved", value: "resolved", icon: XCircle },
-      ],
+      options: STATUS,
     },
     enableColumnFilter: true,
   },
@@ -181,17 +178,17 @@ export const getColumns = ({
       const createdBy = getValue<CreatedBy>()
 
       return (
-        <span className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Avatar>
-            <AvatarFallback>{createdBy?.first_name?.[0] ?? "?"}</AvatarFallback>
-          </Avatar>
+        <span className="flex items-center gap-2 w-full text-xs text-foreground/90 break-words whitespace-break-spaces">
+            <Avatar>
+              <AvatarFallback>{createdBy?.first_name?.[0].toUpperCase() ?? "?"}</AvatarFallback>
+            </Avatar>
+            <span className="w-[80%] break-words whitespace-break-spaces">{createdBy?.email ?? createdBy?.first_name ?? "N/A"}</span>
 
-          {createdBy?.first_name ?? "Unknown"}
-        </span>
+          </span>
       )
     },
     enableSorting: true,
-    size: 200,
+    size: 300,
   },
   {
     accessorKey: "assigned_to",
@@ -200,13 +197,13 @@ export const getColumns = ({
       const assignedTo = getValue<AssignedTo>()
 
       return (
-        <span className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Avatar>
-            <AvatarFallback>{assignedTo?.first_name?.[0] ?? "?"}</AvatarFallback>
-          </Avatar>
+        <span className="flex items-center gap-2 w-full text-xs text-foreground/90 break-words whitespace-break-spaces">
+            <Avatar>
+              <AvatarFallback>{assignedTo?.first_name?.[0].toUpperCase() ?? "?"}</AvatarFallback>
+            </Avatar>
+            <span className="w-[80%] break-words whitespace-break-spaces">{assignedTo?.email ?? "N/A"}</span>
 
-          {assignedTo?.first_name ?? "N/A"}
-        </span>
+          </span>
       )
     },
     enableSorting: true,

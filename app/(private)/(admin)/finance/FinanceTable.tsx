@@ -13,6 +13,7 @@ import z from "zod"
 import { useLoggedInUser } from "@/hooks/useAuth"
 import { formatDate } from "@/lib/format"
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs"
+import { STATUS } from "@/constants/select-options"
 
 type Client = z.infer<typeof getClientsSchema>
 
@@ -75,16 +76,7 @@ const columns: ColumnDef<Client>[] = [
     meta: {
       label: "Status",
       variant: "select",
-      options: [
-        {
-          label: "Active",
-          value: "active",
-        },
-        {
-          label: "Inactive",
-          value: "inactive",
-        },
-      ],
+      options: STATUS,
     },
   },
 
