@@ -18,6 +18,7 @@ interface DataTableProps<TData> extends React.ComponentProps<"div"> {
   table: TanstackTable<TData>
   actionBar?: React.ReactNode
   isLoading?: boolean
+  containerClassName?: string
 }
 
 export function DataTable<TData>({
@@ -25,6 +26,7 @@ export function DataTable<TData>({
   actionBar,
   children,
   className,
+  containerClassName,
   isLoading = false,
   ...props
 }: DataTableProps<TData>) {
@@ -36,7 +38,8 @@ export function DataTable<TData>({
         className="text-xs table-fixed w-full"
         containerClassName={cn(
           "relative min-h-[64vh] max-h-[64vh] rounded-md border w-full",
-          isEmpty && "overflow-hidden overflow-x-hidden"
+          isEmpty && "overflow-hidden overflow-x-hidden",
+          containerClassName
         )}
       >
         <TableHeader>

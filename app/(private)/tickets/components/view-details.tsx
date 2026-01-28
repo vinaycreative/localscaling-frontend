@@ -40,6 +40,7 @@ import { PRIORITIES, PRIORITIES_TYPE, STATUS, STATUS_TYPE } from "@/constants/se
 import { SimpleSelect } from "@/components/ui/react-select"
 import { OptionObj } from "@/components/ui/react-select/types"
 import { Loader2 } from "lucide-react"
+import { AttachmentGallery } from "@/components/ui/attachment-gallery/attachment-gallery"
 
 export type TicketDetailsModalProps = {
   isLoading: boolean
@@ -103,7 +104,7 @@ export function TicketDetailsModal({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[60dvw] p-0">
+        <DialogContent className="sm:max-w-[80dvw] p-0">
           <DialogHeader className="px-6 pt-6">
             <DialogDescription className="text-md text-accent-foreground">
               View and edit ticket
@@ -283,7 +284,8 @@ export function TicketDetailsModal({
                   <div className="space-y-2">
                     <FormLabel className="text-xs">Attachments</FormLabel>
 
-                    <div className="grid grid-cols-3 gap-2 space-y-2">
+ <AttachmentGallery urls={ticket?.files ?? []} />
+                    {/* <div className="grid grid-cols-3 gap-2 space-y-2">
                       {ticket?.files?.length ? (
                         ticket?.files.map((f) => {
                           const isImageUrl = (url: string) => {
@@ -296,7 +298,7 @@ export function TicketDetailsModal({
                       ) : (
                         <p className="text-xs text-muted-foreground">No attachments</p>
                       )}
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </ScrollArea>

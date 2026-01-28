@@ -13,12 +13,13 @@ import {
   Paperclip,
   Layers2,
   MessagesSquare,
+  Edit,
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { TicketDetailsModal } from "./view-details"
 import { useState, useMemo } from "react"
-import { AssignedTo, CreatedBy, Ticket, UpdateTicketPayload } from "@/types/support"
+import { AssignedTo, BulkUpdateTicketsPayload, CreatedBy, Ticket, UpdateTicketPayload } from "@/types/support"
 import { DataTable } from "@/components/data-table/data-table"
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar"
 import { parseAsArrayOf, parseAsInteger, parseAsString, useQueryState } from "nuqs"
@@ -26,7 +27,7 @@ import { useDataTable } from "@/hooks/use-data-table"
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
 import { ColumnDef } from "@tanstack/react-table"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { useGetTickets, useUpdateTicket } from "@/hooks/useTickets"
+import { useBulkUpdateTickets, useGetTickets, useUpdateTicket } from "@/hooks/useTickets"
 import {
   CATEGORIES,
   CATEGORIES_TYPE,
@@ -39,15 +40,21 @@ import { formatDate } from "@/lib/format"
 
 import { useGetAssignees } from "@/hooks/useAssignees"
 import { AuthUser } from "@/lib/auth/schema"
+import { BulkUpdateModal } from "./bulk-update-modal"
+import { useIsMobile } from "@/hooks/use-mobile"
+import { useLoggedInUser } from "@/hooks/useAuth"
+import { toast } from "sonner"
 
 export const getColumns = ({
   setOpenTicket,
   setCurrentDetails,
-  assigneesOptions
+  assigneesOptions,
+  isMobile
 }: {
   setOpenTicket: React.Dispatch<React.SetStateAction<boolean>>
   setCurrentDetails: React.Dispatch<React.SetStateAction<Ticket | null>>
   assigneesOptions: { label: string; value: string }[]
+  isMobile: boolean
 }): ColumnDef<Ticket>[] => {
   return [
     {
@@ -94,7 +101,7 @@ export const getColumns = ({
         )
       },
       enableSorting: true,
-      size: 300,
+      size: isMobile ? 100 : 300,
     },
     {
       id: "title",
@@ -267,6 +274,7 @@ export const getColumns = ({
 }
 
 export function TicketsTable() {
+  const { isLoading:userDetailsloading} = useLoggedInUser()
   const [page] = useQueryState("page", parseAsInteger.withDefault(1))
   const [perPage] = useQueryState("perPage", parseAsInteger.withDefault(10))
   const [title] = useQueryState("title", parseAsString.withDefault(""))
@@ -274,7 +282,7 @@ export function TicketsTable() {
   const [priority] = useQueryState("priority", parseAsArrayOf(parseAsString).withDefault([]))
   const [status] = useQueryState("status", parseAsArrayOf(parseAsString).withDefault([]))
   const [created_at] = useQueryState("created_at", parseAsString.withDefault(""))
-  const [assigned_to] = useQueryState("assigned_to",parseAsArrayOf(parseAsString).withDefault([]))
+  const [assigned_to] = useQueryState("assigned_to", parseAsArrayOf(parseAsString).withDefault([]))
 
   const { data: assignees, isLoading: isAsssigneesLoading, isFetching: isFetchingAssignees,
     isRefetching: isRefetchingAssignees } = useGetAssignees()
@@ -305,15 +313,30 @@ export function TicketsTable() {
   })
   // const { createTicket } = useCreateTicket()
   const { updateTicket, isPending: isUpdatingTicket } = useUpdateTicket()
+  const { bulkUpdateTickets, isPending: isBulkUpdatingTickets } = useBulkUpdateTickets()
   const [openTicket, setOpenTicket] = useState(false) // to open the view details modal
+  const [openBulkUpdateModal, setOpenBulkUpdateModal] = useState(false) // to open the Bulk Updates modal
   const [currentDetails, setCurrentDetails] = useState<Ticket | null>(null)
-  const isTicketsLoading = isLoading || isFetching || isRefetching || isUpdatingTicket
+  const isTicketsLoading = userDetailsloading || isLoading || isFetching || isRefetching || isUpdatingTicket
+
+  const isMobile = useIsMobile() ?? false
 
   const handleSubmit = async (values: UpdateTicketPayload) => {
     try {
       await updateTicket(values)
     } catch (error) {
       console.log("🚀 ~ handleSubmit ~ error:", error)
+    }
+    // send to API or mutate state
+  }
+
+  const handleBulkUpdateSubmit = async (values: BulkUpdateTicketsPayload) => {
+    try {
+      const response = await bulkUpdateTickets(values)
+      console.log("🚀 ~ handleBulkUpdateSubmit ~ response:", response)
+      setOpenBulkUpdateModal(false)
+    } catch (error) {
+      console.log("🚀 ~ handleBulkUpdateSubmit ~ error:", error)
     }
     // send to API or mutate state
   }
@@ -329,9 +352,10 @@ export function TicketsTable() {
         setOpenTicket,
         setCurrentDetails,
         assigneesOptions: assigneesOptions ?? [],
+        isMobile: isMobile ?? false
       }),
     [setOpenTicket, setCurrentDetails, assigneeKey, isAsssigneesLoading, isFetchingAssignees,
-      isRefetchingAssignees]
+      isRefetchingAssignees, isMobile]
   );
   const { table } = useDataTable({
     data: ticketsData?.data || [],
@@ -350,7 +374,23 @@ export function TicketsTable() {
     <>
       <div className="overflow-hidden rounded-lg border bg-card w-full">
         <div className="data-table-container p-2">
-          <DataTable table={table} isLoading={isTicketsLoading}>
+          <DataTable table={table} isLoading={isTicketsLoading}
+            actionBar={
+              <div className="fixed bottom-4 left-1/2 z-50 -translate-x-1/2 bg-background border border-input backdrop-blur p-2 sm:p-3 rounded-full shadow-xl transition-all duration-200 ease-out">
+
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => {
+                    setOpenBulkUpdateModal(true)
+                  }}
+                  className="px-6 py-3 shadow-lg"
+                >
+                  Bulk Update <Edit />
+                </Button>
+              </div>
+            }
+          >
             <DataTableToolbar key={assigneeKey} table={table}></DataTableToolbar>
           </DataTable>
         </div>
@@ -365,6 +405,27 @@ export function TicketsTable() {
           onSubmit={handleSubmit}
           isLoading={isUpdatingTicket}
         />
+      )}
+      { openBulkUpdateModal && (
+        <BulkUpdateModal
+          open={openBulkUpdateModal}
+          onOpenChange={setOpenBulkUpdateModal}
+          ticket={{ ids: table.getSelectedRowModel().rows.map((row) => row.original.id) as string[] }}
+          assignees={assigneesOptions}
+          onSubmit={(values) => {
+            handleBulkUpdateSubmit(values)
+          }}
+          isLoading={isBulkUpdatingTickets}
+
+        >
+          <div className="w-full overflow-scroll">
+            <DataTable table={table} isLoading={isTicketsLoading || isBulkUpdatingTickets}
+              containerClassName="min-h-[54vh] max-h-[54vh] md:min-h-[54vh] md:max-h-[54vh]"
+            >
+              {/* <DataTableToolbar key={assigneeKey} table={table}></DataTableToolbar> */}
+            </DataTable>
+          </div>
+        </BulkUpdateModal>
       )}
     </>
   )
