@@ -78,3 +78,10 @@ export type UpdateTicketPayload = {
   attachments?: TicketAttachment[]
   files?: string[]
 }
+
+export type BulkUpdateTicketsPayload = {
+  ids: string[]
+  assigned_to?: string
+  priority?: PriorityType
+  status?: Status
+}

@@ -1,4 +1,4 @@
-import { createTicket, getTickets, updateTicket } from "@/api/tickets"
+import { bulkUpdateTickets, createTicket, getTickets, updateTicket } from "@/api/tickets"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { getApiErrorMessage } from "@/utils/formatAxiosError"
 import { toast } from "sonner"
@@ -37,6 +37,19 @@ export const useUpdateTicketMutation = () => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: updateTicket,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tickets"] })
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error))
+    },
+  })
+}
+
+export const useBulkUpdateTicketsMutation = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: bulkUpdateTickets,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tickets"] })
     },
